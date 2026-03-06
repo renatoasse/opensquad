@@ -538,15 +538,18 @@ agent:
             ✅ CORRETO: 5 perspectivas sobre a MESMA notícia = 5 ângulos
             ❌ ERRADO: 5 notícias diferentes = NÃO são ângulos, são pautas distintas
 
-         a. **Researcher agent** (handles research + angle identification):
+         a. **Researcher agent** (handles news discovery and ranking only — never angles):
             - Design from scratch, using knowledge from `_opensquad/core/best-practices/researching.md` to create a high-quality research agent
-            - The researcher handles web research OR fixed-source analysis and produces angle identification in its output
+            - The researcher finds and ranks source material only. Angle generation is NEVER the researcher's job — it belongs to the creator agent, after the user selects a story (see rule 3b).
             - Create tasks/ directory with granular tasks based on performance_mode:
-              - Alta Performance: research-source.md → extract-insights.md → identify-angles.md (3 tasks)
-              - Econômico: research-and-extract.md → identify-angles.md (2 tasks)
-            - After research, add checkpoint for user to select angle(s)
+              - Alta Performance: find-news.md → rank-stories.md (2 tasks)
+              - Econômico: find-and-rank-news.md (1 task)
+            - After research, add news selection checkpoint (user picks ONE story)
 
          b. **Platform-specific Creator agents**:
+            - **For news-based squads**: the creator is responsible for angle generation. Prepend `generate-angles.md` as the creator's FIRST task. This task runs in a dedicated pipeline step AFTER the news selection checkpoint — it generates 5 distinct angles from the ONE selected story. An angle selection checkpoint follows immediately. The content creation tasks run in a SEPARATE pipeline step AFTER angle selection.
+              - Alta Performance (news-based): `generate-angles.md` [step A, after news selection] → 🛑 Angle Selection → `create-{format}.md → optimize-{format}.md` [step B, after angle selection]
+              - Econômico (news-based): `generate-angles.md` [step A, after news selection] → 🛑 Angle Selection → `create-{format}.md` [step B, optimization embedded]
             - Design from scratch, using knowledge from `_opensquad/core/best-practices/copywriting.md` and the relevant platform best-practice file (e.g., `instagram-feed.md`) to create a high-quality creator agent
             - Use the format system: assign `format: {format-id}` to each creator step
               (e.g., `format: instagram-feed`). The Pipeline Runner injects the format
@@ -569,7 +572,7 @@ agent:
 
          d. **Pipeline pattern**:
             - Standard (fixed source): Research → 🛑 Angle Selection → Creation → 🛑 Content Approval → [Execution Steps] → Review → 🛑 Final Approval
-            - News-based (multiple stories): Research → 🛑 News Selection → 🛑 Angle Selection → Creation → 🛑 Content Approval → [Execution Steps] → Review → 🛑 Final Approval
+            - News-based (multiple stories): Research → 🛑 News Selection → Creator[generate-angles] → 🛑 Angle Selection → Creator[create+optimize] → 🛑 Content Approval → [Execution Steps] → Review → 🛑 Final Approval
             - **Content Approval checkpoint is MANDATORY** whenever the pipeline includes any execution step after content creation (image generation, visual rendering, publishing, distribution, etc.). Never place an execution step immediately after a creation step without a checkpoint in between.
             - On reject: loop back to creation step (re-execute full creator, not individual tasks)
             - Creators for different platforms run as parallel subagents
@@ -600,7 +603,7 @@ agent:
          ...
 
          Pipeline (fixed source): [Research] → 🛑 Select Angle → [Creator] → 🛑 Approve Content → [Execution] → [Review] → 🛑 Approve
-         Pipeline (news-based): [Research] → 🛑 Select News → 🛑 Select Angle → [Creator] → 🛑 Approve Content → [Execution] → [Review] → 🛑 Approve
+         Pipeline (news-based): [Research] → 🛑 Select News → [Creator: generate angles] → 🛑 Select Angle → [Creator: create content] → 🛑 Approve Content → [Execution] → [Review] → 🛑 Approve
          Formats: [list of selected formats, e.g., instagram-feed, twitter-thread]
          Mode: [Alta Performance / Econômico]
 
