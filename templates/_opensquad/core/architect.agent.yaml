@@ -474,13 +474,15 @@ agent:
          - Add checkpoints at user decision points
          - Include on_reject loops from reviewer back to writer
 
-      > ⚠️ PATH RULE — agent step outputFile: The `outputFile` of a researcher step
-      > (and ANY agent step) MUST always use `squads/{code}/output/{filename}` as its
-      > path. NEVER use `pipeline/data/` or `pipeline/` for agent step outputFiles.
+      > ⚠️ PATH RULE — agent step outputFile: For ANY agent step (researcher, writer,
+      > reviewer, etc.) the `outputFile` MUST always use `squads/{code}/output/{filename}`
+      > as its path. NEVER use `pipeline/data/` or `pipeline/` for agent step outputFiles.
       > The `pipeline/data/` directory is ONLY for reference materials created at squad
       > build time — it is NOT for pipeline execution outputs.
-      > CORRECT: `squads/{code}/output/research-brief.md`
-      > WRONG:   `squads/{code}/pipeline/data/research-brief.md`
+      > Exception: checkpoint steps that collect user input (e.g. research-focus.md) write
+      > to `pipeline/data/` — this is correct and expected behavior, not an error.
+      > CORRECT: `squads/{code}/output/article-draft.md`
+      > WRONG:   `squads/{code}/pipeline/data/article-draft.md`
 
       3. Research focus checkpoint (MANDATORY for all squads with a researcher):
          - ALWAYS generate a `type: checkpoint` step immediately BEFORE every researcher step.
@@ -886,7 +888,7 @@ agent:
                             # Use for content creation steps where platform-specific rules should guide the agent
                             # Omit for non-content steps (research, analysis, review without platform context)
       inputFile: squads/{code}/...   # path to input file from previous step
-      outputFile: squads/{code}/...  # path where this step saves its output
+      outputFile: squads/{code}/output/...  # MUST start with squads/{code}/output/ — see PATH RULE above
       model_tier: fast      # ONLY for execution: subagent. fast = lightweight model; powerful = default model
                             # Set fast for: investigator agents (data extraction, Sherlock subagents)
                             # Set powerful for: writer, creator, reviewer, strategy, researcher agents
