@@ -1,0 +1,18 @@
+# Opensquad Model Tier Configuration
+#
+# Tier meanings per environment:
+#   powerful — strongest available model
+#              Claude Code: claude-opus  |  Antigravity: Gemini Pro  |  Codex: o3
+#   fast     — fastest/lightest available model
+#              Claude Code: claude-haiku  |  Antigravity: Gemini Flash  |  Codex: gpt-4o-mini
+#
+# Rules:
+#   - orchestrator (Architect, Pipeline Runner): always powerful
+#   - writer (content creation agents): always powerful — quality is non-negotiable
+#   - researcher (web search, domain research): fast — factual lookups don't need deep reasoning
+#   - investigator (Sherlock): fast — browser extraction doesn't need deep reasoning
+models:
+  orchestrator: powerful
+  writer: powerful
+  researcher: fast
+  investigator: fast

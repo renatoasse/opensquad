@@ -1,0 +1,36 @@
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg-primary: #1a1410;
+  --bg-secondary: #1a1a2e;
+  --bg-sidebar: #141422;
+  --border: #2a2a3e;
+  --text-primary: #e0e0e0;
+  --text-secondary: #8888a0;
+  --accent-cyan: #00d4ff;
+  --accent-green: #00e676;
+  --accent-amber: #ffab00;
+  --accent-red: #ff5252;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  font-family: "JetBrains Mono", "Fira Code", monospace;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
