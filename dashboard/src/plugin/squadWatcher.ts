@@ -1,6 +1,6 @@
 import type { Plugin, ViteDevServer } from "vite";
 import { WebSocketServer, WebSocket } from "ws";
-import type { Server, IncomingMessage } from "node:http";
+import type { Server, IncomingMessage, ServerResponse } from "node:http";
 import type { Duplex } from "node:stream";
 import fs from "node:fs";
 import path from "node:path";
@@ -16,6 +16,17 @@ function resolveSquadsDir(): string {
     if (fs.existsSync(c)) return c;
   }
   return path.resolve(process.cwd(), "../squads"); // default (will be created on demand)
+}
+
+function resolveProjectDir(): string {
+  const candidates = [
+    path.resolve(process.cwd(), ".."),  // started from dashboard/
+    process.cwd(),                       // started from project root
+  ];
+  for (const c of candidates) {
+    if (fs.existsSync(path.join(c, "_opensquad"))) return c;
+  }
+  return path.resolve(process.cwd(), "..");
 }
 
 function discoverSquads(squadsDir: string): SquadInfo[] {
@@ -100,12 +111,150 @@ function broadcast(wss: WebSocketServer, msg: WsMessage) {
   }
 }
 
+// SQLite database access (lazy loaded)
+let dbModule: any = null;
+
+async function getDb(projectDir: string) {
+  if (!dbModule) {
+    try {
+      // Dynamic import of the db module
+      const dbPath = path.join(projectDir, "src", "db.js");
+      if (fs.existsSync(dbPath)) {
+        dbModule = await import(dbPath);
+        await dbModule.initDb(projectDir);
+      }
+    } catch (e) {
+      console.error("[squad-watcher] Failed to load db module:", e);
+    }
+  }
+  return dbModule;
+}
+
+// REST API handlers
+async function handleApiRequest(
+  req: IncomingMessage,
+  res: ServerResponse,
+  projectDir: string
+): Promise<boolean> {
+  const url = req.url || "";
+
+  if (!url.startsWith("/__api/")) {
+    return false;
+  }
+
+  res.setHeader("Content-Type", "application/json");
+
+  try {
+    const db = await getDb(projectDir);
+
+    if (!db) {
+      res.statusCode = 503;
+      res.end(JSON.stringify({ error: "Database not available" }));
+      return true;
+    }
+
+    // GET /__api/companies
+    if (url === "/__api/companies") {
+      const companies = db.listCompanies();
+      res.end(JSON.stringify(companies));
+      return true;
+    }
+
+    // GET /__api/products
+    if (url === "/__api/products" || url.startsWith("/__api/products?")) {
+      const urlObj = new URL(url, "http://localhost");
+      const companyId = urlObj.searchParams.get("company_id");
+
+      const products = companyId
+        ? db.listProducts(companyId)
+        : db.listAllProducts();
+
+      res.end(JSON.stringify(products));
+      return true;
+    }
+
+    // GET /__api/squads
+    if (url === "/__api/squads" || url.startsWith("/__api/squads?")) {
+      const urlObj = new URL(url, "http://localhost");
+      const productId = urlObj.searchParams.get("product_id");
+
+      const squads = productId
+        ? db.listSquads(productId)
+        : db.listAllSquads();
+
+      res.end(JSON.stringify(squads));
+      return true;
+    }
+
+    // GET /__api/runs/:squadCode
+    const runsMatch = url.match(/^\/__api\/runs\/([^/?]+)/);
+    if (runsMatch) {
+      const squadCode = runsMatch[1];
+      const squad = db.getSquadByCode(squadCode);
+
+      if (!squad) {
+        res.statusCode = 404;
+        res.end(JSON.stringify({ error: "Squad not found" }));
+        return true;
+      }
+
+      const runs = db.listRuns(squad.id, { limit: 50 });
+      res.end(JSON.stringify(runs));
+      return true;
+    }
+
+    // GET /__api/run/:runId
+    const runMatch = url.match(/^\/__api\/run\/([^/?]+)/);
+    if (runMatch) {
+      const runId = runMatch[1];
+      const run = db.getRunById(runId);
+
+      if (!run) {
+        res.statusCode = 404;
+        res.end(JSON.stringify({ error: "Run not found" }));
+        return true;
+      }
+
+      const steps = db.listRunSteps(runId);
+      res.end(JSON.stringify({ run, steps }));
+      return true;
+    }
+
+    // GET /__api/context
+    if (url === "/__api/context") {
+      const context = db.getActiveContext();
+      res.end(JSON.stringify(context));
+      return true;
+    }
+
+    // GET /__api/stats
+    if (url === "/__api/stats") {
+      const stats = db.getStats();
+      res.end(JSON.stringify(stats));
+      return true;
+    }
+
+    // Unknown API endpoint
+    res.statusCode = 404;
+    res.end(JSON.stringify({ error: "Not found" }));
+    return true;
+
+  } catch (e: any) {
+    console.error("[squad-watcher] API error:", e);
+    res.statusCode = 500;
+    res.end(JSON.stringify({ error: e.message }));
+    return true;
+  }
+}
+
 export function squadWatcherPlugin(): Plugin {
   return {
     name: "squad-watcher",
     configureServer(server: ViteDevServer) {
       const squadsDir = resolveSquadsDir();
+      const projectDir = resolveProjectDir();
       server.config.logger.info(`[squad-watcher] squads dir: ${squadsDir}`);
+      server.config.logger.info(`[squad-watcher] project dir: ${projectDir}`);
 
       // Create WebSocket server with noServer to avoid intercepting Vite's HMR
       const wss = new WebSocketServer({ noServer: true });
@@ -121,6 +270,14 @@ export function squadWatcherPlugin(): Plugin {
       // Send snapshot on new connection
       wss.on("connection", (ws) => {
         ws.send(JSON.stringify(buildSnapshot(squadsDir)));
+      });
+
+      // Add middleware for REST API
+      server.middlewares.use(async (req, res, next) => {
+        const handled = await handleApiRequest(req, res, projectDir);
+        if (!handled) {
+          next();
+        }
       });
 
       // Ensure squads directory exists
@@ -174,4 +331,3 @@ export function squadWatcherPlugin(): Plugin {
     },
   };
 }
-

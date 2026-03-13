@@ -68,10 +68,11 @@ export async function init(targetDir, options = {}) {
   await copyCommonTemplates(targetDir);
   await copyIdeTemplates(ides, targetDir);
   await installAllSkills(targetDir);
+  await installBundledAgents(targetDir);
   if (!options._skipPrompts) {
     await installDependencies(targetDir);
   }
-  await writeProjectReadme(targetDir);
+  await writeProjectReadme(targetDir, language);
 
   // Write user preferences
   const prefsPath = join(targetDir, '_opensquad', '_memory', 'preferences.md');
@@ -129,6 +130,39 @@ async function installAllSkills(targetDir) {
   }
 }
 
+async function installBundledAgents(targetDir) {
+  const agentsTemplateDir = join(TEMPLATES_DIR, 'agents');
+  const agentsTargetDir = join(targetDir, 'agents');
+
+  let entries;
+  try {
+    entries = await readdir(agentsTemplateDir);
+  } catch {
+    // No agents directory — skip
+    return;
+  }
+
+  await mkdir(agentsTargetDir, { recursive: true });
+
+  for (const entry of entries) {
+    if (!entry.endsWith('.agent.md')) continue;
+
+    const srcPath = join(agentsTemplateDir, entry);
+    const destPath = join(agentsTargetDir, entry);
+
+    // Don't overwrite existing agent files
+    try {
+      await stat(destPath);
+      continue; // File exists — skip
+    } catch {
+      // File doesn't exist — copy it
+    }
+
+    await cp(srcPath, destPath);
+    console.log(`  ${t('createdFile', { path: `agents/${entry}` })}`);
+  }
+}
+
 async function installDependencies(targetDir) {
   console.log(`\n  Installing dependencies...`);
   execSync('npm install', { cwd: targetDir, stdio: 'inherit' });
@@ -138,9 +172,24 @@ async function installDependencies(targetDir) {
   execSync('npx playwright install chromium', { cwd: targetDir, stdio: 'inherit' });
 }
 
-async function writeProjectReadme(targetDir) {
-  const readmePath = join(__dirname, 'readme', 'README.md');
-  const content = await readFile(readmePath, 'utf-8');
+async function writeProjectReadme(targetDir, language = 'English') {
+  // Map language to readme file
+  const langToFile = {
+    'Português (Brasil)': 'README.pt-BR.md',
+    'Español': 'README.es.md',
+    'English': 'README.en.md'
+  };
+  const readmeFile = langToFile[language] || 'README.en.md';
+  const readmePath = join(__dirname, 'readme', readmeFile);
+
+  let content;
+  try {
+    content = await readFile(readmePath, 'utf-8');
+  } catch {
+    // Fallback to English if specific language file not found
+    content = await readFile(join(__dirname, 'readme', 'README.en.md'), 'utf-8');
+  }
+
   await writeFile(join(targetDir, 'README.md'), content, 'utf-8');
 }
 

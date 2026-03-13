@@ -40,6 +40,7 @@
   "dependencies": {
     "@inquirer/checkbox": "^5.1.0",
     "@inquirer/input": "^5.0.0",
-    "@inquirer/select": "^5.1.0"
+    "@inquirer/select": "^5.1.0",
+    "better-sqlite3": "^11.0.0"
   }
 }
