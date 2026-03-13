@@ -1,4 +1,4 @@
-import { cp, mkdir, readFile, stat } from 'node:fs/promises';
+import { cp, mkdir, readFile, readdir, stat } from 'node:fs/promises';
 import { join, dirname, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadLocale, t } from './i18n.js';
@@ -126,6 +126,34 @@ export async function update(targetDir) {
     await installSkill(id, targetDir);
     console.log(`  ${t('createdFile', { path: `skills/${id}/SKILL.md` })}`);
     count++;
+  }
+
+  // 6c. Install missing bundled agents (don't overwrite existing ones)
+  const agentsTemplateDir = join(TEMPLATES_DIR, 'agents');
+  const agentsTargetDir = join(targetDir, 'agents');
+  try {
+    const bundledAgents = await readdir(agentsTemplateDir);
+    await mkdir(agentsTargetDir, { recursive: true });
+
+    for (const entry of bundledAgents) {
+      if (!entry.endsWith('.agent.md')) continue;
+
+      const destPath = join(agentsTargetDir, entry);
+
+      // Don't overwrite existing agent files
+      try {
+        await stat(destPath);
+        continue; // File exists — skip
+      } catch {
+        // File doesn't exist — install it
+      }
+
+      await cp(join(agentsTemplateDir, entry), destPath);
+      console.log(`  ${t('createdFile', { path: `agents/${entry}` })}`);
+      count++;
+    }
+  } catch {
+    // No agents template directory — skip
   }
 
   // 7. Summary
