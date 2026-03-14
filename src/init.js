@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 import { cp, mkdir, readdir, readFile, writeFile, stat } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -19,8 +20,14 @@ const IDES = [
   { label: 'Antigravity', value: 'antigravity', checked: true },
   { label: 'Claude Code', value: 'claude-code' },
   { label: 'Codex (OpenAI)', value: 'codex' },
-  { label: 'Cursor', value: 'cursor' }, 
+  { label: 'Cursor', value: 'cursor' },
   { label: 'VS Code + Copilot', value: 'vscode-copilot' },
+];
+
+const KNOWLEDGE_BASES = [
+  { label: 'None (load .md files directly)', value: 'none', checked: true },
+  { label: 'Open Notebook (local, self-hosted)', value: 'open-notebook' },
+  { label: 'Google NotebookLM (cloud)', value: 'notebooklm' },
 ];
 
 export async function init(targetDir, options = {}) {
@@ -40,6 +47,7 @@ export async function init(targetDir, options = {}) {
   let language = options._language || 'English';
   let ides = options._ides ?? ['claude-code'];
   let userName = '';
+  let knowledgeBase = 'none';
 
   if (!options._skipPrompts) {
     const prompt = createPrompt();
@@ -57,6 +65,13 @@ export async function init(targetDir, options = {}) {
       userName = (await prompt.ask(`  ${t('askName')}`)).trim();
 
       ides = await prompt.multiChoose(t('chooseIdes'), IDES);
+
+      // Knowledge base selection
+      const kbChoice = await prompt.choose(
+        t('chooseKnowledgeBase') || 'Knowledge base for docs (reduces token usage):',
+        KNOWLEDGE_BASES
+      );
+      knowledgeBase = kbChoice.value;
     } finally {
       prompt.close();
     }
@@ -71,6 +86,10 @@ export async function init(targetDir, options = {}) {
   if (!options._skipPrompts) {
     await installDependencies(targetDir);
   }
+  // Setup knowledge base
+  if (knowledgeBase === 'open-notebook') {
+    await setupOpenNotebook(targetDir);
+  }
   await writeProjectReadme(targetDir);
 
   // Write user preferences
@@ -81,6 +100,7 @@ export async function init(targetDir, options = {}) {
 - **User Name:** ${userName}
 - **Output Language:** ${language}
 - **IDEs:** ${ides.join(', ')}
+- **Knowledge Base:** ${knowledgeBase}
 - **Date Format:** YYYY-MM-DD
 `;
   await writeFile(prefsPath, prefsContent, 'utf-8');
@@ -233,6 +253,64 @@ async function mergeVsCodeSettings(targetDir) {
   }
 
   await writeFile(settingsPath, JSON.stringify(parsed, null, 2), 'utf-8');
+}
+
+async function setupOpenNotebook(targetDir) {
+  const servicesDir = join(targetDir, '.opensquad-services');
+  await mkdir(servicesDir, { recursive: true });
+
+  const encryptionKey = crypto.randomUUID();
+
+  const composeContent = `services:
+  surrealdb:
+    image: surrealdb/surrealdb:v2
+    command: start --log info --user root --pass root rocksdb:/mydata/mydatabase.db
+    user: root
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./surreal_data:/mydata
+    restart: always
+    pull_policy: always
+
+  open_notebook:
+    image: lfnovo/open_notebook:v1-latest
+    ports:
+      - "8502:8502"
+      - "5055:5055"
+    environment:
+      - OPEN_NOTEBOOK_ENCRYPTION_KEY=${encryptionKey}
+      - SURREAL_URL=ws://surrealdb:8000/rpc
+      - SURREAL_USER=root
+      - SURREAL_PASSWORD=root
+      - SURREAL_NAMESPACE=open_notebook
+      - SURREAL_DATABASE=open_notebook
+    volumes:
+      - ./notebook_data:/app/data
+    depends_on:
+      - surrealdb
+    restart: always
+    pull_policy: always
+`;
+  await writeFile(join(servicesDir, 'docker-compose.yml'), composeContent, 'utf-8');
+
+  // Update .mcp.json
+  const mcpPath = join(targetDir, '.mcp.json');
+  let mcpConfig = {};
+  try {
+    mcpConfig = JSON.parse(await readFile(mcpPath, 'utf-8'));
+  } catch { /* doesn't exist yet */ }
+
+  mcpConfig.mcpServers = mcpConfig.mcpServers || {};
+  mcpConfig.mcpServers['open-notebook'] = {
+    command: 'uvx',
+    args: ['open-notebook-mcp'],
+    env: { OPEN_NOTEBOOK_URL: 'http://localhost:5055' }
+  };
+  await writeFile(mcpPath, JSON.stringify(mcpConfig, null, 2), 'utf-8');
+
+  console.log('  ✅ Open Notebook configured (.opensquad-services/)');
+  console.log('  📋 Run: npx opensquad services start');
 }
 
 export async function getTemplateEntries(dir) {

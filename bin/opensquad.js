@@ -45,6 +45,22 @@ if (command === 'init') {
   const args = positionals.slice(2);
   const result = await agentsCli(subcommand, args, process.cwd());
   if (!result.success) process.exitCode = 1;
+} else if (command === 'services') {
+  const { startServices, stopServices, healthCheck, indexDocs } = await import('../src/services.js');
+  const sub = positionals[1] || 'start';
+  if (sub === 'start') {
+    await startServices(process.cwd());
+  } else if (sub === 'stop') {
+    await stopServices(process.cwd());
+  } else if (sub === 'health') {
+    await healthCheck(process.cwd());
+  } else if (sub === 'index') {
+    await indexDocs(process.cwd());
+  } else {
+    console.log(`  Unknown services command: ${sub}`);
+    console.log(`  Available: start, stop, health, index`);
+    process.exitCode = 1;
+  }
 } else {
   console.log(`
   opensquad — Multi-agent orchestration for Claude Code
@@ -60,6 +76,10 @@ if (command === 'init') {
     npx opensquad agents install <name>   Install a predefined agent
     npx opensquad agents remove <name>    Remove an agent
     npx opensquad agents update           Update all agents
+    npx opensquad services start           Start Open Notebook + SurrealDB
+    npx opensquad services stop            Stop services
+    npx opensquad services health          Check service health
+    npx opensquad services index           Index .md files into Open Notebook
 
   Learn more: https://github.com/renatoasse/opensquad
   `);
