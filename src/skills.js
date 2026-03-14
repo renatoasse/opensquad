@@ -96,7 +96,9 @@ export async function installSkill(id, targetDir) {
     throw err;
   }
   const destDir = join(targetDir, 'skills', id);
-  await cp(srcDir, destDir, { recursive: true });
+  if (srcDir !== destDir) {
+    await cp(srcDir, destDir, { recursive: true });
+  }
 }
 
 export async function removeSkill(id, targetDir) {
