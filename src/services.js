@@ -98,10 +98,10 @@ async function ensureDocker() {
   });
   child.unref(); // Don't wait for Docker Desktop process
 
-  // Wait for Docker daemon to be ready (max 2min)
+  // Wait for Docker daemon to be ready (max 5min — cold start on Windows/WSL2 can be slow)
   process.stdout.write('  ⏳ Waiting for Docker daemon');
-  for (let i = 0; i < 40; i++) {
-    await sleep(3000);
+  for (let i = 0; i < 60; i++) {
+    await sleep(5000);
     process.stdout.write('.');
     if (isDockerRunning()) {
       console.log('\n  ✅ Docker Desktop ready.');
@@ -109,7 +109,7 @@ async function ensureDocker() {
     }
   }
 
-  console.log('\n  ⚠️  Docker Desktop started but daemon not ready yet (timeout 2min).');
+  console.log('\n  ⚠️  Docker Desktop started but daemon not ready yet (timeout 5min).');
   console.log('  Wait a moment and try again: npx opensquad services start');
   return false;
 }
@@ -456,11 +456,11 @@ export async function indexDocs(targetDir) {
     const relativePath = relative(targetDir, file.path).replace(/\\/g, '/');
 
     try {
-      await httpPost(`${API_BASE}/sources`, {
+      await httpPost(`${API_BASE}/sources/json`, {
         notebook_id: notebookId,
         content: file.content,
         title: relativePath,
-        source_type: 'text',
+        type: 'text',
       });
       indexed++;
       console.log(`  [${indexed}/${validFiles.length}] Indexed: ${relativePath}`);
