@@ -27,6 +27,12 @@ export async function loadLocale(langLabel) {
     return;
   }
 
+  // Validate locale code to prevent path traversal
+  if (!/^[a-z]{2}(-[A-Z]{2})?$/.test(code)) {
+    strings = fallback;
+    return;
+  }
+
   try {
     const localePath = join(LOCALES_DIR, `${code}.json`);
     strings = JSON.parse(await readFile(localePath, 'utf-8'));

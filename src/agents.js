@@ -1,6 +1,11 @@
 import { copyFile, mkdir, readdir, readFile, rm } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import {
+  parseFrontmatter, getField, getDescription,
+  getLocalizedDescriptions, getVersion,
+  getLocalizedDescription, validateResourceId,
+} from './frontmatter.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const BUNDLED_AGENTS_DIR = join(__dirname, '..', 'agents');
@@ -30,56 +35,25 @@ export async function listAvailable() {
 export async function getAgentMeta(id) {
   try {
     const raw = await readFile(join(BUNDLED_AGENTS_DIR, id, 'AGENT.md'), 'utf-8');
-    const content = raw.replace(/\r\n/g, '\n');
-    const fmMatch = content.match(/^---\n([\s\S]*?)\n---/);
-    if (!fmMatch) return { name: id, description: '', descriptions: {}, category: '', icon: '', version: '' };
+    const fm = parseFrontmatter(raw);
+    if (!fm) return { name: id, description: '', descriptions: {}, category: '', icon: '', version: '' };
 
-    const fm = fmMatch[1];
-    const name = fm.match(/^name:\s*(.+)$/m)?.[1]?.trim() || id;
-    const category = fm.match(/^category:\s*(.+)$/m)?.[1]?.trim() || '';
-    const icon = fm.match(/^icon:\s*(.+)$/m)?.[1]?.trim() || '';
-    const version = fm.match(/^version:\s*(.+)$/m)?.[1]?.trim() || '';
-
-    // description may use YAML folded scalar (>)
-    let description = '';
-    const descBlock = fm.match(/^description:\s*>\s*\n((?:\s{2,}.+\n?)+)/m);
-    if (descBlock) {
-      description = descBlock[1].replace(/\n\s*/g, ' ').trim();
-    } else {
-      const descInline = fm.match(/^description:\s*(.+)$/m);
-      if (descInline) description = descInline[1].trim();
-    }
-
-    // localized descriptions: description_pt-BR, description_es, etc.
-    const descriptions = {};
-    for (const code of ['pt-BR', 'es']) {
-      const key = `description_${code}`;
-      // folded scalar
-      const blockMatch = fm.match(new RegExp(`^${key}:\\s*>\\s*\\n((?:\\s{2,}.+\\n?)+)`, 'm'));
-      if (blockMatch) {
-        descriptions[code] = blockMatch[1].replace(/\n\s*/g, ' ').trim();
-      } else {
-        // inline
-        const inlineMatch = fm.match(new RegExp(`^${key}:\\s*(.+)$`, 'm'));
-        if (inlineMatch) descriptions[code] = inlineMatch[1].trim();
-      }
-    }
-
-    return { name, description, descriptions, category, icon, version };
+    return {
+      name: getField(fm, 'name', id),
+      description: getDescription(fm),
+      descriptions: getLocalizedDescriptions(fm),
+      category: getField(fm, 'category'),
+      icon: getField(fm, 'icon'),
+      version: getField(fm, 'version'),
+    };
   } catch (err) {
     if (err.code === 'ENOENT') return null;
     throw err;
   }
 }
 
-function validateAgentId(id) {
-  if (!/^[a-z0-9][a-z0-9-]*$/.test(id)) {
-    throw new Error(`Invalid agent id: '${id}'`);
-  }
-}
-
 export async function installAgent(id, targetDir) {
-  validateAgentId(id);
+  validateResourceId(id, 'agent');
   const srcFile = join(BUNDLED_AGENTS_DIR, id, 'AGENT.md');
   try {
     await readFile(srcFile);
@@ -93,28 +67,19 @@ export async function installAgent(id, targetDir) {
 }
 
 export async function removeAgent(id, targetDir) {
-  validateAgentId(id);
-  const agentFile = join(targetDir, 'agents', `${id}.agent.md`);
-  await rm(agentFile, { force: true });
+  validateResourceId(id, 'agent');
+  await rm(join(targetDir, 'agents', `${id}.agent.md`), { force: true });
 }
 
 export async function getAgentVersion(id, targetDir) {
   try {
-    const agentPath = join(targetDir, 'agents', `${id}.agent.md`);
-    const content = await readFile(agentPath, 'utf-8');
-    const fmMatch = content.match(/^---\n([\s\S]*?)\n---/);
-    if (!fmMatch) return null;
-    const versionMatch = fmMatch[1].match(/^version:\s*(.+)$/m);
-    return versionMatch ? versionMatch[1].trim() : null;
+    const content = await readFile(join(targetDir, 'agents', `${id}.agent.md`), 'utf-8');
+    return getVersion(content);
   } catch (err) {
     if (err.code === 'ENOENT') return null;
     throw err;
   }
 }
 
-export function getLocalizedDescription(meta, localeCode) {
-  if (localeCode && localeCode !== 'en' && meta.descriptions?.[localeCode]) {
-    return meta.descriptions[localeCode];
-  }
-  return meta.description;
-}
+// Re-export shared utility
+export { getLocalizedDescription };
