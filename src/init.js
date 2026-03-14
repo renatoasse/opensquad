@@ -260,14 +260,16 @@ async function setupOpenNotebook(targetDir) {
   await mkdir(servicesDir, { recursive: true });
 
   const encryptionKey = crypto.randomUUID();
+  const dbUser = 'opensquad';
+  const dbPass = crypto.randomUUID().replace(/-/g, '').slice(0, 24);
 
   const composeContent = `services:
   surrealdb:
     image: surrealdb/surrealdb:v2
-    command: start --log info --user root --pass root rocksdb:/mydata/mydatabase.db
+    command: start --log info --user ${dbUser} --pass ${dbPass} rocksdb:/mydata/mydatabase.db
     user: root
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     volumes:
       - ./surreal_data:/mydata
     restart: always
@@ -276,13 +278,13 @@ async function setupOpenNotebook(targetDir) {
   open_notebook:
     image: lfnovo/open_notebook:v1-latest
     ports:
-      - "8502:8502"
-      - "5055:5055"
+      - "127.0.0.1:8502:8502"
+      - "127.0.0.1:5055:5055"
     environment:
       - OPEN_NOTEBOOK_ENCRYPTION_KEY=${encryptionKey}
       - SURREAL_URL=ws://surrealdb:8000/rpc
-      - SURREAL_USER=root
-      - SURREAL_PASSWORD=root
+      - SURREAL_USER=${dbUser}
+      - SURREAL_PASSWORD=${dbPass}
       - SURREAL_NAMESPACE=open_notebook
       - SURREAL_DATABASE=open_notebook
     volumes:

@@ -1,6 +1,6 @@
-import { readdir, readFile, stat } from 'node:fs/promises';
+import { readdir, readFile, realpath, stat } from 'node:fs/promises';
 import { join, relative } from 'node:path';
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 
 const SERVICES_DIR = '.opensquad-services';
 const COMPOSE_FILE = 'docker-compose.yml';
@@ -73,6 +73,11 @@ async function findMarkdownFiles(dir, baseDir, results = []) {
     const fullPath = join(dir, entry.name);
 
     if (entry.isDirectory()) {
+      // Prevent symlink traversal outside project
+      try {
+        const real = await realpath(fullPath);
+        if (!real.startsWith(baseDir)) continue;
+      } catch { continue; }
       await findMarkdownFiles(fullPath, baseDir, results);
     } else if (entry.name.endsWith('.md')) {
       results.push(fullPath);
@@ -98,7 +103,7 @@ export async function startServices(targetDir) {
 
   console.log('  Starting Open Notebook services...');
   try {
-    execSync(`docker compose -f "${composePath}" up -d`, { stdio: 'inherit' });
+    execFileSync('docker', ['compose', '-f', composePath, 'up', '-d'], { stdio: 'inherit' });
   } catch {
     console.error('  [ERROR] Failed to start services. Is Docker installed and running?');
     return;
@@ -132,7 +137,7 @@ export async function stopServices(targetDir) {
 
   console.log('  Stopping Open Notebook services...');
   try {
-    execSync(`docker compose -f "${composePath}" down`, { stdio: 'inherit' });
+    execFileSync('docker', ['compose', '-f', composePath, 'down'], { stdio: 'inherit' });
   } catch {
     console.error('  [ERROR] Failed to stop services. Is Docker installed and running?');
     return;
@@ -169,6 +174,7 @@ export async function healthCheck(_targetDir) {
 export async function indexDocs(targetDir) {
   const API_BASE = 'http://localhost:5055/api';
   const MIN_CONTENT_LENGTH = 100;
+  const MAX_FILE_SIZE = 1024 * 1024; // 1MB max per file
 
   // Verify API is reachable
   const apiStatus = await httpGet('http://localhost:5055/health');
@@ -193,6 +199,8 @@ export async function indexDocs(targetDir) {
   const validFiles = [];
   for (const filePath of files) {
     try {
+      const fileStat = await stat(filePath);
+      if (fileStat.size > MAX_FILE_SIZE) continue; // Skip oversized files
       const content = await readFile(filePath, 'utf-8');
       if (content.length >= MIN_CONTENT_LENGTH) {
         validFiles.push({ path: filePath, content });
@@ -218,7 +226,11 @@ export async function indexDocs(targetDir) {
   } catch {
     // Notebook may already exist — try to find it
     try {
-      const res = await fetch(`${API_BASE}/notebooks`);
+      const listResult = await httpGet(`${API_BASE}/notebooks`);
+      if (!listResult.ok) throw new Error('Cannot list notebooks');
+      const res = await fetch(`${API_BASE}/notebooks`, {
+        signal: AbortSignal.timeout(10000),
+      });
       const notebooks = await res.json();
       const existing = (Array.isArray(notebooks) ? notebooks : notebooks.data || [])
         .find((n) => n.name === 'OpenSquad Docs');
