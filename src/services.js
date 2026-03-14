@@ -195,7 +195,7 @@ export async function healthCheck(targetDir) {
 export async function indexDocs(targetDir) {
   const API_BASE = 'http://localhost:5055/api';
   const MIN_CONTENT_LENGTH = 100;
-  const MAX_FILE_SIZE = 1024 * 1024; // 1MB max per file
+  const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB max per file
 
   // Verify API is reachable
   const apiStatus = await httpGet('http://localhost:5055/health');
