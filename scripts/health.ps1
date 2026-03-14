@@ -1,12 +1,22 @@
 # OpenSquad Services — Health Check
 Write-Host "`n  🏥 Health Check`n" -ForegroundColor Cyan
 
+$servicesDir = Join-Path $PSScriptRoot ".." ".opensquad-services"
+$configPath = Join-Path $servicesDir "config.json"
+
 $services = @(
-    @{ Name = "SurrealDB";       Url = "http://localhost:8000/health" },
+    @{ Name = "SurrealDB";        Url = "http://localhost:8000/health" },
     @{ Name = "Open Notebook API"; Url = "http://localhost:5055/health" },
-    @{ Name = "Open Notebook UI"; Url = "http://localhost:8502" },
-    @{ Name = "LM Studio API";   Url = "http://localhost:1234/v1/models" }
+    @{ Name = "Open Notebook UI";  Url = "http://localhost:8502" }
 )
+
+# Add LM Studio only if enabled in config
+if (Test-Path $configPath) {
+    $config = Get-Content $configPath -Raw | ConvertFrom-Json
+    if ($config.lmStudio -eq $true) {
+        $services += @{ Name = "LM Studio API"; Url = "http://localhost:1234/v1/models"; Optional = $true }
+    }
+}
 
 foreach ($svc in $services) {
     try {
@@ -17,7 +27,11 @@ foreach ($svc in $services) {
             Write-Host "  [WARN] $($svc.Name) — HTTP $($r.StatusCode)" -ForegroundColor Yellow
         }
     } catch {
-        Write-Host "  [DOWN] $($svc.Name)" -ForegroundColor Red
+        if ($svc.Optional) {
+            Write-Host "  [DOWN] $($svc.Name) — optional" -ForegroundColor DarkGray
+        } else {
+            Write-Host "  [DOWN] $($svc.Name)" -ForegroundColor Red
+        }
     }
 }
 

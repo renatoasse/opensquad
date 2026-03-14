@@ -37,7 +37,7 @@ try {
 
 # Find .md files
 $mdFiles = Get-ChildItem -Path $ProjectDir -Filter "*.md" -Recurse |
-    Where-Object { $_.FullName -notmatch "(node_modules|\.git[/\\]|dashboard[/\\]node_modules)" }
+    Where-Object { $_.FullName -notmatch "(node_modules|\.git[/\\]|\.opensquad-services|surreal_data|notebook_data)" }
 
 Write-Host "  Found $($mdFiles.Count) .md files`n" -ForegroundColor Yellow
 
@@ -48,6 +48,12 @@ $failed = 0
 foreach ($file in $mdFiles) {
     $relativePath = $file.FullName.Substring($ProjectDir.Length + 1).Replace('\', '/')
     $content = Get-Content -Path $file.FullName -Raw -ErrorAction SilentlyContinue
+
+    $maxSize = 100MB
+    if ($file.Length -gt $maxSize) {
+        $skipped++
+        continue
+    }
 
     if (-not $content -or $content.Length -lt 100) {
         $skipped++

@@ -247,12 +247,16 @@ export async function indexDocs(targetDir) {
   } catch {
     // Notebook may already exist — try to find it
     try {
-      const listResult = await httpGet(`${API_BASE}/notebooks`);
-      if (!listResult.ok) throw new Error('Cannot list notebooks');
-      const res = await fetch(`${API_BASE}/notebooks`, {
-        signal: AbortSignal.timeout(10000),
-      });
-      const notebooks = await res.json();
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 10000);
+      let notebooks;
+      try {
+        const res = await fetch(`${API_BASE}/notebooks`, { signal: controller.signal });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        notebooks = await res.json();
+      } finally {
+        clearTimeout(timer);
+      }
       const existing = (Array.isArray(notebooks) ? notebooks : notebooks.data || [])
         .find((n) => n.name === 'OpenSquad Docs');
       if (existing) {

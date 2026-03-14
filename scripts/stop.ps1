@@ -8,5 +8,10 @@ if (-not (Test-Path (Join-Path $servicesDir "docker-compose.yml"))) {
     exit 1
 }
 
-docker compose -f (Join-Path $servicesDir "docker-compose.yml") down
-Write-Host "`n  ✅ All services stopped.`n" -ForegroundColor Green
+try {
+    docker compose -f (Join-Path $servicesDir "docker-compose.yml") down
+    Write-Host "`n  ✅ All services stopped.`n" -ForegroundColor Green
+} catch {
+    Write-Host "  ❌ Failed to stop services. Is Docker running?" -ForegroundColor Red
+    exit 1
+}
