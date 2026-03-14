@@ -26,6 +26,16 @@ Type `/opensquad` to open the main menu, or use any of these commands:
 4. The **Pipeline Runner** executes squads automatically
 5. Agents communicate via persona switching (inline) or subagents (background)
 6. Checkpoints pause execution for user input/approval
+7. The **Dashboard** shows a pixel-art office where you can watch agents work in real-time
+
+## Dashboard
+
+Type `/opensquad dashboard` or `/opensquad ver agentes` to launch the pixel-art dashboard.
+This runs `npx opensquad dashboard` which:
+- Installs dashboard dependencies (if needed)
+- Starts the Vite dev server on http://localhost:5173
+- Opens the browser automatically
+- Shows agents animating in real-time as they work through the pipeline
 
 ## Rules
 

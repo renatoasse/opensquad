@@ -15,7 +15,7 @@ const command = positionals[0];
 const cwd = process.cwd();
 
 // Auto-start Open Notebook if configured (skip for init/services/help)
-if (command && !['init', 'services'].includes(command)) {
+if (command && !['init', 'services', 'dashboard'].includes(command)) {
   try {
     const { ensureServices } = await import('../src/services.js');
     await ensureServices(cwd);
@@ -56,6 +56,9 @@ if (command === 'init') {
   const args = positionals.slice(2);
   const result = await agentsCli(subcommand, args, cwd);
   if (!result.success) process.exitCode = 1;
+} else if (command === 'dashboard') {
+  const { startDashboard } = await import('../src/dashboard.js');
+  await startDashboard(cwd);
 } else if (command === 'services') {
   const { startServices, stopServices, healthCheck, indexDocs } = await import('../src/services.js');
   const sub = positionals[1] || 'start';
@@ -87,6 +90,7 @@ if (command === 'init') {
     npx opensquad agents install <name>   Install a predefined agent
     npx opensquad agents remove <name>    Remove an agent
     npx opensquad agents update           Update all agents
+    npx opensquad dashboard                 Open pixel-art dashboard (watch agents work!)
     npx opensquad services start           Start Open Notebook + SurrealDB
     npx opensquad services stop            Stop services
     npx opensquad services health          Check service health

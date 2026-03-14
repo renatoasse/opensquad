@@ -28,14 +28,25 @@ Before starting execution:
 4. **Load model tier config** (optional reference): Read `_opensquad/config.yaml` to understand the intended model tier for each agent type. This is informational — the Pipeline Runner does NOT use this config directly when dispatching. Individual steps declare their own `model_tier` in their frontmatter, set by the Architect at squad creation time.
    - If the file exists: read and note the tier values for reference.
    - If the file doesn't exist: ignore silently — all steps default to `powerful` at dispatch.
-5. Inform the user that the squad is starting:
+5. Inform the user that the squad is starting and **offer to launch the dashboard**:
    ```
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    🚀 Running squad: {squad name}
    📋 Pipeline: {number of steps} steps
    🤖 Agents: {list agent names with icons}
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+   🎮 Want to watch your team working in real-time?
+   1. Yes — open the pixel-art dashboard
+   2. No — run in text mode
    ```
+   If the user selects **1**, run the following via Bash tool:
+   ```bash
+   cd {project-root} && npx opensquad dashboard
+   ```
+   This will install dashboard dependencies (if needed), start the Vite dev server, and open the browser.
+   Wait 3 seconds after launching, then continue with pipeline execution.
+   The dashboard reads `state.json` in real-time — the agent animations will update automatically as the pipeline progresses.
 5b. **Initialize run folder**: Generate a unique run ID for this execution:
    - Format: `YYYY-MM-DD-HHmmss` using the current timestamp (e.g. `2026-03-03-143022`)
    - Check if `squads/{name}/output/{run_id}/` already exists

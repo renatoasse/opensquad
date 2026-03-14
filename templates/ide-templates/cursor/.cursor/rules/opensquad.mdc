@@ -31,6 +31,19 @@ Type `/opensquad` to open the main menu, or use any of these commands:
 4. The **Pipeline Runner** executes squads automatically
 5. Agents communicate via persona switching (inline) or subagents (background)
 6. Checkpoints pause execution for user input/approval
+7. The **Dashboard** shows a pixel-art office where you can watch agents work in real-time
+
+## Commands
+
+| Command | Action |
+|---------|--------|
+| `/opensquad dashboard` | Launch pixel-art dashboard to watch agents work |
+| `/opensquad ver agentes` | Same as dashboard (Portuguese alias) |
+
+When the user types either command, run:
+```bash
+npx opensquad dashboard
+```
 
 ## Rules
 

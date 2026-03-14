@@ -95,6 +95,7 @@ When the user provides a command directly, route without showing a menu first:
 | `/opensquad show-company` | Display current `company.md` |
 | `/opensquad settings` | Show and offer to edit `preferences.md` |
 | `/opensquad reset` | Confirm with user, then reset all configuration |
+| `/opensquad dashboard` or `/opensquad ver agentes` | Launch the pixel-art dashboard to watch agents work in real-time |
 
 ## Loading Agents
 
@@ -151,6 +152,21 @@ When the user selects Skills or types `/opensquad skills`:
    4. Remove a skill
    ```
 3. Follow the corresponding operation from the skills engine instructions
+
+## Dashboard — Watch Agents Work
+
+When the user types `/opensquad dashboard` or `/opensquad ver agentes`:
+
+1. Run via terminal:
+   ```bash
+   npx opensquad dashboard
+   ```
+2. This will:
+   - Install dashboard dependencies (if not installed)
+   - Start the Vite dev server on http://localhost:5173
+   - Open the browser automatically
+3. The dashboard shows a pixel-art office where agents animate in real-time as they work
+4. It reads `squads/{name}/state.json` via WebSocket — updates are instant
 
 ## Output Rules
 

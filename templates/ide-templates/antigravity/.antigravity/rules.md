@@ -64,6 +64,7 @@ Parse user input and route to the appropriate action:
 | `/opensquad show-company` | Display company.md contents |
 | `/opensquad settings` | Show/edit preferences.md |
 | `/opensquad reset` | Confirm and reset all configuration |
+| `/opensquad dashboard` or `/opensquad ver agentes` | Launch pixel-art dashboard to watch agents work |
 | Natural language about squads | Infer intent and route accordingly |
 
 ## Loading Agents
