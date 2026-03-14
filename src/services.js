@@ -98,9 +98,9 @@ async function ensureDocker() {
   });
   child.unref(); // Don't wait for Docker Desktop process
 
-  // Wait for Docker daemon to be ready (max 60s)
+  // Wait for Docker daemon to be ready (max 2min)
   process.stdout.write('  ⏳ Waiting for Docker daemon');
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < 40; i++) {
     await sleep(3000);
     process.stdout.write('.');
     if (isDockerRunning()) {
@@ -109,7 +109,7 @@ async function ensureDocker() {
     }
   }
 
-  console.log('\n  ⚠️  Docker Desktop started but daemon not ready yet (timeout 60s).');
+  console.log('\n  ⚠️  Docker Desktop started but daemon not ready yet (timeout 2min).');
   console.log('  Wait a moment and try again: npx opensquad services start');
   return false;
 }
