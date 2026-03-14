@@ -196,7 +196,7 @@ async function installRtk() {
 
   console.log(`\n  📦 Installing RTK (Rust Token Killer) — saves 60-90% tokens on CLI output...`);
   try {
-    execFileSync('cargo', ['install', 'rtk-cli'], { stdio: 'inherit', timeout: 300000 });
+    execFileSync('cargo', ['install', 'rtk'], { stdio: 'inherit', timeout: 300000 });
     console.log(`  ✅ RTK installed. Prefix commands with 'rtk' to compress output.`);
   } catch (err) {
     console.log(`  ⚠️  RTK install failed: ${err.message}`);
