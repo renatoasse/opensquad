@@ -111,6 +111,54 @@ async function findMarkdownFiles(dir, baseDir, results = []) {
   return results;
 }
 
+/**
+ * Silently ensures services are running if Open Notebook was configured.
+ * Called automatically before any opensquad command that might need vector search.
+ * Does nothing if: no config, knowledgeBase !== 'open-notebook', or services already up.
+ */
+export async function ensureServices(targetDir) {
+  const config = await loadConfig(targetDir);
+  if (config.knowledgeBase !== 'open-notebook') return;
+
+  const composePath = getComposePath(targetDir);
+  try {
+    await stat(composePath);
+  } catch {
+    return; // No docker-compose.yml — not configured
+  }
+
+  // Check if API is already up
+  const apiStatus = await httpGet('http://localhost:5055/health', 2000);
+  if (apiStatus.ok) return; // Already running
+
+  // Try to start silently
+  console.log('  🐳 Starting Open Notebook services...');
+  try {
+    execFileSync('docker', ['compose', '-f', composePath, 'up', '-d'], {
+      stdio: 'pipe', // Silent — no Docker output spam
+      maxBuffer: 5 * 1024 * 1024, // 5MB buffer limit
+      timeout: 60000, // 60s timeout for docker pull + start
+    });
+
+    // Wait for health (max 30s with progress dots)
+    const MAX_RETRIES = 10;
+    process.stdout.write('  ⏳ Waiting for API');
+    for (let i = 0; i < MAX_RETRIES; i++) {
+      await sleep(3000);
+      process.stdout.write('.');
+      const check = await httpGet('http://localhost:5055/health', 2000);
+      if (check.ok) {
+        console.log('\n  ✅ Open Notebook services ready.');
+        return;
+      }
+    }
+    console.log('\n  ⚠️  Services started but API not ready yet (timeout 30s).');
+    console.log('  Check: npx opensquad services health');
+  } catch {
+    console.log('  ⚠️  Could not auto-start Docker. Run: npx opensquad services start');
+  }
+}
+
 export async function startServices(targetDir) {
   const composePath = getComposePath(targetDir);
 
