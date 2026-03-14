@@ -12,7 +12,7 @@ const { positionals } = parseArgs({
 });
 
 const command = positionals[0];
-const cwd = cwd;
+const cwd = process.cwd();
 
 // Auto-start Open Notebook if configured (skip for init/services/help)
 if (command && !['init', 'services'].includes(command)) {
