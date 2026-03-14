@@ -4,8 +4,7 @@
     "isolated": false,
     "userDataDir": "_opensquad/_browser_profile",
     "launchOptions": {
-      "headless": true,
-      "channel": "chrome"
+      "headless": true
     }
   }
 }

@@ -19,5 +19,20 @@ docs/
 .vscode/settings.json
 .cursorignore
 
+# Squad data (user content, investigations, memories — sensitive)
+squads/*/pipeline/
+squads/*/_investigations/
+squads/*/_memory/
+squads/*/output/
+
+# Temp files
+temp/
+
+# Claude Code local settings
+.claude/settings.local.json
+
 # OpenSquad services (contains encryption keys)
 .opensquad-services/
+
+# Playwright browsers cache
+_opensquad/_browser_profile/
