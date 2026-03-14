@@ -164,15 +164,14 @@ async function installAllSkills(targetDir) {
 }
 
 async function installDependencies(targetDir) {
-  const isWin = process.platform === 'win32';
-  const npm = isWin ? 'npm.cmd' : 'npm';
-  const npx = isWin ? 'npx.cmd' : 'npx';
+  const run = (cmd, args, cwd) =>
+    execFileSync(cmd, args, { cwd, stdio: 'inherit', shell: true });
   console.log(`\n  Installing dependencies...`);
-  execFileSync(npm, ['install'], { cwd: targetDir, stdio: 'inherit' });
+  run('npm', ['install'], targetDir);
   console.log(`\n  Installing dashboard dependencies...`);
-  execFileSync(npm, ['install'], { cwd: join(targetDir, 'dashboard'), stdio: 'inherit' });
+  run('npm', ['install'], join(targetDir, 'dashboard'));
   console.log(`\n  Installing Playwright browsers...`);
-  execFileSync(npx, ['playwright', 'install', 'chromium'], { cwd: targetDir, stdio: 'inherit' });
+  run('npx', ['playwright', 'install', 'chromium'], targetDir);
 
   // Install RTK (Rust Token Killer) — reduces token consumption by 60-90%
   await installRtk();
