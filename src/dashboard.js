@@ -4,6 +4,8 @@ import { execFileSync, spawn } from 'node:child_process';
 import { platform, networkInterfaces } from 'node:os';
 
 const DASHBOARD_DIR = 'dashboard';
+const DASHBOARD_PORT = 5173;
+const IS_WIN = platform() === 'win32';
 
 /**
  * Get the first non-internal IPv4 address (LAN IP).
@@ -12,20 +14,10 @@ function getLocalIp() {
   const nets = networkInterfaces();
   for (const name of Object.keys(nets)) {
     for (const net of nets[name]) {
-      if (net.family === 'IPv4' && !net.internal) {
-        return net.address;
-      }
+      if (net.family === 'IPv4' && !net.internal) return net.address;
     }
   }
   return null;
-}
-
-/**
- * Resolve `npm` executable — on Windows, `npm` is a .cmd file and must
- * be invoked through the shell or with its full extension.
- */
-function npmCommand() {
-  return platform() === 'win32' ? 'npm.cmd' : 'npm';
 }
 
 /**
@@ -41,13 +33,54 @@ async function hasNodeModules(dashboardPath) {
 }
 
 /**
+ * Open a URL in the default browser (best-effort).
+ */
+function openBrowser(url) {
+  try {
+    if (IS_WIN) {
+      spawn('cmd', ['/c', 'start', url], { detached: true, stdio: 'ignore' }).unref();
+    } else if (platform() === 'darwin') {
+      spawn('open', [url], { detached: true, stdio: 'ignore' }).unref();
+    } else {
+      spawn('xdg-open', [url], { detached: true, stdio: 'ignore' }).unref();
+    }
+  } catch {
+    // Best-effort — browser open is not critical
+  }
+}
+
+/**
+ * Wait for a URL to respond with HTTP 200 (max ~15s).
+ */
+async function waitForReady(url, maxAttempts = 30) {
+  for (let i = 0; i < maxAttempts; i++) {
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 1000);
+      const res = await fetch(url, { signal: controller.signal });
+      clearTimeout(timer);
+      if (res.ok) return true;
+    } catch {
+      // Not ready yet
+    }
+    await new Promise((r) => setTimeout(r, 500));
+  }
+  return false;
+}
+
+/**
  * Start the Opensquad pixel-art dashboard (Vite dev server).
  *
  * - Installs dependencies if needed
- * - Launches `npm run dev` in the background
- * - Opens the browser automatically
+ * - Launches `npm run dev --host --strict-port` in the background
+ * - Polls for readiness before opening the browser
  */
 export async function startDashboard(targetDir) {
+  if (!targetDir || typeof targetDir !== 'string') {
+    console.error('  [ERROR] Invalid target directory.');
+    return false;
+  }
+
   const dashboardPath = join(targetDir, DASHBOARD_DIR);
 
   // Check if dashboard directory exists
@@ -63,9 +96,10 @@ export async function startDashboard(targetDir) {
   if (!(await hasNodeModules(dashboardPath))) {
     console.log('  📦 Installing dashboard dependencies...');
     try {
-      execFileSync(npmCommand(), ['install'], {
+      execFileSync('npm', ['install'], {
         cwd: dashboardPath,
         stdio: 'pipe',
+        shell: IS_WIN,
         timeout: 120000,
       });
       console.log('  ✅ Dependencies installed.');
@@ -75,45 +109,38 @@ export async function startDashboard(targetDir) {
     }
   }
 
-  // Start Vite dev server (detached, non-blocking) with --host for LAN access
+  // Start Vite dev server (detached) with --host for LAN + --strict-port to fail fast
   console.log('  🎮 Starting Opensquad Dashboard...');
-  const isWin = platform() === 'win32';
-  const child = isWin
-    ? spawn('cmd', ['/c', 'npm', 'run', 'dev', '--', '--host'], {
-        cwd: dashboardPath,
-        detached: true,
-        stdio: 'ignore',
-      })
-    : spawn('npm', ['run', 'dev', '--', '--host'], {
-        cwd: dashboardPath,
-        detached: true,
-        stdio: 'ignore',
-      });
+  const devArgs = ['run', 'dev', '--', '--host', '--strict-port'];
+  const child = IS_WIN
+    ? spawn('cmd', ['/c', 'npm', ...devArgs], { cwd: dashboardPath, detached: true, stdio: 'ignore' })
+    : spawn('npm', devArgs, { cwd: dashboardPath, detached: true, stdio: 'ignore' });
+
+  let spawnFailed = false;
+  child.on('error', (err) => {
+    spawnFailed = true;
+    console.error(`  [ERROR] Failed to start dashboard: ${err.message}`);
+  });
   child.unref();
 
-  // Give Vite a moment to start
-  await new Promise((resolve) => setTimeout(resolve, 3000));
+  // Poll for readiness instead of blind sleep
+  const url = `http://localhost:${DASHBOARD_PORT}`;
+  const ready = await waitForReady(url);
 
-  // Get local IP for LAN access
-  const localIp = getLocalIp();
-  const url = 'http://localhost:5173';
-  const lanUrl = localIp ? `http://${localIp}:5173` : null;
-  try {
-    const os = platform();
-    if (os === 'win32') {
-      spawn('cmd', ['/c', 'start', url], { detached: true, stdio: 'ignore' }).unref();
-    } else if (os === 'darwin') {
-      spawn('open', [url], { detached: true, stdio: 'ignore' }).unref();
-    } else {
-      spawn('xdg-open', [url], { detached: true, stdio: 'ignore' }).unref();
-    }
-  } catch {
-    // Browser open is best-effort
+  if (spawnFailed || !ready) {
+    console.error(`  [ERROR] Dashboard did not start on port ${DASHBOARD_PORT}.`);
+    console.error(`  Check if port ${DASHBOARD_PORT} is already in use.`);
+    return false;
   }
 
+  // Open browser
+  openBrowser(url);
+
+  // Show URLs
+  const localIp = getLocalIp();
   console.log(`  🖥️  Dashboard running at ${url}`);
-  if (lanUrl) {
-    console.log(`  🌐 LAN access: ${lanUrl}`);
+  if (localIp) {
+    console.log(`  🌐 LAN access: http://${localIp}:${DASHBOARD_PORT}`);
   }
   console.log('  👀 Watch your agents work in real-time!');
   return true;

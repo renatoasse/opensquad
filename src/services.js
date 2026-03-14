@@ -7,6 +7,17 @@ const SERVICES_DIR = '.opensquad-services';
 const COMPOSE_FILE = 'docker-compose.yml';
 const CONFIG_FILE = 'config.json';
 
+// Timeouts and polling constants
+const DOCKER_INFO_TIMEOUT_MS = 5000;
+const DOCKER_POLL_INTERVAL_MS = 5000;
+const DOCKER_MAX_POLLS = 60; // 60 × 5s = 5min max wait
+const HTTP_DEFAULT_TIMEOUT_MS = 3000;
+const SERVICE_STARTUP_WAIT_MS = 5000;
+const MAX_FILE_SIZE_BYTES = 100 * 1024 * 1024; // 100 MB
+
+// Directories excluded from markdown file scanning
+const EXCLUDED_DIRS = ['node_modules', '.git', 'dist', 'build', '.opensquad-services', '.next', 'coverage', 'surreal_data', 'notebook_data'];
+
 // Common Docker Desktop paths per platform
 const DOCKER_DESKTOP_PATHS = {
   win32: [
@@ -26,11 +37,16 @@ const BASE_ENDPOINTS = [
 const LM_STUDIO_ENDPOINT = { name: 'LM Studio', url: 'http://localhost:1234/v1/models', optional: true };
 
 async function loadConfig(targetDir) {
+  const defaults = { knowledgeBase: 'none', lmStudio: false };
   try {
     const raw = await readFile(join(targetDir, SERVICES_DIR, CONFIG_FILE), 'utf-8');
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    return {
+      knowledgeBase: typeof parsed.knowledgeBase === 'string' ? parsed.knowledgeBase : defaults.knowledgeBase,
+      lmStudio: typeof parsed.lmStudio === 'boolean' ? parsed.lmStudio : defaults.lmStudio,
+    };
   } catch {
-    return { knowledgeBase: 'none', lmStudio: false };
+    return defaults;
   }
 }
 
@@ -55,7 +71,7 @@ function sleep(ms) {
  */
 function isDockerRunning() {
   try {
-    execFileSync('docker', ['info'], { stdio: 'pipe', timeout: 10000 });
+    execFileSync('docker', ['info'], { stdio: 'pipe', timeout: DOCKER_INFO_TIMEOUT_MS });
     return true;
   } catch {
     return false;
@@ -103,8 +119,8 @@ async function ensureDocker() {
 
   // Wait for Docker daemon to be ready (max 5min — cold start on Windows/WSL2 can be slow)
   process.stdout.write('  ⏳ Waiting for Docker daemon');
-  for (let i = 0; i < 60; i++) {
-    await sleep(5000);
+  for (let i = 0; i < DOCKER_MAX_POLLS; i++) {
+    await sleep(DOCKER_POLL_INTERVAL_MS);
     process.stdout.write('.');
     if (isDockerRunning()) {
       console.log('\n  ✅ Docker Desktop ready.');
@@ -117,7 +133,7 @@ async function ensureDocker() {
   return false;
 }
 
-async function httpGet(url, timeoutMs = 3000) {
+async function httpGet(url, timeoutMs = HTTP_DEFAULT_TIMEOUT_MS) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -159,8 +175,8 @@ async function httpPost(url, body, timeoutMs = 30000) {
   }
 }
 
-async function findMarkdownFiles(dir, baseDir, results = []) {
-  const EXCLUDED = ['node_modules', '.git', '.opensquad-services', 'surreal_data', 'notebook_data'];
+async function findMarkdownFiles(dir, baseDir, results = [], depth = 0) {
+  if (depth > 10) return results; // Prevent infinite recursion
 
   let entries;
   try {
@@ -170,7 +186,7 @@ async function findMarkdownFiles(dir, baseDir, results = []) {
   }
 
   for (const entry of entries) {
-    if (EXCLUDED.includes(entry.name)) continue;
+    if (EXCLUDED_DIRS.includes(entry.name)) continue;
 
     const fullPath = join(dir, entry.name);
 
@@ -180,7 +196,7 @@ async function findMarkdownFiles(dir, baseDir, results = []) {
         const real = await realpath(fullPath);
         if (!real.startsWith(baseDir)) continue;
       } catch { continue; }
-      await findMarkdownFiles(fullPath, baseDir, results);
+      await findMarkdownFiles(fullPath, baseDir, results, depth + 1);
     } else if (entry.name.endsWith('.md')) {
       results.push(fullPath);
     }
@@ -306,11 +322,15 @@ export async function startServices(targetDir) {
     return;
   }
 
+  // Poll for API health instead of blind sleep (max 30s)
   console.log('  Waiting for services to initialize...');
-  await sleep(5000);
-
-  const status = await healthCheck(targetDir);
-  const allUp = Object.values(status).every((s) => s === 'up' || s === 'optional');
+  let allUp = false;
+  for (let i = 0; i < 6; i++) {
+    await sleep(SERVICE_STARTUP_WAIT_MS);
+    const status = await healthCheck(targetDir);
+    allUp = Object.values(status).every((s) => s === 'up' || s === 'optional');
+    if (allUp) break;
+  }
 
   if (allUp) {
     console.log('\n  All services are running.');

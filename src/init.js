@@ -164,17 +164,35 @@ async function installAllSkills(targetDir) {
 }
 
 async function installDependencies(targetDir) {
+  // shell: true only on Windows where npm/npx are .cmd batch files
+  const shellOpt = process.platform === 'win32';
   const run = (cmd, args, cwd) =>
-    execFileSync(cmd, args, { cwd, stdio: 'inherit', shell: true });
-  console.log(`\n  Installing dependencies...`);
-  run('npm', ['install'], targetDir);
-  console.log(`\n  Installing dashboard dependencies...`);
-  run('npm', ['install'], join(targetDir, 'dashboard'));
-  console.log(`\n  Installing Playwright browsers...`);
-  run('npx', ['playwright', 'install', 'chromium'], targetDir);
+    execFileSync(cmd, args, { cwd, stdio: 'inherit', shell: shellOpt, timeout: 120000 });
+
+  const steps = [
+    { label: 'Installing dependencies...', cmd: 'npm', args: ['install'], cwd: targetDir },
+    { label: 'Installing dashboard dependencies...', cmd: 'npm', args: ['install'], cwd: join(targetDir, 'dashboard') },
+    { label: 'Installing Playwright browsers...', cmd: 'npx', args: ['playwright', 'install', 'chromium'], cwd: targetDir },
+  ];
+
+  const errors = [];
+  for (const step of steps) {
+    console.log(`\n  ${step.label}`);
+    try {
+      run(step.cmd, step.args, step.cwd);
+    } catch (err) {
+      console.log(`  ⚠️  Failed: ${err.message}`);
+      errors.push(step.label);
+    }
+  }
 
   // Install RTK (Rust Token Killer) — reduces token consumption by 60-90%
   await installRtk();
+
+  if (errors.length > 0) {
+    console.log(`\n  ⚠️  Some steps failed: ${errors.join(', ')}`);
+    console.log('  Run them manually after fixing the issue.');
+  }
 }
 
 async function installRtk() {
