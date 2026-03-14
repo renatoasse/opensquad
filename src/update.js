@@ -13,6 +13,7 @@ async function loadSavedIdes(targetDir) {
     if (match) {
       return match[1].trim().split(/,\s*/);
     }
+    console.warn('  ⚠ preferences.md exists but IDEs pattern did not match — falling back to defaults');
   } catch {
     // No preferences file
   }
@@ -22,6 +23,7 @@ async function loadSavedIdes(targetDir) {
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const TEMPLATES_DIR = join(__dirname, '..', 'templates');
 
+// TODO: Move PROTECTED_PATHS to a shared constants module so other files can reuse the list.
 const PROTECTED_PATHS = [
   '_opensquad/_memory',
   '_opensquad/_investigations',

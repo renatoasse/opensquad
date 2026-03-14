@@ -6,6 +6,7 @@ import { execFileSync } from 'node:child_process';
 import { createPrompt } from './prompt.js';
 import { loadLocale, t } from './i18n.js';
 import { listAvailable, installSkill } from './skills.js';
+import { generateSlug, registerProject, setActiveProject, writeProjectContext } from './projects.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const TEMPLATES_DIR = join(__dirname, '..', 'templates');
@@ -40,6 +41,7 @@ async function gatherUserPreferences(prompt, isReInit, savedLocale, targetDir) {
   let userName = '';
   let knowledgeBase = 'none';
   let useLmStudio = false;
+  let projectName = '';
 
   try {
     // Language is asked FIRST (in English, before locale is loaded)
@@ -52,6 +54,11 @@ async function gatherUserPreferences(prompt, isReInit, savedLocale, targetDir) {
     console.log(`\n  ${t('welcome')}\n`);
 
     userName = sanitizeUserName(await prompt.ask(`  ${t('askName')}`));
+
+    // Project/company name for the switcher
+    projectName = sanitizeUserName(
+      await prompt.ask(`  ${t('askProjectName') || 'Project or company name:'}`)
+    );
 
     ides = await prompt.multiChoose(t('chooseIdes'), IDES);
 
@@ -77,7 +84,7 @@ async function gatherUserPreferences(prompt, isReInit, savedLocale, targetDir) {
     prompt.close();
   }
 
-  return { language, ides, userName, knowledgeBase, useLmStudio };
+  return { language, ides, userName, knowledgeBase, useLmStudio, projectName };
 }
 
 function printNextSteps(ides) {
@@ -121,10 +128,11 @@ export async function init(targetDir, options = {}) {
   let userName = '';
   let knowledgeBase = 'none';
   let useLmStudio = false;
+  let projectName = options._projectName || '';
 
   if (!options._skipPrompts) {
     const prompt = createPrompt();
-    ({ language, ides, userName, knowledgeBase, useLmStudio } =
+    ({ language, ides, userName, knowledgeBase, useLmStudio, projectName } =
       await gatherUserPreferences(prompt, isReInit, null, targetDir));
   } else {
     await loadLocale(language);
@@ -157,6 +165,15 @@ export async function init(targetDir, options = {}) {
 - **Date Format:** YYYY-MM-DD
 `;
   await writeFile(prefsPath, prefsContent, 'utf-8');
+
+  // Register project in global switcher
+  if (projectName) {
+    const slug = generateSlug(projectName);
+    await registerProject(slug, projectName, targetDir);
+    await setActiveProject(slug);
+    await writeProjectContext(targetDir, slug, projectName);
+    console.log(`\n  📂 Project registered: ${slug} (${projectName})`);
+  }
 
   printNextSteps(ides);
 }
@@ -358,7 +375,7 @@ async function setupOpenNotebook(targetDir, { useLmStudio = false } = {}) {
     ports:
       - "127.0.0.1:8000:8000"
     volumes:
-      - ./surreal_data:/mydata
+      - surrealdb-data:/mydata
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 10s
@@ -381,7 +398,7 @@ async function setupOpenNotebook(targetDir, { useLmStudio = false } = {}) {
       - SURREAL_NAMESPACE=open_notebook
       - SURREAL_DATABASE=open_notebook
     volumes:
-      - ./notebook_data:/app/data
+      - notebook-data:/app/data
     depends_on:
       surrealdb:
         condition: service_healthy
@@ -393,6 +410,10 @@ async function setupOpenNotebook(targetDir, { useLmStudio = false } = {}) {
       start_period: 20s
     restart: always
     pull_policy: always
+
+volumes:
+  surrealdb-data:
+  notebook-data:
 `;
   await writeFile(join(servicesDir, 'docker-compose.yml'), composeContent, 'utf-8');
 

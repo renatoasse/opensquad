@@ -5,6 +5,8 @@ import { init } from '../src/init.js';
 import { update } from '../src/update.js';
 import { skillsCli } from '../src/skills-cli.js';
 import { agentsCli } from '../src/agents-cli.js';
+import { projectsCli } from '../src/projects-cli.js';
+import { getActiveProject } from '../src/projects.js';
 
 const { positionals } = parseArgs({
   allowPositionals: true,
@@ -21,6 +23,18 @@ async function run(fn, ...args) {
 }
 
 try {
+  // Show active project context (skip for init and help)
+  if (command && !['init'].includes(command)) {
+    try {
+      const active = await getActiveProject();
+      if (active) {
+        console.log(`  \uD83D\uDCC2 Project: ${active.slug}`);
+      }
+    } catch {
+      // No active project — that's fine
+    }
+  }
+
   // Auto-start Open Notebook if configured (skip for init/services/dashboard/help)
   if (command && !['init', 'services', 'dashboard'].includes(command)) {
     try {
@@ -56,6 +70,9 @@ try {
     const { startDashboard } = await import('../src/dashboard.js');
     const ok = await startDashboard(cwd);
     if (!ok) process.exitCode = 1;
+  } else if (command === 'project' || command === 'projects') {
+    const subcommand = positionals[1] || 'list';
+    await run(projectsCli, subcommand, positionals.slice(2));
   } else if (command === 'services') {
     const { startServices, stopServices, healthCheck, indexDocs } = await import('../src/services.js');
     const sub = positionals[1] || 'start';
@@ -83,6 +100,11 @@ try {
     npx opensquad agents install <name>   Install a predefined agent
     npx opensquad agents remove <name>    Remove an agent
     npx opensquad agents update           Update all agents
+    npx opensquad project                  List all projects
+    npx opensquad project switch <slug>   Switch active project
+    npx opensquad project add <path>      Register existing project
+    npx opensquad project remove <slug>   Unregister a project
+    npx opensquad project info            Show active project details
     npx opensquad dashboard               Open pixel-art dashboard (watch agents work!)
     npx opensquad services start          Start Open Notebook + SurrealDB
     npx opensquad services stop           Stop services

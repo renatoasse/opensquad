@@ -1,13 +1,26 @@
 import { t } from './i18n.js';
 
+// Cached dynamic imports — avoid re-importing on every call.
+let _input, _select, _checkbox, _Separator;
+async function getInput() { return _input ??= (await import('@inquirer/input')).default; }
+async function getSelect() { return _select ??= (await import('@inquirer/select')).default; }
+async function getCheckbox() {
+  if (!_checkbox) {
+    const mod = await import('@inquirer/checkbox');
+    _checkbox = mod.default;
+    _Separator = mod.Separator;
+  }
+  return { checkbox: _checkbox, Separator: _Separator };
+}
+
 export function createPrompt() {
   return {
     async ask(question) {
-      const { default: input } = await import('@inquirer/input');
+      const input = await getInput();
       return input({ message: question });
     },
     async choose(question, options) {
-      const { default: select } = await import('@inquirer/select');
+      const select = await getSelect();
 
       const choices = options.map(opt => ({
         name: opt.label,
@@ -21,7 +34,7 @@ export function createPrompt() {
       });
     },
     async multiChoose(question, options, { validate } = {}) {
-      const { default: checkbox, Separator } = await import('@inquirer/checkbox');
+      const { checkbox, Separator } = await getCheckbox();
 
       const choices = options.map(opt => {
         if (opt.separator) return new Separator(opt.label);
@@ -41,6 +54,8 @@ export function createPrompt() {
           selected.length > 0 || t('atLeastOneIde')),
       });
     },
+    // No-op: inquirer prompts are self-contained and do not hold persistent
+    // resources (streams, timers, etc.) that need explicit teardown.
     close() {},
   };
 }
