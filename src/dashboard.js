@@ -1,9 +1,24 @@
 import { join } from 'node:path';
 import { stat } from 'node:fs/promises';
 import { execFileSync, spawn } from 'node:child_process';
-import { platform } from 'node:os';
+import { platform, networkInterfaces } from 'node:os';
 
 const DASHBOARD_DIR = 'dashboard';
+
+/**
+ * Get the first non-internal IPv4 address (LAN IP).
+ */
+function getLocalIp() {
+  const nets = networkInterfaces();
+  for (const name of Object.keys(nets)) {
+    for (const net of nets[name]) {
+      if (net.family === 'IPv4' && !net.internal) {
+        return net.address;
+      }
+    }
+  }
+  return null;
+}
 
 /**
  * Resolve `npm` executable — on Windows, `npm` is a .cmd file and must
@@ -60,16 +75,16 @@ export async function startDashboard(targetDir) {
     }
   }
 
-  // Start Vite dev server (detached, non-blocking)
+  // Start Vite dev server (detached, non-blocking) with --host for LAN access
   console.log('  🎮 Starting Opensquad Dashboard...');
   const isWin = platform() === 'win32';
   const child = isWin
-    ? spawn('cmd', ['/c', 'npm', 'run', 'dev'], {
+    ? spawn('cmd', ['/c', 'npm', 'run', 'dev', '--', '--host'], {
         cwd: dashboardPath,
         detached: true,
         stdio: 'ignore',
       })
-    : spawn('npm', ['run', 'dev'], {
+    : spawn('npm', ['run', 'dev', '--', '--host'], {
         cwd: dashboardPath,
         detached: true,
         stdio: 'ignore',
@@ -79,8 +94,10 @@ export async function startDashboard(targetDir) {
   // Give Vite a moment to start
   await new Promise((resolve) => setTimeout(resolve, 3000));
 
-  // Open browser
+  // Get local IP for LAN access
+  const localIp = getLocalIp();
   const url = 'http://localhost:5173';
+  const lanUrl = localIp ? `http://${localIp}:5173` : null;
   try {
     const os = platform();
     if (os === 'win32') {
@@ -95,6 +112,9 @@ export async function startDashboard(targetDir) {
   }
 
   console.log(`  🖥️  Dashboard running at ${url}`);
+  if (lanUrl) {
+    console.log(`  🌐 LAN access: ${lanUrl}`);
+  }
   console.log('  👀 Watch your agents work in real-time!');
   return true;
 }
