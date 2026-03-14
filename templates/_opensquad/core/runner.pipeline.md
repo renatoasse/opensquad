@@ -265,7 +265,10 @@ Apply this transformation consistently for every write in this step.
 - Save output to the specified output file
 
 #### If `type: checkpoint`
-- Present the checkpoint message to the user
+- **MANDATORY — Show context before asking:** Before presenting any question, READ the output files from the previous step(s) and display a clear, formatted summary so the user knows what was produced. The user must NEVER be asked to approve or choose without seeing the content first. Follow this order:
+  1. Read the `inputFile` or the previous step's `outputFile` (the content the user needs to evaluate)
+  2. Display a formatted preview: key highlights, first lines, bullet summary — enough for the user to make an informed decision
+  3. Then present the checkpoint question/options
 - If the checkpoint requires a choice (numbered list), present options as a numbered list and tell the user to reply with a number
 - Wait for user input before proceeding
 - Save the user's choice/response for the next step

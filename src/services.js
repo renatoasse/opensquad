@@ -8,12 +8,17 @@ const COMPOSE_FILE = 'docker-compose.yml';
 const CONFIG_FILE = 'config.json';
 
 // Timeouts and polling constants
-const DOCKER_INFO_TIMEOUT_MS = 5000;
+const DOCKER_INFO_TIMEOUT_MS = 10000;
 const DOCKER_POLL_INTERVAL_MS = 5000;
 const DOCKER_MAX_POLLS = 60; // 60 × 5s = 5min max wait
 const HTTP_DEFAULT_TIMEOUT_MS = 3000;
+const API_HEALTH_TIMEOUT_MS = 2000;
 const SERVICE_STARTUP_WAIT_MS = 5000;
 const MAX_FILE_SIZE_BYTES = 100 * 1024 * 1024; // 100 MB
+
+// Service ports
+const API_PORT = 5055;
+const LM_STUDIO_PORT = 1234;
 
 // Directories excluded from markdown file scanning
 const EXCLUDED_DIRS = ['node_modules', '.git', 'dist', 'build', '.opensquad-services', '.next', 'coverage', 'surreal_data', 'notebook_data'];
@@ -29,12 +34,12 @@ const DOCKER_DESKTOP_PATHS = {
 };
 
 const BASE_ENDPOINTS = [
-  { name: 'Open Notebook API', url: 'http://localhost:5055/health' },
+  { name: 'Open Notebook API', url: `http://localhost:${API_PORT}/health` },
   { name: 'Open Notebook UI', url: 'http://localhost:8502' },
   { name: 'SurrealDB', url: 'http://localhost:8000/health' },
 ];
 
-const LM_STUDIO_ENDPOINT = { name: 'LM Studio', url: 'http://localhost:1234/v1/models', optional: true };
+const LM_STUDIO_ENDPOINT = { name: 'LM Studio', url: `http://localhost:${LM_STUDIO_PORT}/v1/models`, optional: true };
 
 async function loadConfig(targetDir) {
   const defaults = { knowledgeBase: 'none', lmStudio: false };
@@ -133,15 +138,16 @@ async function ensureDocker() {
   return false;
 }
 
-async function httpGet(url, timeoutMs = HTTP_DEFAULT_TIMEOUT_MS) {
+async function httpGet(url, timeoutMs = HTTP_DEFAULT_TIMEOUT_MS, { includeBody = false } = {}) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
     const response = await fetch(url, { signal: controller.signal });
-    return { ok: response.ok, status: response.status };
+    const body = includeBody ? await response.text().catch(() => '') : undefined;
+    return { ok: response.ok, status: response.status, body };
   } catch {
-    return { ok: false, status: 0 };
+    return { ok: false, status: 0, body: undefined };
   } finally {
     clearTimeout(timer);
   }
@@ -161,7 +167,7 @@ async function httpPost(url, body, timeoutMs = 30000) {
 
     if (!response.ok) {
       const text = await response.text().catch(() => '');
-      throw new Error(`POST ${url} returned ${response.status}: ${text}`);
+      throw new Error(`POST ${url} returned ${response.status}: ${text.slice(0, 200)}`);
     }
 
     const text = await response.text();
@@ -175,8 +181,8 @@ async function httpPost(url, body, timeoutMs = 30000) {
   }
 }
 
-async function findMarkdownFiles(dir, baseDir, results = [], depth = 0) {
-  if (depth > 10) return results; // Prevent infinite recursion
+async function findMarkdownFiles(dir, baseDir, results = [], depth = 0, maxDepth = 10) {
+  if (depth > maxDepth) return results; // Prevent infinite recursion
 
   let entries;
   try {
@@ -196,7 +202,7 @@ async function findMarkdownFiles(dir, baseDir, results = [], depth = 0) {
         const real = await realpath(fullPath);
         if (!real.startsWith(baseDir)) continue;
       } catch { continue; }
-      await findMarkdownFiles(fullPath, baseDir, results, depth + 1);
+      await findMarkdownFiles(fullPath, baseDir, results, depth + 1, maxDepth);
     } else if (entry.name.endsWith('.md')) {
       results.push(fullPath);
     }
@@ -230,8 +236,16 @@ export async function ensureServices(targetDir) {
   }
 
   // 2. Check if Open Notebook API is already up
-  const apiStatus = await httpGet('http://localhost:5055/health', 2000);
-  if (apiStatus.ok) return; // All services already running
+  const apiStatus = await httpGet(`http://localhost:${API_PORT}/health`, API_HEALTH_TIMEOUT_MS, { includeBody: true });
+  if (apiStatus.ok) {
+    // Verify it's actually Open Notebook, not another service on this port
+    const body = (apiStatus.body || '').toLowerCase();
+    if (body && !body.includes('open') && !body.includes('notebook') && !body.includes('ok')) {
+      console.log(`  \u26a0\ufe0f  Port ${API_PORT} is in use by another service.`);
+      return;
+    }
+    return; // All services already running
+  }
 
   // 3. Ensure Docker Desktop is running
   const dockerReady = await ensureDocker();
@@ -252,7 +266,7 @@ export async function ensureServices(targetDir) {
     for (let i = 0; i < MAX_RETRIES; i++) {
       await sleep(3000);
       process.stdout.write('.');
-      const check = await httpGet('http://localhost:5055/health', 2000);
+      const check = await httpGet(`http://localhost:${API_PORT}/health`, API_HEALTH_TIMEOUT_MS);
       if (check.ok) {
         console.log('\n  ✅ Open Notebook services ready.');
         return;
@@ -270,7 +284,7 @@ export async function ensureServices(targetDir) {
  */
 async function ensureLmStudio() {
   // Check if already responding
-  const status = await httpGet('http://localhost:1234/v1/models', 2000);
+  const status = await httpGet(`http://localhost:${LM_STUDIO_PORT}/v1/models`, API_HEALTH_TIMEOUT_MS);
   if (status.ok) return;
 
   // Try `lms` CLI (LM Studio's command-line tool)
@@ -283,7 +297,7 @@ async function ensureLmStudio() {
     // Wait for it to be ready
     for (let i = 0; i < 5; i++) {
       await sleep(2000);
-      const check = await httpGet('http://localhost:1234/v1/models', 2000);
+      const check = await httpGet(`http://localhost:${LM_STUDIO_PORT}/v1/models`, API_HEALTH_TIMEOUT_MS);
       if (check.ok) {
         console.log('  ✅ LM Studio ready.');
         return;
@@ -392,14 +406,14 @@ export async function healthCheck(targetDir) {
 }
 
 export async function indexDocs(targetDir) {
-  const API_BASE = 'http://localhost:5055/api';
+  const API_BASE = `http://localhost:${API_PORT}/api`;
   const MIN_CONTENT_LENGTH = 100;
   const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB max per file
 
   // Verify API is reachable
-  const apiStatus = await httpGet('http://localhost:5055/health');
+  const apiStatus = await httpGet(`http://localhost:${API_PORT}/health`);
   if (!apiStatus.ok) {
-    console.error('  [ERROR] Open Notebook API is not reachable at http://localhost:5055');
+    console.error(`  [ERROR] Open Notebook API is not reachable at http://localhost:${API_PORT}`);
     console.error('  Start services first with: opensquad services start');
     return;
   }

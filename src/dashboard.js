@@ -38,7 +38,7 @@ async function hasNodeModules(dashboardPath) {
 function openBrowser(url) {
   try {
     if (IS_WIN) {
-      spawn('cmd', ['/c', 'start', url], { detached: true, stdio: 'ignore' }).unref();
+      spawn('cmd', ['/c', 'start', '""', url], { detached: true, stdio: 'ignore' }).unref();
     } else if (platform() === 'darwin') {
       spawn('open', [url], { detached: true, stdio: 'ignore' }).unref();
     } else {

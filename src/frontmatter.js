@@ -5,6 +5,10 @@
 
 const SUPPORTED_LOCALES = ['pt-BR', 'es'];
 
+function escapeRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 /**
  * Parse YAML frontmatter from a markdown string.
  * Returns null if no frontmatter block found.
@@ -20,7 +24,7 @@ export function parseFrontmatter(raw) {
  * Extract a simple scalar value from frontmatter.
  */
 export function getField(fm, key, fallback = '') {
-  const match = fm.match(new RegExp(`^${key}:\\s*(.+)$`, 'm'));
+  const match = fm.match(new RegExp(`^${escapeRegex(key)}:\\s*(.+)$`, 'm'));
   return match ? match[1].trim() : fallback;
 }
 
@@ -29,10 +33,11 @@ export function getField(fm, key, fallback = '') {
  */
 export function getDescription(fm, key = 'description') {
   // folded scalar
-  const blockMatch = fm.match(new RegExp(`^${key}:\\s*>\\s*\\n((?:\\s{2,}.+\\n?)+)`, 'm'));
+  const ek = escapeRegex(key);
+  const blockMatch = fm.match(new RegExp(`^${ek}:\\s*>\\s*\\n((?:\\s{2,}.+\\n?)+)`, 'm'));
   if (blockMatch) return blockMatch[1].replace(/\n\s*/g, ' ').trim();
   // inline
-  const inlineMatch = fm.match(new RegExp(`^${key}:\\s*(.+)$`, 'm'));
+  const inlineMatch = fm.match(new RegExp(`^${ek}:\\s*(.+)$`, 'm'));
   return inlineMatch ? inlineMatch[1].trim() : '';
 }
 
@@ -52,7 +57,7 @@ export function getLocalizedDescriptions(fm) {
  * Extract a YAML list (lines starting with "  - ").
  */
 export function getList(fm, key) {
-  const section = fm.match(new RegExp(`^${key}:\\s*\\n((?:\\s+-\\s+.+\\n?)+)`, 'm'));
+  const section = fm.match(new RegExp(`^${escapeRegex(key)}:\\s*\\n((?:\\s+-\\s+.+\\n?)+)`, 'm'));
   if (!section) return [];
   return section[1]
     .split('\n')
@@ -86,6 +91,7 @@ export function validateResourceId(id, resourceType = 'resource') {
   if (!/^[a-z0-9][a-z0-9-]*$/.test(id)) {
     throw new Error(`Invalid ${resourceType} id: '${id}'`);
   }
+  if (id.length > 64) throw new Error(`Resource ID too long (max 64 chars): ${id}`);
 }
 
 export { SUPPORTED_LOCALES };

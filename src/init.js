@@ -30,6 +30,78 @@ const KNOWLEDGE_BASES = [
   { label: 'Google NotebookLM (cloud)', value: 'notebooklm' },
 ];
 
+function sanitizeUserName(name) {
+  return name.replace(/[|[\]`*\n\r]/g, '').trim();
+}
+
+async function gatherUserPreferences(prompt, isReInit, savedLocale, targetDir) {
+  let language = 'English';
+  let ides = ['claude-code'];
+  let userName = '';
+  let knowledgeBase = 'none';
+  let useLmStudio = false;
+
+  try {
+    // Language is asked FIRST (in English, before locale is loaded)
+    const langChoice = await prompt.choose('What language do you prefer for outputs?', LANGUAGES);
+    language = langChoice.value;
+
+    // Load locale — all messages from here are translated
+    await loadLocale(language);
+
+    console.log(`\n  ${t('welcome')}\n`);
+
+    userName = sanitizeUserName(await prompt.ask(`  ${t('askName')}`));
+
+    ides = await prompt.multiChoose(t('chooseIdes'), IDES);
+
+    // Knowledge base selection
+    const kbChoice = await prompt.choose(
+      t('chooseKnowledgeBase') || 'Knowledge base for docs (reduces token usage):',
+      KNOWLEDGE_BASES
+    );
+    knowledgeBase = kbChoice.value;
+
+    // LM Studio question (only if Open Notebook selected)
+    if (knowledgeBase === 'open-notebook') {
+      const lmsChoice = await prompt.choose(
+        t('chooseLmStudio') || 'Use LM Studio for embeddings? (optional, uses ~2GB RAM only if enabled):',
+        [
+          { label: t('lmStudioYes') || 'Yes — install LM Studio (nomic-embed-text, zero cost, uses ~2GB RAM)', value: 'yes' },
+          { label: t('lmStudioNo') || 'No — use Open Notebook built-in embeddings (no extra RAM)', value: 'no', checked: true },
+        ]
+      );
+      useLmStudio = lmsChoice.value === 'yes';
+    }
+  } finally {
+    prompt.close();
+  }
+
+  return { language, ides, userName, knowledgeBase, useLmStudio };
+}
+
+function printNextSteps(ides) {
+  console.log(`\n  ${t('success')}\n`);
+  console.log(`  ${t('nextSteps')}`);
+  for (const ide of ides) {
+    if (ide === 'claude-code') {
+      console.log(`  ${t('step1ClaudeCode')}`);
+      console.log(`  ${t('step2ClaudeCode')}`);
+      console.log(`  ${t('step3ClaudeCode')}\n`);
+    } else if (ide === 'codex') {
+      console.log(`  ${t('step1Codex')}\n`);
+    } else if (ide === 'antigravity') {
+      console.log(`  ${t('step1Antigravity')}\n`);
+    } else if (ide === 'cursor') {
+      console.log(`  ${t('step1Cursor')}\n`);
+    } else if (ide === 'vscode-copilot') {
+      console.log(`  ${t('step1VsCodeCopilot')}`);
+      console.log(`  ${t('step2VsCodeCopilot')}`);
+      console.log(`  ${t('step3VsCodeCopilot')}\n`);
+    }
+  }
+}
+
 export async function init(targetDir, options = {}) {
 
   // Check if already initialized
@@ -52,42 +124,8 @@ export async function init(targetDir, options = {}) {
 
   if (!options._skipPrompts) {
     const prompt = createPrompt();
-
-    try {
-      // Language is asked FIRST (in English, before locale is loaded)
-      const langChoice = await prompt.choose('What language do you prefer for outputs?', LANGUAGES);
-      language = langChoice.value;
-
-      // Load locale — all messages from here are translated
-      await loadLocale(language);
-
-      console.log(`\n  ${t('welcome')}\n`);
-
-      userName = (await prompt.ask(`  ${t('askName')}`)).trim();
-
-      ides = await prompt.multiChoose(t('chooseIdes'), IDES);
-
-      // Knowledge base selection
-      const kbChoice = await prompt.choose(
-        t('chooseKnowledgeBase') || 'Knowledge base for docs (reduces token usage):',
-        KNOWLEDGE_BASES
-      );
-      knowledgeBase = kbChoice.value;
-
-      // LM Studio question (only if Open Notebook selected)
-      if (knowledgeBase === 'open-notebook') {
-        const lmsChoice = await prompt.choose(
-          t('chooseLmStudio') || 'Use LM Studio for embeddings? (optional, uses ~2GB RAM only if enabled):',
-          [
-            { label: t('lmStudioYes') || 'Yes — install LM Studio (nomic-embed-text, zero cost, uses ~2GB RAM)', value: 'yes' },
-            { label: t('lmStudioNo') || 'No — use Open Notebook built-in embeddings (no extra RAM)', value: 'no', checked: true },
-          ]
-        );
-        useLmStudio = lmsChoice.value === 'yes';
-      }
-    } finally {
-      prompt.close();
-    }
+    ({ language, ides, userName, knowledgeBase, useLmStudio } =
+      await gatherUserPreferences(prompt, isReInit, null, targetDir));
   } else {
     await loadLocale(language);
   }
@@ -108,9 +146,10 @@ export async function init(targetDir, options = {}) {
   // Write user preferences
   const prefsPath = join(targetDir, '_opensquad', '_memory', 'preferences.md');
   await mkdir(dirname(prefsPath), { recursive: true });
+  const sanitizedName = sanitizeUserName(userName);
   const prefsContent = `# Opensquad Preferences
 
-- **User Name:** ${userName}
+- **User Name:** ${sanitizedName}
 - **Output Language:** ${language}
 - **IDEs:** ${ides.join(', ')}
 - **Knowledge Base:** ${knowledgeBase}
@@ -119,25 +158,7 @@ export async function init(targetDir, options = {}) {
 `;
   await writeFile(prefsPath, prefsContent, 'utf-8');
 
-  console.log(`\n  ${t('success')}\n`);
-  console.log(`  ${t('nextSteps')}`);
-  for (const ide of ides) {
-    if (ide === 'claude-code') {
-      console.log(`  ${t('step1ClaudeCode')}`);
-      console.log(`  ${t('step2ClaudeCode')}`);
-      console.log(`  ${t('step3ClaudeCode')}\n`);
-    } else if (ide === 'codex') {
-      console.log(`  ${t('step1Codex')}\n`);
-    } else if (ide === 'antigravity') {
-      console.log(`  ${t('step1Antigravity')}\n`);
-    } else if (ide === 'cursor') {
-      console.log(`  ${t('step1Cursor')}\n`);
-    } else if (ide === 'vscode-copilot') {
-      console.log(`  ${t('step1VsCodeCopilot')}`);
-      console.log(`  ${t('step2VsCodeCopilot')}`);
-      console.log(`  ${t('step3VsCodeCopilot')}\n`);
-    }
-  }
+  printNextSteps(ides);
 }
 
 export async function loadSavedLocale(targetDir) {
@@ -433,14 +454,19 @@ async function setupOpenNotebook(targetDir, { useLmStudio = false } = {}) {
   }
 }
 
-export async function getTemplateEntries(dir) {
+export async function getTemplateEntries(dir, maxDepth = 10) {
+  if (maxDepth <= 0) {
+    console.log(`  ⚠️  Max directory depth reached at: ${dir}`);
+    return [];
+  }
+
   const results = [];
   const entries = await readdir(dir, { withFileTypes: true });
 
   for (const entry of entries) {
     const fullPath = join(dir, entry.name);
     if (entry.isDirectory()) {
-      results.push(...await getTemplateEntries(fullPath));
+      results.push(...await getTemplateEntries(fullPath, maxDepth - 1));
     } else {
       results.push(fullPath);
     }
