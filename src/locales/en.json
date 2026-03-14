@@ -67,5 +67,7 @@
   "agentsUnknownCommand": "Unknown agents command: {cmd}\n  Usage: opensquad agents list|install|remove|update",
   "step1VsCodeCopilot": "1. Open this directory in VS Code",
   "step2VsCodeCopilot": "2. Open Copilot Chat (Ctrl+Alt+I)",
-  "step3VsCodeCopilot": "3. Type /opensquad to get started"
+  "step3VsCodeCopilot": "3. Type /opensquad to get started",
+  "chooseKnowledgeBase": "Knowledge base for docs (reduces token usage):",
+  "chooseLmStudio": "Use LM Studio for local embeddings? (free, requires ~2GB RAM):"
 }
