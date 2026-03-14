@@ -107,6 +107,50 @@ O squad executa automaticamente, pausando apenas nos checkpoints onde sua decis�
 | `/opensquad install <nome>` | Instala uma skill do catálogo |
 | `/opensquad uninstall <nome>` | Remove uma skill instalada |
 
+## Open Notebook (Knowledge Base)
+
+Reduza o consumo de tokens em ~97% usando busca vetorial ao invés de carregar todos os .md direto no contexto.
+
+**Pré-requisitos:** Docker Desktop (com WSL2 no Windows)
+
+### Setup
+
+Durante o `npx opensquad init`, selecione **"Open Notebook (local, self-hosted)"** como knowledge base.
+
+### Comandos
+
+```bash
+npx opensquad services start    # Sobe SurrealDB + Open Notebook via Docker
+npx opensquad services stop     # Para os containers
+npx opensquad services health   # Verifica status dos serviços
+npx opensquad services index    # Indexa .md do projeto no Open Notebook
+```
+
+### Como funciona
+
+1. **SurrealDB** (porta 8000) — banco vetorial + grafo
+2. **Open Notebook** (porta 5055 API / 8502 UI) — NotebookLM self-hosted
+3. **LM Studio** (porta 1234, opcional) — embeddings locais gratuitos com nomic-embed-text
+4. **MCP Server** — `open-notebook-mcp` conecta Claude Code ao Open Notebook
+
+### Workflow
+
+```bash
+npx opensquad init              # Escolhe Open Notebook + LM Studio (opcional)
+npx opensquad services start    # Docker sobe SurrealDB + Open Notebook
+npx opensquad services index    # Indexa 51+ .md files → embeddings vetoriais
+# Pronto! Claude Code usa MCP para buscar docs por relevância (~500 tokens/query)
+```
+
+### Scripts PowerShell (Windows)
+
+```powershell
+.\scripts\start.ps1             # Start com health check e retry
+.\scripts\stop.ps1              # Stop containers
+.\scripts\health.ps1            # Health check detalhado
+.\scripts\index-docs.ps1        # Indexação com progresso visual
+```
+
 ## Licença
 
 MIT — use como quiser.
@@ -213,6 +257,50 @@ The squad runs automatically, pausing only at checkpoints where your decision is
 | `/opensquad skills` | Browse installed skills |
 | `/opensquad install <name>` | Install a skill from catalog |
 | `/opensquad uninstall <name>` | Remove an installed skill |
+
+## Open Notebook (Knowledge Base)
+
+Reduce token usage by ~97% using vector search instead of loading all .md files into context.
+
+**Prerequisites:** Docker Desktop (with WSL2 on Windows)
+
+### Setup
+
+During `npx opensquad init`, select **"Open Notebook (local, self-hosted)"** as knowledge base.
+
+### Commands
+
+```bash
+npx opensquad services start    # Start SurrealDB + Open Notebook via Docker
+npx opensquad services stop     # Stop containers
+npx opensquad services health   # Check service status
+npx opensquad services index    # Index project .md files into Open Notebook
+```
+
+### How it works
+
+1. **SurrealDB** (port 8000) — vector + graph database
+2. **Open Notebook** (port 5055 API / 8502 UI) — self-hosted NotebookLM
+3. **LM Studio** (port 1234, optional) — free local embeddings with nomic-embed-text
+4. **MCP Server** — `open-notebook-mcp` connects Claude Code to Open Notebook
+
+### Workflow
+
+```bash
+npx opensquad init              # Choose Open Notebook + LM Studio (optional)
+npx opensquad services start    # Docker starts SurrealDB + Open Notebook
+npx opensquad services index    # Index 51+ .md files → vector embeddings
+# Done! Claude Code uses MCP to search docs by relevance (~500 tokens/query)
+```
+
+### PowerShell Scripts (Windows)
+
+```powershell
+.\scripts\start.ps1             # Start with health check and retry
+.\scripts\stop.ps1              # Stop containers
+.\scripts\health.ps1            # Detailed health check
+.\scripts\index-docs.ps1        # Index with visual progress
+```
 
 ## License
 
