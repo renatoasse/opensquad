@@ -170,6 +170,38 @@ async function installDependencies(targetDir) {
   execFileSync('npm', ['install'], { cwd: join(targetDir, 'dashboard'), stdio: 'inherit' });
   console.log(`\n  Installing Playwright browsers...`);
   execFileSync('npx', ['playwright', 'install', 'chromium'], { cwd: targetDir, stdio: 'inherit' });
+
+  // Install RTK (Rust Token Killer) — reduces token consumption by 60-90%
+  await installRtk();
+}
+
+async function installRtk() {
+  // Check if already installed
+  try {
+    execFileSync('rtk', ['--version'], { stdio: 'pipe', timeout: 5000 });
+    console.log(`\n  ✅ RTK (Rust Token Killer) already installed.`);
+    return;
+  } catch {
+    // Not installed — try to install
+  }
+
+  // Check if cargo is available
+  try {
+    execFileSync('cargo', ['--version'], { stdio: 'pipe', timeout: 5000 });
+  } catch {
+    console.log(`\n  ⚠️  RTK requires Rust/Cargo. Install Rust first: https://rustup.rs`);
+    console.log(`  Then run: cargo install rtk`);
+    return;
+  }
+
+  console.log(`\n  📦 Installing RTK (Rust Token Killer) — saves 60-90% tokens on CLI output...`);
+  try {
+    execFileSync('cargo', ['install', 'rtk-cli'], { stdio: 'inherit', timeout: 300000 });
+    console.log(`  ✅ RTK installed. Prefix commands with 'rtk' to compress output.`);
+  } catch (err) {
+    console.log(`  ⚠️  RTK install failed: ${err.message}`);
+    console.log(`  Install manually: cargo install rtk`);
+  }
 }
 
 async function writeProjectReadme(targetDir) {
