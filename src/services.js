@@ -58,7 +58,7 @@ async function httpPost(url, body, timeoutMs = 30000) {
 }
 
 async function findMarkdownFiles(dir, baseDir, results = []) {
-  const EXCLUDED = ['node_modules', '.git'];
+  const EXCLUDED = ['node_modules', '.git', '.opensquad-services', 'surreal_data', 'notebook_data'];
 
   let entries;
   try {
@@ -97,7 +97,12 @@ export async function startServices(targetDir) {
   }
 
   console.log('  Starting Open Notebook services...');
-  execSync(`docker compose -f "${composePath}" up -d`, { stdio: 'inherit' });
+  try {
+    execSync(`docker compose -f "${composePath}" up -d`, { stdio: 'inherit' });
+  } catch {
+    console.error('  [ERROR] Failed to start services. Is Docker installed and running?');
+    return;
+  }
 
   console.log('  Waiting for services to initialize...');
   await sleep(5000);
@@ -126,7 +131,12 @@ export async function stopServices(targetDir) {
   }
 
   console.log('  Stopping Open Notebook services...');
-  execSync(`docker compose -f "${composePath}" down`, { stdio: 'inherit' });
+  try {
+    execSync(`docker compose -f "${composePath}" down`, { stdio: 'inherit' });
+  } catch {
+    console.error('  [ERROR] Failed to stop services. Is Docker installed and running?');
+    return;
+  }
   console.log('  Services stopped.');
 }
 
@@ -199,15 +209,30 @@ export async function indexDocs(targetDir) {
 
   console.log(`  Indexing ${validFiles.length} file(s) into Open Notebook...\n`);
 
-  // Create notebook
+  // Find or create notebook
   let notebookId;
   try {
     const notebook = await httpPost(`${API_BASE}/notebooks`, { name: 'OpenSquad Docs' });
     notebookId = notebook.id;
     console.log(`  Created notebook "OpenSquad Docs" (${notebookId})`);
-  } catch (err) {
-    console.error(`  [ERROR] Failed to create notebook: ${err.message}`);
-    return;
+  } catch {
+    // Notebook may already exist — try to find it
+    try {
+      const res = await fetch(`${API_BASE}/notebooks`);
+      const notebooks = await res.json();
+      const existing = (Array.isArray(notebooks) ? notebooks : notebooks.data || [])
+        .find((n) => n.name === 'OpenSquad Docs');
+      if (existing) {
+        notebookId = existing.id;
+        console.log(`  Using existing notebook "OpenSquad Docs" (${notebookId})`);
+      } else {
+        console.error('  [ERROR] Failed to create or find notebook.');
+        return;
+      }
+    } catch (err) {
+      console.error(`  [ERROR] Failed to access notebooks: ${err.message}`);
+      return;
+    }
   }
 
   // Index each file

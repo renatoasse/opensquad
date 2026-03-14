@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import { cp, mkdir, readdir, readFile, writeFile, stat } from 'node:fs/promises';
+import { appendFile, cp, mkdir, readdir, readFile, writeFile, stat } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execSync } from 'node:child_process';
@@ -308,6 +308,16 @@ async function setupOpenNotebook(targetDir) {
     env: { OPEN_NOTEBOOK_URL: 'http://localhost:5055' }
   };
   await writeFile(mcpPath, JSON.stringify(mcpConfig, null, 2), 'utf-8');
+
+  // Ensure .opensquad-services/ is in .gitignore (contains secrets)
+  const gitignorePath = join(targetDir, '.gitignore');
+  try {
+    const existing = await readFile(gitignorePath, 'utf-8').catch(() => '');
+    if (!existing.includes('.opensquad-services')) {
+      const line = existing.endsWith('\n') || existing === '' ? '' : '\n';
+      await appendFile(gitignorePath, `${line}# OpenSquad services (contains encryption keys)\n.opensquad-services/\n`);
+    }
+  } catch { /* best effort */ }
 
   console.log('  ✅ Open Notebook configured (.opensquad-services/)');
   console.log('  📋 Run: npx opensquad services start');
