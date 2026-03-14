@@ -1,6 +1,6 @@
 import crypto from 'node:crypto';
 import { appendFile, cp, mkdir, readdir, readFile, writeFile, stat } from 'node:fs/promises';
-import { join, dirname } from 'node:path';
+import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { createPrompt } from './prompt.js';
@@ -204,8 +204,15 @@ async function installAllSkills(targetDir) {
 async function installDependencies(targetDir) {
   // shell: true only on Windows where npm/npx are .cmd batch files
   const shellOpt = process.platform === 'win32';
-  const run = (cmd, args, cwd) =>
-    execFileSync(cmd, args, { cwd, stdio: 'inherit', shell: shellOpt, timeout: 120000 });
+  const run = (cmd, args, cwd) => {
+    const resolved = resolve(cwd);
+    if (shellOpt) {
+      // Windows: run via cmd.exe to resolve .cmd/.bat scripts (npm, npx)
+      const full = [cmd, ...args].join(' ');
+      return execFileSync('cmd', ['/c', full], { cwd: resolved, stdio: 'inherit', timeout: 120000 });
+    }
+    return execFileSync(cmd, args, { cwd: resolved, stdio: 'inherit', timeout: 120000 });
+  };
 
   const steps = [
     { label: 'Installing dependencies...', cmd: 'npm', args: ['install'], cwd: targetDir },
