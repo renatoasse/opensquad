@@ -79,8 +79,8 @@ export async function init(targetDir, options = {}) {
         const lmsChoice = await prompt.choose(
           t('chooseLmStudio') || 'Use LM Studio for local embeddings? (free, requires ~2GB RAM):',
           [
-            { label: 'Yes — use LM Studio (nomic-embed-text, zero cost)', value: 'yes' },
-            { label: 'No — use Open Notebook default embeddings', value: 'no', checked: true },
+            { label: t('lmStudioYes') || 'Yes — use LM Studio (nomic-embed-text, zero cost)', value: 'yes' },
+            { label: t('lmStudioNo') || 'No — use Open Notebook default embeddings', value: 'no', checked: true },
           ]
         );
         useLmStudio = lmsChoice.value === 'yes';

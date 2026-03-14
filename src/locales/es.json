@@ -68,5 +68,7 @@
   "step2VsCodeCopilot": "2. Abre el Copilot Chat (Ctrl+Alt+I)",
   "step3VsCodeCopilot": "3. Escribe /opensquad para empezar",
   "chooseKnowledgeBase": "Base de conocimiento para docs (reduce uso de tokens):",
-  "chooseLmStudio": "¿Usar LM Studio para embeddings locales? (gratis, requiere ~2GB RAM):"
+  "chooseLmStudio": "¿Usar LM Studio para embeddings locales? (gratis, requiere ~2GB RAM):",
+  "lmStudioYes": "Sí — usar LM Studio (nomic-embed-text, costo cero)",
+  "lmStudioNo": "No — usar embeddings predeterminados de Open Notebook"
 }
