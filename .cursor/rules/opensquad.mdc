@@ -1,3 +1,7 @@
+---
+description: Opensquad multi-agent orchestration framework instructions
+alwaysApply: true
+---
 # Opensquad — Project Instructions
 
 This project uses **Opensquad**, a multi-agent orchestration framework.
@@ -13,6 +17,7 @@ Type `/opensquad` to open the main menu, or use any of these commands:
 
 - `_opensquad/` — Opensquad core files (do not modify manually)
 - `_opensquad/_memory/` — Persistent memory (company context, preferences)
+- `skills/` — Installed skills (integrations, scripts, prompts)
 - `squads/` — User-created squads
 - `squads/{name}/_investigations/` — Sherlock content investigations (profile analyses)
 - `squads/{name}/output/` — Generated content and files
@@ -40,4 +45,4 @@ Opensquad uses a persistent Playwright browser profile to keep you logged into s
 - Sessions are stored in `_opensquad/_browser_profile/` (gitignored, private to you)
 - First time accessing a platform, you'll log in manually once
 - Subsequent runs will reuse your saved session
-- **Important:** The native Claude Code Playwright plugin must be disabled. Opensquad uses its own `@playwright/mcp` server configured in `.mcp.json`.
+- **Important:** Opensquad uses its own `@playwright/mcp` server configured in `.cursor/mcp.json`.

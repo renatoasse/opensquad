@@ -156,6 +156,20 @@ When the user selects "Skills" from the menu or types `/opensquad skills`:
 - Internal file names and code remain in English
 - Agent personas communicate in the user's language
 
+## Checkpoint Handling (Claude Code)
+
+This overrides the shared `runner.pipeline.md` checkpoint behavior for Claude Code. Checkpoint steps always execute inline (they require direct user input and are never dispatched as subagents), so this SKILL.md context is always present when a checkpoint runs.
+
+**Rule: ALL checkpoint questions MUST use `AskUserQuestion`.** Never output a question as plain text.
+
+When a checkpoint has multiple user questions, combine them into a single `AskUserQuestion` call (the tool supports up to 4 question slots per call; each slot must still have 2–4 options, per Critical Rules below).
+
+**Free-text questions** (questions with no predefined option list):
+- Extract 2–3 concrete examples from the question's description or bullet list as options
+- The tool always provides an "Other" option for custom text input — no need to add it manually
+
+**Choice questions** (questions with a numbered list of options): use `AskUserQuestion` as usual.
+
 ## Critical Rules
 
 - **AskUserQuestion MUST always have 2-4 options.** When presenting a dynamic list (squads, skills, agents, etc.) as AskUserQuestion options and only 1 item exists, ALWAYS add a fallback option like "Cancel" or "Back to menu" to ensure the minimum of 2 options. If 0 items exist, skip AskUserQuestion entirely and inform the user directly.

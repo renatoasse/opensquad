@@ -77,10 +77,10 @@ export async function init(targetDir, options = {}) {
       // LM Studio question (only if Open Notebook selected)
       if (knowledgeBase === 'open-notebook') {
         const lmsChoice = await prompt.choose(
-          t('chooseLmStudio') || 'Use LM Studio for local embeddings? (free, requires ~2GB RAM):',
+          t('chooseLmStudio') || 'Use LM Studio for embeddings? (optional, uses ~2GB RAM only if enabled):',
           [
-            { label: t('lmStudioYes') || 'Yes — use LM Studio (nomic-embed-text, zero cost)', value: 'yes' },
-            { label: t('lmStudioNo') || 'No — use Open Notebook default embeddings', value: 'no', checked: true },
+            { label: t('lmStudioYes') || 'Yes — install LM Studio (nomic-embed-text, zero cost, uses ~2GB RAM)', value: 'yes' },
+            { label: t('lmStudioNo') || 'No — use Open Notebook built-in embeddings (no extra RAM)', value: 'no', checked: true },
           ]
         );
         useLmStudio = lmsChoice.value === 'yes';

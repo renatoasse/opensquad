@@ -1,4 +1,4 @@
-import { cp, readdir, readFile, rm, stat } from 'node:fs/promises';
+import { cp, readdir, readFile, realpath, rm, stat } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -96,6 +96,15 @@ export async function installSkill(id, targetDir) {
     throw err;
   }
   const destDir = join(targetDir, 'skills', id);
+  // Skip copy when running init from inside the opensquad project itself
+  const realSrc = await realpath(srcDir);
+  let realDest;
+  try {
+    realDest = await realpath(destDir);
+  } catch {
+    realDest = null; // dest doesn't exist yet — safe to copy
+  }
+  if (realSrc === realDest) return;
   await cp(srcDir, destDir, { recursive: true });
 }
 
