@@ -103,3 +103,14 @@ When running a squad:
 - When switching personas (inline execution), clearly indicate which agent is speaking
 - When using subagents, inform the user that background work is happening
 - After each pipeline run, update the squad's memories.md with key learnings
+
+## RTK (Rust Token Killer) — MANDATORY
+
+**Always prefix shell commands with `rtk`**. RTK compresses CLI output by 60-90%, saving thousands of tokens per session.
+
+```bash
+rtk git status && rtk git diff && rtk git log
+rtk npm install && rtk cargo build && rtk docker ps
+```
+
+RTK is installed during `npx opensquad init`. If missing: `cargo install rtk`

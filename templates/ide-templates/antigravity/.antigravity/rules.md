@@ -106,6 +106,17 @@ When running a squad:
 - NEVER ask more than one question per message — always wait for the user's answer before proceeding to the next question (this environment has no interactive tool; numbered replies replace it)
 - When presenting options, always use a numbered list (1. / 2. / 3.) — tell the user to reply with the option number
 
+## RTK (Rust Token Killer) — MANDATORY
+
+**Always prefix shell commands with `rtk`**. RTK compresses CLI output by 60-90%, saving thousands of tokens per session.
+
+```bash
+rtk git status && rtk git diff && rtk git log
+rtk npm install && rtk cargo build && rtk docker ps
+```
+
+RTK is installed during `npx opensquad init`. If missing: `cargo install rtk`
+
 ## Antigravity Environment: Subagents
 
 This environment (Google Antigravity) does not support spawning background or parallel subagents. When agent instructions (e.g., from the Architect) say to "use the Task tool with run_in_background: true" or similar, you MUST instead execute all tasks inline and sequentially:

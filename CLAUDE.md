@@ -34,6 +34,32 @@ Type `/opensquad` to open the main menu, or use any of these commands:
 - Squad YAML files can be edited manually if needed, but prefer using `/opensquad edit`
 - Company context in `_opensquad/_memory/company.md` is loaded for every squad run
 
+## RTK (Rust Token Killer) — MANDATORY
+
+**Always prefix shell commands with `rtk`**. RTK compresses CLI output by 60-90%, saving thousands of tokens per session.
+
+```bash
+# ✅ Correct — always use rtk
+rtk git status
+rtk git log
+rtk git diff
+rtk npm install
+rtk cargo build
+rtk docker ps
+
+# ❌ Wrong — never run bare commands
+git status
+git log
+npm install
+```
+
+Even in chained commands:
+```bash
+rtk git add . && rtk git commit -m "msg" && rtk git push
+```
+
+RTK is installed automatically during `npx opensquad init`. If missing: `cargo install rtk`
+
 ## Browser Sessions
 
 Opensquad uses a persistent Playwright browser profile to keep you logged into social media platforms.

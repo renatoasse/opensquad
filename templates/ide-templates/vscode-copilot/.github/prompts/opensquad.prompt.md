@@ -158,6 +158,17 @@ When the user selects Skills or types `/opensquad skills`:
 - Always load company context before running any squad
 - When switching personas (agent adoption), clearly indicate which agent is speaking
 
+## RTK (Rust Token Killer) — MANDATORY
+
+**Always prefix shell commands with `rtk`**. RTK compresses CLI output by 60-90%, saving thousands of tokens per session.
+
+```bash
+rtk git status && rtk git diff && rtk git log
+rtk npm install && rtk cargo build && rtk docker ps
+```
+
+RTK is installed during `npx opensquad init`. If missing: `cargo install rtk`
+
 ## Help Text
 
 When `/opensquad help` is typed or help is requested:
