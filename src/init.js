@@ -364,7 +364,21 @@ async function setupOpenNotebook(targetDir, { useLmStudio = false } = {}) {
   if (useLmStudio) {
     console.log('  🤖 LM Studio enabled — start it with: lms daemon up');
   }
-  console.log('  📋 Run: npx opensquad services start');
+
+  // Auto-start Docker services
+  console.log('\n  🐳 Starting Docker services...');
+  try {
+    const { startServices, indexDocs } = await import('./services.js');
+    await startServices(targetDir);
+
+    // Auto-index all .md files
+    console.log('\n  📚 Indexing documentation into vector database...');
+    await indexDocs(targetDir);
+  } catch (err) {
+    console.log(`\n  ⚠️  Could not auto-start services: ${err.message}`);
+    console.log('  📋 Start manually later: npx opensquad services start');
+    console.log('  📋 Then index docs: npx opensquad services index');
+  }
 }
 
 export async function getTemplateEntries(dir) {
