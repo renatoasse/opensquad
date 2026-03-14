@@ -1,10 +1,21 @@
 import { readdir, readFile, realpath, stat } from 'node:fs/promises';
 import { join, relative } from 'node:path';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, execFile } from 'node:child_process';
+import { platform } from 'node:os';
 
 const SERVICES_DIR = '.opensquad-services';
 const COMPOSE_FILE = 'docker-compose.yml';
 const CONFIG_FILE = 'config.json';
+
+// Common Docker Desktop paths per platform
+const DOCKER_DESKTOP_PATHS = {
+  win32: [
+    'C:\\Program Files\\Docker\\Docker\\Docker Desktop.exe',
+    `${process.env.LOCALAPPDATA || ''}\\Docker\\Docker Desktop.exe`,
+  ],
+  darwin: ['/Applications/Docker.app/Contents/MacOS/Docker Desktop'],
+  linux: ['/usr/bin/docker-desktop', '/opt/docker-desktop/bin/docker-desktop'],
+};
 
 const BASE_ENDPOINTS = [
   { name: 'Open Notebook API', url: 'http://localhost:5055/health' },
@@ -37,6 +48,70 @@ function getComposePath(targetDir) {
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Check if Docker daemon is running.
+ */
+function isDockerRunning() {
+  try {
+    execFileSync('docker', ['info'], { stdio: 'pipe', timeout: 10000 });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Try to launch Docker Desktop automatically.
+ * Returns true if Docker became available, false otherwise.
+ */
+async function ensureDocker() {
+  if (isDockerRunning()) return true;
+
+  // Find Docker Desktop executable
+  const os = platform();
+  const paths = DOCKER_DESKTOP_PATHS[os] || [];
+  let dockerPath = null;
+
+  for (const p of paths) {
+    try {
+      await stat(p);
+      dockerPath = p;
+      break;
+    } catch {
+      continue;
+    }
+  }
+
+  if (!dockerPath) {
+    console.log('  ⚠️  Docker Desktop not found. Install: https://docker.com/products/docker-desktop');
+    return false;
+  }
+
+  // Launch Docker Desktop (detached, non-blocking)
+  console.log('  🐳 Starting Docker Desktop...');
+  const child = execFile(dockerPath, [], {
+    detached: true,
+    stdio: 'ignore',
+    windowsHide: true,
+  });
+  child.unref(); // Don't wait for Docker Desktop process
+
+  // Wait for Docker daemon to be ready (max 60s)
+  process.stdout.write('  ⏳ Waiting for Docker daemon');
+  for (let i = 0; i < 20; i++) {
+    await sleep(3000);
+    process.stdout.write('.');
+    if (isDockerRunning()) {
+      console.log('\n  ✅ Docker Desktop ready.');
+      return true;
+    }
+  }
+
+  console.log('\n  ⚠️  Docker Desktop started but daemon not ready yet (timeout 60s).');
+  console.log('  Wait a moment and try again: npx opensquad services start');
+  return false;
 }
 
 async function httpGet(url, timeoutMs = 3000) {
@@ -131,6 +206,10 @@ export async function ensureServices(targetDir) {
   const apiStatus = await httpGet('http://localhost:5055/health', 2000);
   if (apiStatus.ok) return; // Already running
 
+  // Ensure Docker Desktop is running
+  const dockerReady = await ensureDocker();
+  if (!dockerReady) return;
+
   // Try to start silently
   console.log('  🐳 Starting Open Notebook services...');
   try {
@@ -173,12 +252,15 @@ export async function startServices(targetDir) {
     throw err;
   }
 
+  // Ensure Docker Desktop is running
+  const dockerReady = await ensureDocker();
+  if (!dockerReady) return;
+
   console.log('  Starting Open Notebook services...');
   try {
     execFileSync('docker', ['compose', '-f', composePath, 'up', '-d'], { stdio: 'inherit' });
   } catch (err) {
     console.error(`  [ERROR] Failed to start services: ${err.message}`);
-    console.error('  Is Docker installed and running?');
     return;
   }
 
