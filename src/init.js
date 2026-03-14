@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 import { appendFile, cp, mkdir, readdir, readFile, writeFile, stat } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { createPrompt } from './prompt.js';
 import { loadLocale, t } from './i18n.js';
 import { listAvailable, installSkill } from './skills.js';
@@ -165,11 +165,11 @@ async function installAllSkills(targetDir) {
 
 async function installDependencies(targetDir) {
   console.log(`\n  Installing dependencies...`);
-  execSync('npm install', { cwd: targetDir, stdio: 'inherit' });
+  execFileSync('npm', ['install'], { cwd: targetDir, stdio: 'inherit' });
   console.log(`\n  Installing dashboard dependencies...`);
-  execSync('npm install', { cwd: join(targetDir, 'dashboard'), stdio: 'inherit' });
+  execFileSync('npm', ['install'], { cwd: join(targetDir, 'dashboard'), stdio: 'inherit' });
   console.log(`\n  Installing Playwright browsers...`);
-  execSync('npx playwright install chromium', { cwd: targetDir, stdio: 'inherit' });
+  execFileSync('npx', ['playwright', 'install', 'chromium'], { cwd: targetDir, stdio: 'inherit' });
 }
 
 async function writeProjectReadme(targetDir) {
@@ -286,6 +286,12 @@ async function setupOpenNotebook(targetDir, { useLmStudio = false } = {}) {
       - "127.0.0.1:8000:8000"
     volumes:
       - ./surreal_data:/mydata
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
     restart: always
     pull_policy: always
 
@@ -304,7 +310,14 @@ async function setupOpenNotebook(targetDir, { useLmStudio = false } = {}) {
     volumes:
       - ./notebook_data:/app/data
     depends_on:
-      - surrealdb
+      surrealdb:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5055/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
     restart: always
     pull_policy: always
 `;
@@ -314,7 +327,12 @@ async function setupOpenNotebook(targetDir, { useLmStudio = false } = {}) {
   const mcpPath = join(targetDir, '.mcp.json');
   let mcpConfig = {};
   try {
-    mcpConfig = JSON.parse(await readFile(mcpPath, 'utf-8'));
+    const raw = await readFile(mcpPath, 'utf-8');
+    try {
+      mcpConfig = JSON.parse(raw);
+    } catch {
+      console.log('  ⚠️  .mcp.json has invalid JSON — will be overwritten');
+    }
   } catch { /* doesn't exist yet */ }
 
   mcpConfig.mcpServers = mcpConfig.mcpServers || {};

@@ -70,7 +70,12 @@ async function httpPost(url, body, timeoutMs = 30000) {
       throw new Error(`POST ${url} returned ${response.status}: ${text}`);
     }
 
-    return response.json();
+    const text = await response.text();
+    try {
+      return JSON.parse(text);
+    } catch {
+      throw new Error(`POST ${url} returned invalid JSON: ${text.slice(0, 200)}`);
+    }
   } finally {
     clearTimeout(timer);
   }
@@ -123,8 +128,9 @@ export async function startServices(targetDir) {
   console.log('  Starting Open Notebook services...');
   try {
     execFileSync('docker', ['compose', '-f', composePath, 'up', '-d'], { stdio: 'inherit' });
-  } catch {
-    console.error('  [ERROR] Failed to start services. Is Docker installed and running?');
+  } catch (err) {
+    console.error(`  [ERROR] Failed to start services: ${err.message}`);
+    console.error('  Is Docker installed and running?');
     return;
   }
 
@@ -157,8 +163,9 @@ export async function stopServices(targetDir) {
   console.log('  Stopping Open Notebook services...');
   try {
     execFileSync('docker', ['compose', '-f', composePath, 'down'], { stdio: 'inherit' });
-  } catch {
-    console.error('  [ERROR] Failed to stop services. Is Docker installed and running?');
+  } catch (err) {
+    console.error(`  [ERROR] Failed to stop services: ${err.message}`);
+    console.error('  Is Docker installed and running?');
     return;
   }
   console.log('  Services stopped.');
