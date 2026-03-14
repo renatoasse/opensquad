@@ -400,7 +400,7 @@ async function setupOpenNotebook(targetDir, { useLmStudio = false } = {}) {
   }
 
   // Auto-start Docker services
-  console.log('\n  🐳 Starting Docker services...');
+  console.log('\n  🐳 Checking Docker services...');
   try {
     const { startServices, indexDocs } = await import('./services.js');
     await startServices(targetDir);

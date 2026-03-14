@@ -67,7 +67,10 @@ function isDockerRunning() {
  * Returns true if Docker became available, false otherwise.
  */
 async function ensureDocker() {
-  if (isDockerRunning()) return true;
+  if (isDockerRunning()) {
+    console.log('  ✅ Docker already running.');
+    return true;
+  }
 
   // Find Docker Desktop executable
   const os = platform();
