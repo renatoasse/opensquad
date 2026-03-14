@@ -187,9 +187,12 @@ async function findMarkdownFiles(dir, baseDir, results = []) {
 }
 
 /**
- * Silently ensures services are running if Open Notebook was configured.
- * Called automatically before any opensquad command that might need vector search.
- * Does nothing if: no config, knowledgeBase !== 'open-notebook', or services already up.
+ * Reads init config and ensures ALL configured services are running.
+ * Called automatically before any opensquad command (except init/services).
+ *
+ * Based on config.json from init:
+ * - knowledgeBase === 'open-notebook' → Docker Desktop + SurrealDB + Open Notebook
+ * - lmStudio === true → LM Studio daemon
  */
 export async function ensureServices(targetDir) {
   const config = await loadConfig(targetDir);
@@ -202,24 +205,29 @@ export async function ensureServices(targetDir) {
     return; // No docker-compose.yml — not configured
   }
 
-  // Check if API is already up
-  const apiStatus = await httpGet('http://localhost:5055/health', 2000);
-  if (apiStatus.ok) return; // Already running
+  // 1. Ensure LM Studio is running (if configured)
+  if (config.lmStudio) {
+    await ensureLmStudio();
+  }
 
-  // Ensure Docker Desktop is running
+  // 2. Check if Open Notebook API is already up
+  const apiStatus = await httpGet('http://localhost:5055/health', 2000);
+  if (apiStatus.ok) return; // All services already running
+
+  // 3. Ensure Docker Desktop is running
   const dockerReady = await ensureDocker();
   if (!dockerReady) return;
 
-  // Try to start silently
+  // 4. Start containers (SurrealDB + Open Notebook)
   console.log('  🐳 Starting Open Notebook services...');
   try {
     execFileSync('docker', ['compose', '-f', composePath, 'up', '-d'], {
-      stdio: 'pipe', // Silent — no Docker output spam
-      maxBuffer: 5 * 1024 * 1024, // 5MB buffer limit
-      timeout: 60000, // 60s timeout for docker pull + start
+      stdio: 'pipe',
+      maxBuffer: 5 * 1024 * 1024,
+      timeout: 60000,
     });
 
-    // Wait for health (max 30s with progress dots)
+    // Wait for API health (max 30s with progress dots)
     const MAX_RETRIES = 10;
     process.stdout.write('  ⏳ Waiting for API');
     for (let i = 0; i < MAX_RETRIES; i++) {
@@ -234,7 +242,38 @@ export async function ensureServices(targetDir) {
     console.log('\n  ⚠️  Services started but API not ready yet (timeout 30s).');
     console.log('  Check: npx opensquad services health');
   } catch {
-    console.log('  ⚠️  Could not auto-start Docker. Run: npx opensquad services start');
+    console.log('  ⚠️  Could not start containers. Run: npx opensquad services start');
+  }
+}
+
+/**
+ * Ensure LM Studio daemon is running for local embeddings.
+ */
+async function ensureLmStudio() {
+  // Check if already responding
+  const status = await httpGet('http://localhost:1234/v1/models', 2000);
+  if (status.ok) return;
+
+  // Try `lms` CLI (LM Studio's command-line tool)
+  try {
+    execFileSync('lms', ['status'], { stdio: 'pipe', timeout: 5000 });
+    // lms exists but server not responding — start it
+    console.log('  🤖 Starting LM Studio daemon...');
+    execFileSync('lms', ['server', 'start'], { stdio: 'pipe', timeout: 15000 });
+
+    // Wait for it to be ready
+    for (let i = 0; i < 5; i++) {
+      await sleep(2000);
+      const check = await httpGet('http://localhost:1234/v1/models', 2000);
+      if (check.ok) {
+        console.log('  ✅ LM Studio ready.');
+        return;
+      }
+    }
+    console.log('  ⚠️  LM Studio started but not responding yet.');
+  } catch {
+    // lms CLI not found — user needs to open LM Studio manually
+    console.log('  ⚠️  LM Studio not running. Open LM Studio app or run: lms server start');
   }
 }
 
