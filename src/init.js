@@ -48,6 +48,7 @@ export async function init(targetDir, options = {}) {
   let ides = options._ides ?? ['claude-code'];
   let userName = '';
   let knowledgeBase = 'none';
+  let useLmStudio = false;
 
   if (!options._skipPrompts) {
     const prompt = createPrompt();
@@ -72,6 +73,18 @@ export async function init(targetDir, options = {}) {
         KNOWLEDGE_BASES
       );
       knowledgeBase = kbChoice.value;
+
+      // LM Studio question (only if Open Notebook selected)
+      if (knowledgeBase === 'open-notebook') {
+        const lmsChoice = await prompt.choose(
+          t('chooseLmStudio') || 'Use LM Studio for local embeddings? (free, requires ~2GB RAM):',
+          [
+            { label: 'Yes — use LM Studio (nomic-embed-text, zero cost)', value: 'yes' },
+            { label: 'No — use Open Notebook default embeddings', value: 'no', checked: true },
+          ]
+        );
+        useLmStudio = lmsChoice.value === 'yes';
+      }
     } finally {
       prompt.close();
     }
@@ -88,7 +101,7 @@ export async function init(targetDir, options = {}) {
   }
   // Setup knowledge base
   if (knowledgeBase === 'open-notebook') {
-    await setupOpenNotebook(targetDir);
+    await setupOpenNotebook(targetDir, { useLmStudio });
   }
   await writeProjectReadme(targetDir);
 
@@ -101,6 +114,7 @@ export async function init(targetDir, options = {}) {
 - **Output Language:** ${language}
 - **IDEs:** ${ides.join(', ')}
 - **Knowledge Base:** ${knowledgeBase}
+- **LM Studio:** ${useLmStudio ? 'enabled' : 'disabled'}
 - **Date Format:** YYYY-MM-DD
 `;
   await writeFile(prefsPath, prefsContent, 'utf-8');
@@ -255,7 +269,7 @@ async function mergeVsCodeSettings(targetDir) {
   await writeFile(settingsPath, JSON.stringify(parsed, null, 2), 'utf-8');
 }
 
-async function setupOpenNotebook(targetDir) {
+async function setupOpenNotebook(targetDir, { useLmStudio = false } = {}) {
   const servicesDir = join(targetDir, '.opensquad-services');
   await mkdir(servicesDir, { recursive: true });
 
@@ -321,7 +335,17 @@ async function setupOpenNotebook(targetDir) {
     }
   } catch { /* best effort */ }
 
+  // Save services config for health check and other commands
+  const servicesConfig = {
+    knowledgeBase: 'open-notebook',
+    lmStudio: useLmStudio,
+  };
+  await writeFile(join(servicesDir, 'config.json'), JSON.stringify(servicesConfig, null, 2), 'utf-8');
+
   console.log('  ✅ Open Notebook configured (.opensquad-services/)');
+  if (useLmStudio) {
+    console.log('  🤖 LM Studio enabled — start it with: lms daemon up');
+  }
   console.log('  📋 Run: npx opensquad services start');
 }
 

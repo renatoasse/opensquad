@@ -4,13 +4,32 @@ import { execFileSync } from 'node:child_process';
 
 const SERVICES_DIR = '.opensquad-services';
 const COMPOSE_FILE = 'docker-compose.yml';
+const CONFIG_FILE = 'config.json';
 
-const ENDPOINTS = [
+const BASE_ENDPOINTS = [
   { name: 'Open Notebook API', url: 'http://localhost:5055/health' },
   { name: 'Open Notebook UI', url: 'http://localhost:8502' },
   { name: 'SurrealDB', url: 'http://localhost:8000/health' },
-  { name: 'LM Studio', url: 'http://localhost:1234/v1/models', optional: true },
 ];
+
+const LM_STUDIO_ENDPOINT = { name: 'LM Studio', url: 'http://localhost:1234/v1/models', optional: true };
+
+async function loadConfig(targetDir) {
+  try {
+    const raw = await readFile(join(targetDir, SERVICES_DIR, CONFIG_FILE), 'utf-8');
+    return JSON.parse(raw);
+  } catch {
+    return { knowledgeBase: 'none', lmStudio: false };
+  }
+}
+
+function getEndpoints(config) {
+  const endpoints = [...BASE_ENDPOINTS];
+  if (config.lmStudio) {
+    endpoints.push(LM_STUDIO_ENDPOINT);
+  }
+  return endpoints;
+}
 
 function getComposePath(targetDir) {
   return join(targetDir, SERVICES_DIR, COMPOSE_FILE);
@@ -145,13 +164,15 @@ export async function stopServices(targetDir) {
   console.log('  Services stopped.');
 }
 
-export async function healthCheck(_targetDir) {
+export async function healthCheck(targetDir) {
+  const config = await loadConfig(targetDir);
+  const endpoints = getEndpoints(config);
   const status = {};
 
   console.log('\n  Service Health Check');
   console.log('  --------------------');
 
-  for (const endpoint of ENDPOINTS) {
+  for (const endpoint of endpoints) {
     const result = await httpGet(endpoint.url);
     const isUp = result.ok;
 
