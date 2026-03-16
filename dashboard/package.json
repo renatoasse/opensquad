@@ -6,23 +6,26 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "node server.js",
+    "start:dev": "node server.js --squads-dir ../squads"
   },
   "dependencies": {
+    "@pixi/react": "^8.0.2",
+    "chokidar": "^5.0.0",
+    "pixi.js": "^8.9.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "pixi.js": "^8.9.2",
-    "@pixi/react": "^8.0.2",
-    "zustand": "^5.0.3",
-    "yaml": "^2.7.1"
+    "ws": "^8.19.0",
+    "yaml": "^2.8.2",
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
+    "@types/ws": "^8.18.1",
     "@vitejs/plugin-react": "^4.5.2",
     "typescript": "^5.8.3",
-    "vite": "^6.3.5",
-    "ws": "^8.18.1",
-    "@types/ws": "^8.18.1"
+    "vite": "^6.3.5"
   }
 }
