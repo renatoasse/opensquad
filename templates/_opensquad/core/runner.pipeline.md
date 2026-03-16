@@ -384,3 +384,67 @@ Track pipeline state in memory during execution:
 - Start time
 
 This state does NOT persist to disk — it exists only during the current run.
+
+## Run Logging
+
+In addition to state.json (which is ephemeral and deleted after completion), the Pipeline Runner MUST write a persistent log file for each run. This log enables post-execution debugging and the `npx opensquad runs` history command.
+
+### Log File
+
+Path: `squads/{name}/output/{run_id}/run-log.json`
+
+### When to Write
+
+1. **At run initialization** — after creating the run folder and state.json, write the initial log with status `"running"` and an empty steps array.
+2. **After each step completes** — update the log by adding the step entry to the steps array. Write the full file each time (not append).
+3. **At pipeline finalization** — update status to `"completed"` or `"failed"`, set `completedAt`.
+4. **On error/abort** — if the pipeline stops unexpectedly, update status to `"failed"` with the error on the last step. Write the log before stopping.
+
+### Structure
+
+```json
+{
+  "squad": "{squad code from squad.yaml}",
+  "runId": "{run_id}",
+  "status": "running",
+  "startedAt": "{ISO timestamp}",
+  "completedAt": null,
+  "steps": []
+}
+```
+
+After each step completes, add an entry to the steps array:
+
+```json
+{
+  "index": 1,
+  "id": "{step id}",
+  "type": "{checkpoint | inline | subagent}",
+  "agent": "{agent id or null for checkpoints}",
+  "status": "{completed | failed}",
+  "startedAt": "{ISO timestamp}",
+  "completedAt": "{ISO timestamp}",
+  "durationMs": 35000,
+  "outputFile": "{path to output file or null}",
+  "userChoice": "{user response at checkpoint, omit for non-checkpoints}",
+  "vetosTriggered": [],
+  "reviewCycles": 0,
+  "reviewOutcome": "{approved | rejected, omit if no review}",
+  "error": "{error message, omit if no error}"
+}
+```
+
+### Fields by Step Type
+
+- **All steps**: index, id, type, status, startedAt, completedAt, durationMs
+- **Checkpoint**: add userChoice
+- **Inline/subagent**: add agent, outputFile, vetosTriggered, reviewCycles
+- **Review steps**: add reviewOutcome
+- **Failed steps**: add error
+
+### Rules
+
+- Write the FULL JSON file on every update (overwrite, not append). The file is small enough that this is fine.
+- The run-log.json is never deleted (unlike state.json). It persists as permanent history.
+- If writing run-log.json fails, log a warning but do not stop the pipeline. The log is observability, not a critical path.
+- Compute durationMs from the difference between completedAt and startedAt for each step.
