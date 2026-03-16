@@ -125,11 +125,11 @@ async function runUpdate(targetDir) {
   }
 
   console.log(`\n  ${t('skillsUpdating')}`);
-  for (const id of installed) {
+  await Promise.all(installed.map(async (id) => {
     console.log(`  ${t('skillsInstalling', { id })}`);
     await installSkill(id, targetDir);
     console.log(`  ${t('skillsInstalled', { id })}`);
-  }
+  }));
   console.log(`\n  ${t('skillsUpdateDone', { count: installed.length })}\n`);
 }
 

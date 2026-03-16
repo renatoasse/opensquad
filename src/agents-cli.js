@@ -126,11 +126,11 @@ async function runUpdate(targetDir) {
   }
 
   console.log(`\n  ${t('agentsUpdating')}`);
-  for (const id of installed) {
+  await Promise.all(installed.map(async (id) => {
     console.log(`  ${t('agentsInstalling', { id })}`);
     await installAgent(id, targetDir);
     console.log(`  ${t('agentsInstalled', { id })}`);
-  }
+  }));
   console.log(`\n  ${t('agentsUpdateDone', { count: installed.length })}\n`);
 }
 

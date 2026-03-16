@@ -116,6 +116,7 @@ export async function update(targetDir) {
   // 6b. Install new non-MCP skills not already present
   const availableSkills = await listAvailableSkills();
   const installedSkills = await listInstalledSkills(targetDir);
+  const newSkills = [];
   for (const id of availableSkills) {
     if (id === 'opensquad-skill-creator') continue;
     if (installedSkills.includes(id)) continue;
@@ -123,10 +124,13 @@ export async function update(targetDir) {
     if (!meta) continue;
     if (meta.type === 'mcp' || meta.type === 'hybrid') continue;
     if (meta.env?.length > 0) continue;
+    newSkills.push(id);
+  }
+  await Promise.all(newSkills.map(async (id) => {
     await installSkill(id, targetDir);
     console.log(`  ${t('createdFile', { path: `skills/${id}/SKILL.md` })}`);
     count++;
-  }
+  }));
 
   // 7. Summary
   console.log(`\n  ${t('updateFileCount', { count })}`);

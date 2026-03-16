@@ -123,10 +123,10 @@ export async function loadSavedLocale(targetDir) {
 
 async function installAllSkills(targetDir) {
   const available = await listAvailable();
-  for (const id of available) {
+  await Promise.all(available.map(async (id) => {
     await installSkill(id, targetDir);
     console.log(`  ${t('createdFile', { path: `skills/${id}/SKILL.md` })}`);
-  }
+  }));
 }
 
 async function installDependencies(targetDir) {

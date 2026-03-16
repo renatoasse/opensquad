@@ -5,6 +5,8 @@ import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const BUNDLED_AGENTS_DIR = join(__dirname, '..', 'agents');
 
+const metaCache = new Map();
+
 export async function listInstalled(targetDir) {
   try {
     const agentsDir = join(targetDir, 'agents');
@@ -28,6 +30,7 @@ export async function listAvailable() {
 }
 
 export async function getAgentMeta(id) {
+  if (metaCache.has(id)) return metaCache.get(id);
   try {
     const raw = await readFile(join(BUNDLED_AGENTS_DIR, id, 'AGENT.md'), 'utf-8');
     const content = raw.replace(/\r\n/g, '\n');
@@ -65,11 +68,17 @@ export async function getAgentMeta(id) {
       }
     }
 
-    return { name, description, descriptions, category, icon, version };
+    const result = { name, description, descriptions, category, icon, version };
+    metaCache.set(id, result);
+    return result;
   } catch (err) {
     if (err.code === 'ENOENT') return null;
     throw err;
   }
+}
+
+export function clearMetaCache() {
+  metaCache.clear();
 }
 
 function validateAgentId(id) {
@@ -90,12 +99,14 @@ export async function installAgent(id, targetDir) {
   const destDir = join(targetDir, 'agents');
   await mkdir(destDir, { recursive: true });
   await copyFile(srcFile, join(destDir, `${id}.agent.md`));
+  metaCache.delete(id);
 }
 
 export async function removeAgent(id, targetDir) {
   validateAgentId(id);
   const agentFile = join(targetDir, 'agents', `${id}.agent.md`);
   await rm(agentFile, { force: true });
+  metaCache.delete(id);
 }
 
 export async function getAgentVersion(id, targetDir) {

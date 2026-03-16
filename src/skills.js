@@ -5,6 +5,8 @@ import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const BUNDLED_SKILLS_DIR = join(__dirname, '..', 'skills');
 
+const metaCache = new Map();
+
 export async function listInstalled(targetDir) {
   try {
     const skillsDir = join(targetDir, 'skills');
@@ -28,6 +30,7 @@ export async function listAvailable() {
 }
 
 export async function getSkillMeta(id) {
+  if (metaCache.has(id)) return metaCache.get(id);
   try {
     const raw = await readFile(join(BUNDLED_SKILLS_DIR, id, 'SKILL.md'), 'utf-8');
     const content = raw.replace(/\r\n/g, '\n');
@@ -73,11 +76,17 @@ export async function getSkillMeta(id) {
       }
     }
 
-    return { name, description, descriptions, type, env };
+    const result = { name, description, descriptions, type, env };
+    metaCache.set(id, result);
+    return result;
   } catch (err) {
     if (err.code === 'ENOENT') return null;
     throw err;
   }
+}
+
+export function clearMetaCache() {
+  metaCache.clear();
 }
 
 function validateSkillId(id) {
@@ -97,12 +106,14 @@ export async function installSkill(id, targetDir) {
   }
   const destDir = join(targetDir, 'skills', id);
   await cp(srcDir, destDir, { recursive: true });
+  metaCache.delete(id);
 }
 
 export async function removeSkill(id, targetDir) {
   validateSkillId(id);
   const skillDir = join(targetDir, 'skills', id);
   await rm(skillDir, { recursive: true, force: true });
+  metaCache.delete(id);
 }
 
 export async function getSkillVersion(id, targetDir) {
