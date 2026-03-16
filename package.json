@@ -8,6 +8,7 @@
   },
   "scripts": {
     "test": "node --test tests/**/*.test.js",
+    "lint": "eslint src/ bin/ tests/",
     "version": "node -e \"require('fs').writeFileSync('templates/_opensquad/.opensquad-version', require('./package.json').version + '\\n')\" && git add templates/_opensquad/.opensquad-version"
   },
   "keywords": [
@@ -41,5 +42,9 @@
     "@inquirer/checkbox": "^5.1.0",
     "@inquirer/input": "^5.0.0",
     "@inquirer/select": "^5.1.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.0.3"
   }
 }
