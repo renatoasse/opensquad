@@ -5,6 +5,7 @@ import { init } from '../src/init.js';
 import { update } from '../src/update.js';
 import { skillsCli } from '../src/skills-cli.js';
 import { agentsCli } from '../src/agents-cli.js';
+import { printRuns } from '../src/runs.js';
 
 const { positionals } = parseArgs({
   allowPositionals: true,
@@ -40,6 +41,8 @@ if (command === 'init') {
   const args = positionals.slice(2);
   const result = await skillsCli(subcommand, args, process.cwd());
   if (!result.success) process.exitCode = 1;
+} else if (command === 'runs') {
+  await printRuns(process.cwd(), positionals[1]);
 } else if (command === 'agents') {
   const subcommand = positionals[1];
   const args = positionals.slice(2);
@@ -56,6 +59,7 @@ if (command === 'init') {
     npx opensquad uninstall <name>        Remove a skill
     npx opensquad update <name>           Update a specific skill
     npx opensquad skills                  List installed skills
+    npx opensquad runs [squad]            Show execution history
     npx opensquad agents                  List installed agents
     npx opensquad agents install <name>   Install a predefined agent
     npx opensquad agents remove <name>    Remove an agent
