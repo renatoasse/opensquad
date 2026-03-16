@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { listInstalled, installSkill, removeSkill, getSkillMeta, getLocalizedDescription } from './skills.js';
 import { loadLocale, t, getLocaleCode } from './i18n.js';
 import { loadSavedLocale } from './init.js';
+import { logEvent } from './logger.js';
 
 async function confirm(question) {
   const rl = createInterface({ input: process.stdin, output: process.stdout });
@@ -91,12 +92,14 @@ async function runInstall(id, targetDir) {
     if (answer !== 'y' && answer !== 's') return false;
     console.log(`  ${t('skillsInstalling', { id })}`);
     await installSkill(id, targetDir);
+    await logEvent(targetDir, { action: 'skill:install', status: 'success', detail: { skill: id } });
     console.log(`  ${t('skillsReinstalled', { id })}\n`);
     return;
   }
 
   console.log(`\n  ${t('skillsInstalling', { id })}`);
   await installSkill(id, targetDir);
+  await logEvent(targetDir, { action: 'skill:install', status: 'success', detail: { skill: id } });
   console.log(`  ${t('skillsInstalled', { id })}\n`);
 }
 
@@ -114,6 +117,7 @@ async function runRemove(id, targetDir) {
 
   console.log(`\n  ${t('skillsRemoving', { id })}`);
   await removeSkill(id, targetDir);
+  await logEvent(targetDir, { action: 'skill:remove', status: 'success', detail: { skill: id } });
   console.log(`  ${t('skillsRemoved', { id })}\n`);
 }
 

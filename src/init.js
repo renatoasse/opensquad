@@ -5,6 +5,7 @@ import { execSync } from 'node:child_process';
 import { createPrompt } from './prompt.js';
 import { loadLocale, t } from './i18n.js';
 import { listAvailable, installSkill } from './skills.js';
+import { logEvent } from './logger.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const TEMPLATES_DIR = join(__dirname, '..', 'templates');
@@ -84,6 +85,12 @@ export async function init(targetDir, options = {}) {
 - **Date Format:** YYYY-MM-DD
 `;
   await writeFile(prefsPath, prefsContent, 'utf-8');
+
+  await logEvent(targetDir, {
+    action: 'init',
+    status: 'success',
+    detail: { ides, language },
+  });
 
   console.log(`\n  ${t('success')}\n`);
   console.log(`  ${t('nextSteps')}`);
