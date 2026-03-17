@@ -4,6 +4,10 @@ Crie squads de agentes de IA que trabalham juntos — direto da sua IDE.
 
 opensquad é um framework de orquestração multi-agente. Descreva o que você precisa em linguagem natural, e o opensquad cria uma equipe de agentes especializados que trabalham juntos automaticamente.
 
+## Veja em ação
+
+[![Assista ao vídeo de lançamento](https://img.youtube.com/vi/CL1ppI4qHeU/maxresdefault.jpg)](https://www.youtube.com/watch?v=CL1ppI4qHeU)
+
 ## O que é um Squad?
 
 Um squad é uma equipe de agentes de IA que colaboram em uma tarefa. Cada agente tem um papel específico. Eles executam em pipeline — você só intervém nos checkpoints de decisão.
@@ -118,6 +122,10 @@ MIT — use como quiser.
 Create AI squads that work together — right from your IDE.
 
 opensquad is a multi-agent orchestration framework. Describe what you need in plain language, and opensquad creates a team of specialized agents that work together automatically.
+
+## See it in action
+
+[![Watch the launch video](https://img.youtube.com/vi/CL1ppI4qHeU/maxresdefault.jpg)](https://www.youtube.com/watch?v=CL1ppI4qHeU)
 
 ## What is a Squad?
 
