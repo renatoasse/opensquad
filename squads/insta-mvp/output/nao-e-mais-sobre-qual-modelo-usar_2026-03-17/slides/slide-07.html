@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=1080, height=1440"/>
+  <title>Slide 7 — O relógio está correndo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { width: 1080px; height: 1440px; overflow: hidden; font-family: 'Sora', sans-serif; background: #0a0a0a; color: #fff; position: relative; }
+    .pill { position: absolute; top: 48px; left: 100px; background: #7C3AED; color: #fff; padding: 6px 18px; border-radius: 999px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; z-index: 10; }
+    .nav-circle { position: absolute; top: 48px; right: 100px; width: 48px; height: 48px; border: 2px solid rgba(255,255,255,.5); border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 10; font-size: 20px; color: #fff; }
+    .wrap { position: relative; padding: 100px 100px 180px; z-index: 4; }
+    .headline { font-size: 48px; font-weight: 800; line-height: 1.15; margin-bottom: 32px; color: #fff; }
+    .headline .accent { color: #A78BFA; }
+    .body { font-size: 26px; font-weight: 400; line-height: 1.5; color: rgba(255,255,255,.85); }
+    .box { position: absolute; bottom: 88px; left: 100px; right: 100px; background: #7C3AED; color: #fff; padding: 22px 32px; border-radius: 12px; font-weight: 700; font-size: 26px; z-index: 7; text-align: center; }
+    .dots { position: absolute; bottom: 36px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px; z-index: 10; }
+    .dots span { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.28); }
+    .dots span.active { background: #fff; }
+  </style>
+</head>
+<body>
+  <div class="pill">MVP FLOW</div>
+  <div class="nav-circle">→</div>
+  <div class="wrap">
+    <h2 class="headline">O relógio está correndo. Quem orquestra primeiro <span class="accent">molda o mercado</span>.</h2>
+    <p class="body">A janela para definir padrões e capturar valor com IA está aberta. Em 2026, orquestração, super agentes, eficiência e governança serão os critérios que separam quem lidera de quem reage.</p>
+  </div>
+  <div class="box">Orquestre agora. O mercado está se definindo.</div>
+  <div class="dots"><span></span><span></span><span></span><span></span><span></span><span></span><span class="active"></span><span></span></div>
+</body>
+</html>

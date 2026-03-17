@@ -474,6 +474,16 @@ agent:
          - Add checkpoints at user decision points
          - Include on_reject loops from reviewer back to writer
 
+      > ⚠️ PATH RULE — agent step outputFile: For ANY agent step (researcher, writer,
+      > reviewer, etc.) the `outputFile` MUST always use `squads/{code}/output/{filename}`
+      > as its path. NEVER use `pipeline/data/` or `pipeline/` for agent step outputFiles.
+      > The `pipeline/data/` directory is ONLY for reference materials created at squad
+      > build time — it is NOT for pipeline execution outputs.
+      > Exception: checkpoint steps that collect user input (e.g. research-focus.md) write
+      > to `pipeline/data/` — this is correct and expected behavior, not an error.
+      > CORRECT: `squads/{code}/output/article-draft.md`
+      > WRONG:   `squads/{code}/pipeline/data/article-draft.md`
+
       3. Research focus checkpoint (MANDATORY for all squads with a researcher):
          - ALWAYS generate a `type: checkpoint` step immediately BEFORE every researcher step.
          - Researchers run as subagents — they CANNOT ask the user questions interactively.
@@ -482,7 +492,7 @@ agent:
            ```yaml
            ---
            type: checkpoint
-           outputFile: squads/{code}/output/research-focus.md
+           outputFile: squads/{code}/pipeline/data/research-focus.md
            ---
            ```
          - The checkpoint body MUST:
@@ -497,7 +507,7 @@ agent:
               3. Último mês
               4. Sem restrição de tempo (evergreen)
          - The researcher step immediately after MUST have:
-           `inputFile: squads/{code}/output/research-focus.md`
+           `inputFile: squads/{code}/pipeline/data/research-focus.md`
          - Pipeline Runner writes the user's response to `research-focus.md` automatically.
          - Exception: omit this checkpoint only when the research source is fixed and known
            at squad creation time (e.g., an analyst reading a specific uploaded file —
@@ -880,12 +890,8 @@ agent:
       format: {format-id}   # OPTIONAL — e.g., "instagram-feed". Pipeline Runner auto-injects from _opensquad/core/best-practices/
                             # Use for content creation steps where platform-specific rules should guide the agent
                             # Omit for non-content steps (research, analysis, review without platform context)
-      inputFile: squads/{code}/output/{filename}.{ext}   # path to input file from previous step — MUST use output/ prefix
-      outputFile: squads/{code}/output/{filename}.{ext}  # path where this step saves its output — MUST use output/ prefix
-                                                          # NEVER use pipeline/data/ for outputFile — that folder is for static
-                                                          # reference materials only. The Pipeline Runner's path transformation
-                                                          # only applies to paths starting with squads/{code}/output/,
-                                                          # so any path outside output/ will bypass run_id scoping entirely.
+      inputFile: squads/{code}/...   # path to input file from previous step
+      outputFile: squads/{code}/output/...  # MUST start with squads/{code}/output/ — see PATH RULE above
       model_tier: fast      # ONLY for execution: subagent. fast = lightweight model; powerful = default model
                             # Set fast for: investigator agents (data extraction, Sherlock subagents)
                             # Set powerful for: writer, creator, reviewer, strategy, researcher agents
@@ -904,12 +910,11 @@ agent:
       ```yaml
       ---
       type: checkpoint
-      outputFile: squads/{code}/output/research-focus.md
+      outputFile: squads/{code}/pipeline/data/research-focus.md
       ---
       ```
       The Pipeline Runner writes the user's response to this file before proceeding.
-      The next step (researcher) reads it as `inputFile: squads/{code}/output/research-focus.md`.
-      Using output/ ensures the path transformation applies and the file lands in the run_id folder.
+      The next step (researcher) reads it as `inputFile`.
 
       Every pipeline step file MUST contain ALL of the following sections. Target 60-120 lines per step.
 
@@ -1064,9 +1069,12 @@ agent:
          approve the preceding agent's output before the visual/publish step runs
       5. Re-validate Gate 2b. Max 2 fix attempts — after that, present to user for manual decision.
 
-      #### Gate 3: Pipeline Coherence (ADVISORY)
+      #### Gate 3: Pipeline Coherence (ADVISORY — except where noted)
 
       Verify:
+      - [ ] **[BLOCKING]** No agent step (non-checkpoint) has `outputFile` pointing to
+            `pipeline/data/` or `pipeline/`. If this check fails, correct the offending
+            step's `outputFile` to `squads/{code}/output/{filename}` before finalizing.
       - [ ] Each step's outputFile matches the next step's inputFile
       - [ ] Checkpoints exist before user decision points
       - [ ] Review step has on_reject pointing to writer step

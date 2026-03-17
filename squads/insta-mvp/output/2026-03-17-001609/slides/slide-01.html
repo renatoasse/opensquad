@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Inter:wght@400;500;600;700&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { width: 1080px; height: 1440px; overflow: hidden; font-family: 'Inter', sans-serif; background: #0a0a0a; color: #fff; position: relative; }
+    .pill { position: absolute; top: 48px; left: 48px; background: #7C3AED; color: #fff; padding: 10px 24px; border-radius: 999px; font-size: 18px; font-weight: 600; z-index: 10; }
+    .nav-circle { position: absolute; top: 48px; right: 48px; width: 48px; height: 48px; border: 2px solid rgba(255,255,255,0.7); border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 10; font-size: 20px; color: rgba(255,255,255,0.9); }
+    .micro { position: absolute; top: 120px; left: 48px; font-size: 20px; color: rgba(255,255,255,0.7); font-weight: 500; z-index: 4; }
+    .wrap { position: relative; padding: 160px 48px 100px; z-index: 4; }
+    .hero { font-size: 48px; font-weight: 400; line-height: 1.2; font-family: 'Permanent Marker', cursive; max-width: 75%; }
+    .hero .accent { color: #A78BFA; }
+    .hero .underline { border-bottom: 4px solid #A78BFA; padding-bottom: 2px; }
+    .hero .circle { display: inline-block; border: 3px solid #A78BFA; border-radius: 999px; padding: 2px 14px; margin: 0 2px; }
+    .handwritten { margin-top: 24px; font-family: 'Permanent Marker', cursive; font-size: 26px; color: #A78BFA; z-index: 5; }
+    .dots { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 10; }
+    .dots span { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.3); }
+    .dots span.active { background: #fff; }
+  </style>
+</head>
+<body>
+  <div class="pill">MVP Flow</div>
+  <div class="nav-circle">→</div>
+  <p class="micro">8 insights sobre carreira em tech</p>
+  <div class="wrap">
+    <h1 class="hero">Por que as <span class="accent underline">vagas que pagam mais</span> pedem <span class="circle">TypeScript</span> — e <span class="accent underline">o que fazer</span> a partir de hoje.</h1>
+    <p class="handwritten">Para se desenvolver na área de programação.</p>
+  </div>
+  <div class="dots"><span class="active"></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+</body>
+</html>

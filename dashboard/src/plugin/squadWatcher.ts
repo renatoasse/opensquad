@@ -128,50 +128,70 @@ export function squadWatcherPlugin(): Plugin {
         fs.mkdirSync(squadsDir, { recursive: true });
       }
 
+      // Watch state.json files using Vite's built-in chokidar watcher
+      const stateGlob = path.join(squadsDir, "*/state.json").replace(/\\/g, "/");
+      server.watcher.add(stateGlob);
+
       // Debounce timers per squad to avoid reading partial writes
       const changeTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
-      // Use native fs.watch with recursive mode — reliable on Windows for
-      // files written by external processes (the CLI agent runner).
-      const fsWatcher = fs.watch(squadsDir, { recursive: true }, (_event, filename) => {
-        if (!filename || typeof filename !== "string") return;
+      // Also watch for new squad.yaml files
+      const yamlGlob = path.join(squadsDir, "*/squad.yaml").replace(/\\/g, "/");
+      server.watcher.add(yamlGlob);
 
-        // Normalize path separators (Windows uses backslashes)
-        const normalized = filename.replace(/\\/g, "/");
-
-        if (normalized.endsWith("state.json")) {
-          const parts = normalized.split("/");
-          const squadName = parts.length >= 2 ? parts[0] : null;
+      server.watcher.on("add", (filePath: string) => {
+        if (filePath.endsWith("state.json")) {
+          const squadName = extractSquadName(filePath, squadsDir);
           if (!squadName) return;
-
-          // Debounce to handle rapid writes / partial file states
           clearTimeout(changeTimers.get(squadName));
           changeTimers.set(squadName, setTimeout(() => {
-            const statePath = path.join(squadsDir, squadName, "state.json");
-            if (!fs.existsSync(statePath)) {
-              clearTimeout(changeTimers.get(squadName));
-              changeTimers.delete(squadName);
-              broadcast(wss, { type: "SQUAD_INACTIVE", squad: squadName });
-              return;
-            }
             try {
-              const raw = fs.readFileSync(statePath, "utf-8");
+              const raw = fs.readFileSync(filePath, "utf-8");
               const state: SquadState = JSON.parse(raw);
-              broadcast(wss, { type: "SQUAD_UPDATE", squad: squadName, state });
-            } catch { /* skip invalid JSON during write */ }
+              broadcast(wss, { type: "SQUAD_ACTIVE", squad: squadName, state });
+            } catch { /* skip */ }
           }, 50));
-
-        } else if (normalized.endsWith("squad.yaml")) {
+        } else if (filePath.endsWith("squad.yaml")) {
           broadcast(wss, buildSnapshot(squadsDir));
         }
       });
 
-      // Clean up fs watcher when Vite server closes
-      server.httpServer?.on("close", () => {
-        fsWatcher.close();
-        for (const timer of changeTimers.values()) clearTimeout(timer);
+      server.watcher.on("change", (filePath: string) => {
+        if (filePath.endsWith("state.json")) {
+          const squadName = extractSquadName(filePath, squadsDir);
+          if (!squadName) return;
+          clearTimeout(changeTimers.get(squadName));
+          changeTimers.set(squadName, setTimeout(() => {
+            try {
+              const raw = fs.readFileSync(filePath, "utf-8");
+              const state: SquadState = JSON.parse(raw);
+              broadcast(wss, { type: "SQUAD_UPDATE", squad: squadName, state });
+            } catch { /* skip */ }
+          }, 50));
+        } else if (filePath.endsWith("squad.yaml")) {
+          broadcast(wss, buildSnapshot(squadsDir));
+        }
+      });
+
+      server.watcher.on("unlink", (filePath: string) => {
+        if (filePath.endsWith("state.json")) {
+          const squadName = extractSquadName(filePath, squadsDir);
+          if (!squadName) return;
+          clearTimeout(changeTimers.get(squadName));
+          changeTimers.delete(squadName);
+          broadcast(wss, { type: "SQUAD_INACTIVE", squad: squadName });
+        } else if (filePath.endsWith("squad.yaml")) {
+          broadcast(wss, buildSnapshot(squadsDir));
+        }
       });
     },
   };
 }
 
+function extractSquadName(filePath: string, squadsDir: string): string | null {
+  const normalized = filePath.replace(/\\/g, "/");
+  const normalizedBase = squadsDir.replace(/\\/g, "/");
+  const relative = normalized.replace(normalizedBase + "/", "");
+  const parts = relative.split("/");
+  return parts.length >= 2 ? parts[0] : null;
+}

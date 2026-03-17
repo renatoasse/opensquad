@@ -7,7 +7,7 @@ import { HandoffEnvelope } from "./HandoffEnvelope";
 import { sortAgentsByDesk, findAgent } from "@/lib/normalizeState";
 import { drawFloor } from "./drawRoom";
 import { drawBookshelf, drawPlant, drawClock, drawWhiteboard, drawCoffeeMachine, drawFilingCabinet } from "./drawFurniture";
-import { TILE, COLORS, SCENE_SCALE } from "./palette";
+import { TILE, COLORS } from "./palette";
 import type { Graphics as PixiGraphics } from "pixi.js";
 
 extend({ Container, Graphics });
@@ -120,9 +120,9 @@ export function OfficeScene() {
   }
 
   return (
-    <div style={{ flex: 1, overflow: "auto", display: "flex", alignItems: "flex-start", justifyContent: "center" }}>
-      <Application width={stageW * SCENE_SCALE} height={stageH * SCENE_SCALE} backgroundColor={0x101018}>
-        <pixiContainer scale={SCENE_SCALE}>
+    <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <Application width={stageW} height={stageH} backgroundColor={0x101018}>
+        <pixiContainer>
           <pixiGraphics draw={drawBackground} />
           {agents.map((agent, i) => (
             <AgentDesk key={agent.id} agent={agent} agentIndex={i} />

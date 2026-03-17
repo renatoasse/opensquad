@@ -1,0 +1,40 @@
+# Mapa de hashtags — insta-mvp
+# Rotacionar conjuntos por post. 5–15 hashtags por publicação.
+# Categorias: nicho (programação/IA/edu), médio alcance, broad.
+
+brand:
+  - in100tiva
+  - mvploadflow
+  - luanpdd
+
+programacao_ia_nicho:
+  - programacao
+  - inteligenciaartificial
+  - python
+  - aprendaprogramar
+  - devbrasil
+  - iaparadevs
+  - vibecoding
+
+educacao_produto:
+  - produtodigital
+  - criador de curso
+  - educacao
+  - cursosonline
+  - empreendedorismodigital
+  - mvpproduto
+
+medio_alcance:
+  - tech
+  - programador
+  - desenvolvedor
+  - carreira tech
+  - inovacao
+
+broad:
+  - tecnologia
+  - futuro
+  - aprendizado
+
+# Por post: 3–5 nicho + 3–5 médio + 2–3 broad; incluir 0–1 brand.
+# Sérgio SEO escolhe o conjunto por tema e atualiza este mapa conforme performance.

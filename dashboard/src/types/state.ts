@@ -59,5 +59,6 @@ export interface SquadInfo {
 // WebSocket messages
 export type WsMessage =
   | { type: "SNAPSHOT"; squads: SquadInfo[]; activeStates: Record<string, SquadState> }
+  | { type: "SQUAD_ACTIVE"; squad: string; state: SquadState }
   | { type: "SQUAD_UPDATE"; squad: string; state: SquadState }
   | { type: "SQUAD_INACTIVE"; squad: string };

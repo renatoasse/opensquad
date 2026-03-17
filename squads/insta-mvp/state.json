@@ -1,0 +1,17 @@
+{
+  "squad": "insta-mvp",
+  "status": "running",
+  "step": { "current": 13, "total": 16, "label": "step-13-publish-approval" },
+  "agents": [
+    { "id": "researcher", "name": "Pedro Pesquisa", "icon": "🔍", "status": "done", "deliverTo": null, "desk": { "col": 1, "row": 1 } },
+    { "id": "creator", "name": "Carla Carrossel", "icon": "✍️", "status": "done", "deliverTo": null, "desk": { "col": 2, "row": 1 } },
+    { "id": "seo", "name": "Sérgio SEO", "icon": "📈", "status": "done", "deliverTo": null, "desk": { "col": 1, "row": 2 } },
+    { "id": "reviewer", "name": "Renata Revisão", "icon": "✅", "status": "done", "deliverTo": null, "desk": { "col": 2, "row": 2 } },
+    { "id": "cover-designer", "name": "Carlos Capa", "icon": "🖼️", "status": "done", "deliverTo": null, "desk": { "col": 1, "row": 3 } },
+    { "id": "designer", "name": "Diana Design", "icon": "🎨", "status": "done", "deliverTo": null, "desk": { "col": 2, "row": 3 } },
+    { "id": "design-reviewer", "name": "Vicente Visual", "icon": "👁️", "status": "done", "deliverTo": null, "desk": { "col": 1, "row": 4 } }
+  ],
+  "handoff": null,
+  "startedAt": "2026-03-17T02:03:00.000Z",
+  "updatedAt": "2026-03-17T02:15:00.000Z"
+}
