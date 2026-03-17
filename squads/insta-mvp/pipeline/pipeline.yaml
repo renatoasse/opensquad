@@ -1,0 +1,32 @@
+# Pipeline insta-mvp
+# Legenda: Sérgio SEO + Carla Carrossel (definem); Renata Revisão (revisa)
+# Pasta do run: nome = título do carrossel + data (após step 08)
+
+run_folder_name_from_title: true
+run_folder_rename_after_step: 8
+
+steps:
+  - step-01-research-focus
+  - step-02-researcher-find-rank
+  - step-03-news-selection
+  - step-04-seo-brief
+  - step-05-generate-angles
+  - step-06-angle-selection
+  - step-07-tone-selection
+  - step-08-create-carousel
+  - step-09-seo-caption-hashtags
+  - step-10-reviewer
+  - step-11-content-approval
+  - step-11b-cover-design
+  - step-12-designer-render
+  - step-12b-design-review
+  - step-13-publish-approval
+  - step-14-publish
+
+checkpoints:
+  - step-01-research-focus
+  - step-03-news-selection
+  - step-06-angle-selection
+  - step-07-tone-selection
+  - step-11-content-approval
+  - step-13-publish-approval

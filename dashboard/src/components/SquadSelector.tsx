@@ -6,6 +6,7 @@ export function SquadSelector() {
   const activeStates = useSquadStore((s) => s.activeStates);
   const selectedSquad = useSquadStore((s) => s.selectedSquad);
   const selectSquad = useSquadStore((s) => s.selectSquad);
+  const isConnected = useSquadStore((s) => s.isConnected);
 
   // Sort: active squads first, then alphabetical
   const squadList = Array.from(squads.values()).sort((a, b) => {
@@ -42,8 +43,15 @@ export function SquadSelector() {
       </div>
       <div style={{ flex: 1, overflowY: "auto" }}>
         {squadList.length === 0 && (
-          <div style={{ padding: "16px 12px", color: "var(--text-secondary)", fontSize: 12 }}>
-            No squads found
+          <div style={{ padding: "16px 12px", color: "var(--text-secondary)", fontSize: 12, lineHeight: 1.4 }}>
+            {!isConnected ? (
+              <>
+                Conecte ao servidor do dashboard para ver os squads. Na raiz do projeto execute:
+                <code style={{ display: "block", marginTop: 8, fontSize: 11, background: "var(--bg-sidebar)", padding: "6px 8px", borderRadius: 4 }}>npm run dashboard:dev</code>
+              </>
+            ) : (
+              "No squads found"
+            )}
           </div>
         )}
         {squadList.map((squad) => (

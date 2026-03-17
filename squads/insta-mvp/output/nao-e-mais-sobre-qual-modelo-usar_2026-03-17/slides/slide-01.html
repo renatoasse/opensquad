@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=1080, height=1440"/>
+  <title>Capa — Não é mais sobre qual modelo usar</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 1080px;
+      height: 1440px;
+      overflow: hidden;
+      font-family: 'Sora', sans-serif;
+      background: #0a0a0a;
+      color: #fff;
+      position: relative;
+    }
+    /* Safe zone: conteúdo crítico fora de 100px das bordas */
+    .bg {
+      position: absolute;
+      inset: 0;
+      background: #0a0a0a url('https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1080&q=85') center 20% / cover no-repeat;
+      z-index: 0;
+      filter: brightness(0.65) saturate(1.1);
+    }
+    .bg::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(8,4,24,.0)  0%,
+        rgba(8,4,24,.0)  28%,
+        rgba(8,4,24,.6)  60%,
+        rgba(8,4,24,.95) 100%
+      );
+      z-index: 1;
+    }
+    /* Swipe hint — topo, fora da safe zone */
+    .swipe-hint {
+      position: absolute;
+      top: 44px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .swipe-track {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,.08);
+      border: 1.5px solid rgba(255,255,255,.28);
+      border-radius: 999px;
+      padding: 6px 14px 6px 10px;
+    }
+    .swipe-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.85);
+      flex-shrink: 0;
+    }
+    .swipe-chevrons {
+      display: flex;
+      gap: 2px;
+      align-items: center;
+    }
+    .swipe-chevron {
+      width: 8px;
+      height: 12px;
+      border-right: 2px solid rgba(255,255,255,.55);
+      border-top: 2px solid rgba(255,255,255,.55);
+      transform: rotate(45deg);
+      border-radius: 1px;
+    }
+    .swipe-chevron:nth-child(2) { opacity: .45; }
+    .swipe-chevron:nth-child(3) { opacity: .2; }
+    .swipe-text {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .10em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.4);
+    }
+    /* Conteúdo dentro da safe zone (margem 100px) */
+    .content {
+      position: absolute;
+      left: 100px;
+      right: 100px;
+      top: 100px;
+      bottom: 100px;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 0 0 28px;
+      text-align: center;
+    }
+    .badge {
+      background: #7C3AED;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: .10em;
+      text-transform: uppercase;
+      padding: 8px 22px;
+      border-radius: 999px;
+      margin-bottom: 18px;
+    }
+    .headline {
+      font-size: 52px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.1;
+      margin-bottom: 14px;
+      max-width: 100%;
+    }
+    .headline .highlight { color: #A78BFA; }
+    .subtitle {
+      font-size: 18px;
+      font-weight: 400;
+      color: rgba(255,255,255,.65);
+      letter-spacing: .02em;
+    }
+    /* Dots: bottom 2-3%, 6-8px, gap 4-6px */
+    .dots {
+      position: absolute;
+      bottom: 36px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 5px;
+      z-index: 10;
+    }
+    .dots span {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.28);
+    }
+    .dots span.active { background: #fff; }
+  </style>
+</head>
+<body>
+  <div class="bg" aria-hidden="true"></div>
+  <div class="swipe-hint">
+    <div class="swipe-track">
+      <div class="swipe-dot"></div>
+      <div class="swipe-chevrons">
+        <span class="swipe-chevron"></span>
+        <span class="swipe-chevron"></span>
+        <span class="swipe-chevron"></span>
+      </div>
+    </div>
+    <span class="swipe-text">Deslize</span>
+  </div>
+  <div class="content">
+    <div class="badge">Tendências 2026</div>
+    <h1 class="headline">Não é mais sobre qual modelo usar. É sobre quem <span class="highlight">orquestra melhor</span> — e o relógio está correndo.</h1>
+    <p class="subtitle">8 tendências de IA e tech (IBM). Deslize para ver →</p>
+  </div>
+  <div class="dots">
+    <span class="active"></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+  </div>
+</body>
+</html>

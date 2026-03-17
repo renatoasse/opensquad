@@ -1,159 +1,133 @@
-# opensquad
+# Opensquad
 
-Crie squads de agentes de IA que trabalham juntos — direto da sua IDE.
+Crie squads de agentes de IA que trabalham juntos — direto do seu IDE.
 
-opensquad é um framework de orquestração multi-agente. Descreva o que você precisa em linguagem natural, e o opensquad cria uma equipe de agentes especializados que trabalham juntos automaticamente.
+## Como usar no Cursor
 
-## O que é um Squad?
+1. **Abra esta pasta** no Cursor (File → Open Folder → pasta do opensquad).
+2. **Abra o Chat do Cursor** (Ctrl+L ou ícone de chat).
+3. **Digite na caixa de mensagem** um dos comandos abaixo. O assistente passa a seguir as regras do Opensquad e responde com o menu ou a ação pedida.
 
-Um squad é uma equipe de agentes de IA que colaboram em uma tarefa. Cada agente tem um papel específico. Eles executam em pipeline — você só intervém nos checkpoints de decisão.
+**Comandos que você pode digitar:**
 
-Exemplo:
+| O que você digita | O que acontece |
+|-------------------|----------------|
+| `/opensquad` ou `/opensquad menu` | Abre o menu principal (criar squad, executar, etc.) |
+| `/opensquad crie um squad para [descrição]` | O Arquiteto cria um novo squad (perguntas + configuração automática) |
+| `/opensquad execute o squad <nome>` ou `/opensquad run <nome>` | Executa o pipeline do squad (pausa em checkpoints) |
+| `/opensquad list` | Lista todos os squads na pasta `squads/` |
+| `/opensquad dashboard` | Gera/prepara o dashboard do Escritório Virtual |
+| `/opensquad skills` | Menu de skills (instalar, criar, gerenciar) |
+| `/opensquad help` | Mostra ajuda |
 
-- **Pesquisador** coleta informações e tendências do setor
-- **Estrategista** gera ideias e define a abordagem
-- **Redator** produz o conteúdo final
-- **Designer** cria as imagens para redes sociais
-- **Revisor** garante qualidade antes da entrega
+Você também pode **escrever em linguagem natural**, por exemplo: *“crie um squad para posts no LinkedIn sobre IA”* ou *“execute o squad meu-squad”* — o assistente interpreta e encaminha para a ação certa.
 
-## Instalação
+Na primeira vez, se a empresa ainda não estiver configurada, o assistente faz um **onboarding**: pergunta seu nome, idioma, nome da empresa e pesquisa o site para montar o perfil em `_opensquad/_memory/company.md`. Depois disso, o menu principal fica disponível.
 
-**Pré-requisito:** Node.js 20+
+**Dica:** O projeto inclui o comando em `.cursor/commands/opensquad.md`. Ao digitar `/` no chat do Cursor, **opensquad** deve aparecer nas sugestões; escolha ou digite `/opensquad`. Se não aparecer, digite `/opensquad` manualmente — o assistente segue as regras do Opensquad da mesma forma.
 
-```bash
-npx opensquad init
+---
+
+## Como Usar (resumo)
+
+Abra esta pasta no seu IDE e digite no chat:
+
+```
+/opensquad
 ```
 
-Para atualizar uma instalação existente:
+Isso abre o menu principal. De lá você pode criar squads, executá-los e mais.
 
-```bash
-npx opensquad update
+Você também pode ser direto — descreva o que quer em linguagem natural:
+
+```
+/opensquad crie um squad para escrever posts no LinkedIn sobre IA
+/opensquad execute o squad meu-squad
 ```
 
-## IDEs Suportadas
+## Criar um Squad
 
-| IDE | Status |
-|-----|--------|
-| Antigravity | Disponível |
-| Claude Code | Disponível |
-| Codex (OpenAI) | Disponível |
-| Open Code | Disponível |
-| Cursor | Disponível |
-| VS Code + Copilot | Disponível |
+Digite `/opensquad` e escolha "Criar squad" no menu, ou seja direto:
+
+```
+/opensquad crie um squad para [o que você precisa]
+```
+
+O Arquiteto fará algumas perguntas, projetará o squad e configurará tudo automaticamente.
+
+## Executar um Squad
+
+Digite `/opensquad` e escolha "Executar squad" no menu, ou seja direto:
+
+```
+/opensquad execute o squad <nome-do-squad>
+```
+
+O squad executa automaticamente, pausando apenas nos checkpoints de decisão.
 
 ## Escritório Virtual
 
 O Escritório Virtual é uma interface visual 2D que mostra seus agentes trabalhando em tempo real.
 
-**Passo 1 — Gere o dashboard** (na sua IDE):
-
-```
-/opensquad dashboard
-```
-
-**Passo 2 — Sirva localmente** (no terminal):
+**Para ver a lista de squads** (sidebar com todos os squads da pasta `squads/`), execute na **raiz do projeto**:
 
 ```bash
-npx serve squads/<nome-do-squad>/dashboard
+npm run dashboard:dev
 ```
 
-**Passo 3 —** Abra `http://localhost:3000` no seu navegador.
+Depois abra no navegador o endereço que o Vite mostrar (ex.: `http://localhost:5173`). O dashboard conecta por WebSocket e lista automaticamente os squads que tiverem `squads/<nome>/squad.yaml`.
 
-## Criando seu Squad
+**Para servir apenas a prévia estática** (ex.: após build):
 
-Abra o menu:
-
-```
-/opensquad
-```
-
-O **Opensquad** vai te mostrar todas as opções disponíveis. 
-
-Para criar um novo squad, basta selecionar a opção, e o **Arquiteto** faz algumas perguntas, projeta o squad e configura tudo automaticamente. Você aprova o design antes de qualquer execução.
-
-## Executando um Squad
-
-Você pode executar o squad novamente com /opensquad, ou pedindo diretamente:
-
-```
-/opensquad rode o squad <nome-do-squad>
+```bash
+/opensquad dashboard   # no IDE — gera/copia o build
+npx serve squads/_preview/dashboard
 ```
 
-O squad executa automaticamente, pausando apenas nos checkpoints onde sua decisão é necessária.
-
-## Exemplos
-
-```
-/opensquad
-/opensquad crie um Squad que gera carrosséis de Instagram a partir de notícias quentes, cria as imagens e publica automaticamente
-/opensquad quero um Squad que produz todos os materiais de lançamento de infoproduto: páginas de vendas, mensagens de WhatsApp, emails e roteiros de CPL
-/opensquad crie um Squad que escreve tutoriais completos com prints de tela para treinamento de colaboradores
-/opensquad crie um "Squad que pega vídeos do YouTube e gera cortes virais automaticamente"
-/opensquad roda o squad carrosseis-instagram
-
-```
-
-## Comandos
-
-| Comando | O que faz |
-|---------|-----------|
-| `/opensquad` | Abre o menu principal |
-| `/opensquad help` | Mostra todos os comandos |
-| `/opensquad create` | Cria um novo squad |
-| `/opensquad run <nome>` | Executa um squad |
-| `/opensquad list` | Lista seus squads |
-| `/opensquad edit <nome>` | Modifica um squad |
-| `/opensquad skills` | Navega pelas skills instaladas |
-| `/opensquad install <nome>` | Instala uma skill do catálogo |
-| `/opensquad uninstall <nome>` | Remove uma skill instalada |
-
-## Licença
-
-MIT — use como quiser.
+Abra `http://localhost:3000`. Esse modo não mostra a lista de squads (é só a interface estática).
 
 ---
 
-# opensquad (English)
+# Opensquad (English)
 
 Create AI squads that work together — right from your IDE.
 
-opensquad is a multi-agent orchestration framework. Describe what you need in plain language, and opensquad creates a team of specialized agents that work together automatically.
+## How to Use
 
-## What is a Squad?
+Open this folder in your IDE and type:
 
-A squad is a team of AI agents that collaborate on a task. Each agent has a specific role. They run in a pipeline — you only step in at decision checkpoints.
-
-Example:
-
-- **Researcher** gathers information and industry trends
-- **Strategist** generates ideas and defines the approach
-- **Writer** produces the final content
-- **Reviewer** ensures quality before delivery
-
-## Installation
-
-**Prerequisite:** Node.js 20+
-
-```bash
-npx opensquad init
+```
+/opensquad
 ```
 
-To update an existing installation:
+This opens the main menu. From there you can create squads, run them, and more.
 
-```bash
-npx opensquad update
+You can also be direct — describe what you want in plain language:
+
+```
+/opensquad create a squad for writing LinkedIn posts about AI
+/opensquad run my-squad
 ```
 
-## Supported IDEs
+## Create a Squad
 
-| IDE | Status |
-|-----|--------|
-| Antigravity | Available |
-| Claude Code | Available |
-| Codex (OpenAI) | Available |
-| Open Code | Available |
-| Cursor | Available |
-| VS Code + Copilot | Available |
+Type `/opensquad` and choose "Create squad" from the menu, or be direct:
+
+```
+/opensquad create a squad for [what you need]
+```
+
+The Architect will ask a few questions, design the squad, and set everything up automatically.
+
+## Run a Squad
+
+Type `/opensquad` and choose "Run squad" from the menu, or be direct:
+
+```
+/opensquad run the <squad-name> squad
+```
+
+The squad runs automatically, pausing only at decision checkpoints.
 
 ## Virtual Office
 
@@ -172,48 +146,3 @@ npx serve squads/<squad-name>/dashboard
 ```
 
 **Step 3 —** Open `http://localhost:3000` in your browser.
-
-## Creating your Squad
-
-Describe what you need:
-
-```
-/opensquad create "A squad that writes LinkedIn posts about AI trends"
-```
-
-The **Architect** asks a few questions, designs the squad, and sets everything up automatically. You approve the design before any execution begins.
-
-## Running a Squad
-
-```
-/opensquad run <squad-name>
-```
-
-The squad runs automatically, pausing only at checkpoints where your decision is needed.
-
-## Examples
-
-```
-/opensquad create "Squad that generates Instagram carousels from trending news, creates the images, and publishes automatically"
-/opensquad create "Squad that produces all infoproduct launch materials: sales pages, WhatsApp messages, emails, and CPL scripts"
-/opensquad create "Squad that writes complete tutorials with screenshots for employee training"
-/opensquad create "Squad that takes YouTube videos and automatically generates viral clips"
-```
-
-## Commands
-
-| Command | What it does |
-|---------|-------------|
-| `/opensquad` | Open the main menu |
-| `/opensquad help` | Show all commands |
-| `/opensquad create` | Create a new squad |
-| `/opensquad run <name>` | Run a squad |
-| `/opensquad list` | See all your squads |
-| `/opensquad edit <name>` | Modify a squad |
-| `/opensquad skills` | Browse installed skills |
-| `/opensquad install <name>` | Install a skill from catalog |
-| `/opensquad uninstall <name>` | Remove an installed skill |
-
-## License
-
-MIT — use it however you want.

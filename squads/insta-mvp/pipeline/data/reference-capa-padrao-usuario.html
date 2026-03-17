@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carrossel Capa — Padrão do usuário</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #0a0a0a;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: 'Sora', sans-serif;
+    gap: 10px;
+  }
+
+  .info-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .10em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.28);
+  }
+
+  /* Card 4:5 — proporção que o Instagram exibe no feed */
+  .card {
+    position: relative;
+    width: 390px;
+    height: 488px;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 32px 80px rgba(0,0,0,.7);
+  }
+
+  .bg {
+    position: absolute;
+    inset: 0;
+    background: #0a0a0a;
+    background-size: cover;
+    background-position: center 20%;
+    filter: brightness(.65) saturate(1.1);
+  }
+
+  .bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(8,4,24,.0)  0%,
+      rgba(8,4,24,.0)  30%,
+      rgba(8,4,24,.65) 62%,
+      rgba(8,4,24,.95) 100%
+    );
+  }
+
+  /* Safe zone 1:1 — linhas de referência */
+  .safe-zone {
+    position: absolute;
+    left: 0; right: 0;
+    top: 49px;
+    height: 390px;
+    border-top: 1px dashed rgba(255,255,255,.15);
+    border-bottom: 1px dashed rgba(255,255,255,.15);
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .safe-zone-label {
+    position: absolute;
+    top: 5px;
+    left: 8px;
+    font-size: 8px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.22);
+  }
+
+  /* Swipe hint — topo, fora da safe zone */
+  .swipe-hint {
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .swipe-track {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,.10);
+    border: 1.5px solid rgba(255,255,255,.28);
+    border-radius: 999px;
+    padding: 5px 12px 5px 8px;
+  }
+
+  .swipe-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.85);
+    flex-shrink: 0;
+  }
+
+  .swipe-chevrons {
+    display: flex;
+    gap: 1px;
+    align-items: center;
+  }
+
+  .swipe-chevron {
+    width: 6px;
+    height: 10px;
+    border-right: 2px solid rgba(255,255,255,.55);
+    border-top: 2px solid rgba(255,255,255,.55);
+    transform: rotate(45deg);
+    border-radius: 1px;
+  }
+
+  .swipe-chevron:nth-child(2) { opacity: .45; }
+  .swipe-chevron:nth-child(3) { opacity: .2; }
+
+  .swipe-text {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: .10em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.4);
+  }
+
+  /* Conteúdo dentro da safe zone */
+  .content {
+    position: absolute;
+    left: 0; right: 0;
+    top: 49px;
+    height: 390px;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 0 28px 28px;
+  }
+
+  .badge {
+    background: #E8253C;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .10em;
+    text-transform: uppercase;
+    padding: 6px 20px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+
+  .headline {
+    font-size: 28px;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.12;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+
+  .headline .highlight { color: #E8714A; }
+
+  .subtitle {
+    font-size: 12px;
+    font-weight: 400;
+    color: rgba(255,255,255,.60);
+    letter-spacing: .01em;
+  }
+</style>
+</head>
+<body>
+
+<div class="info-label">Feed preview 4:5 — safe zone 1:1 demarcada</div>
+
+<div class="card">
+  <div class="bg"></div>
+
+  <div class="content">
+    <div class="badge">Último momento</div>
+    <h1 class="headline">
+      Instagram se conecta<br>
+      com <span class="highlight">Claude</span> para<br>
+      responder suas mensagens.
+    </h1>
+    <p class="subtitle">Deslize para conhecer mais detalhes →</p>
+  </div>
+</div>
+
+</body>
+</html>

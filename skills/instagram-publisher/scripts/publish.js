@@ -17,6 +17,12 @@ export function parseArgs(argv) {
     else if (argv[i] === '--caption') {
       if (i + 1 < argv.length) args.caption = argv[++i];
     }
+    else if (argv[i] === '--caption-file') {
+      if (i + 1 < argv.length) {
+        const path = resolve(argv[++i]);
+        args.caption = readFileSync(path, 'utf8').trim();
+      }
+    }
     else if (argv[i] === '--dry-run') args.dryRun = true;
   }
   return args;
@@ -72,7 +78,7 @@ export async function pollUntilFinished(containerId, accessToken, timeoutMs = 60
 
 export async function createCarouselContainer(userId, childIds, caption, accessToken) {
   const params = new URLSearchParams({
-    media_type: 'CAROUSEL_ALBUM',
+    media_type: 'CAROUSEL',
     children: childIds.join(','),
     caption,
     access_token: accessToken,

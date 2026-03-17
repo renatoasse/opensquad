@@ -1,0 +1,8 @@
+id,displayName,icon,path
+researcher,Pedro Pesquisa,🔍,./agents/researcher.agent.md
+creator,Carla Carrossel,✍️,./agents/creator.agent.md
+seo,Sérgio SEO,📈,./agents/seo.agent.md
+reviewer,Renata Revisão,✅,./agents/reviewer.agent.md
+cover-designer,Carlos Capa,🖼️,./agents/cover-designer.agent.md
+designer,Diana Design,🎨,./agents/designer.agent.md
+design-reviewer,Vicente Visual,👁️,./agents/design-reviewer.agent.md

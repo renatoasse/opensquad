@@ -42,6 +42,14 @@ Before starting execution:
      - If it does (sub-second collision), append `-2`, `-3`, etc. until the folder does not exist
    - Create the folder using Bash: `mkdir -p squads/{name}/output/{run_id}`
    - Store `run_id` in working memory for this run — it will be used for ALL output paths
+5c. **Optional — Rename run folder to carousel title + date** (when `pipeline.yaml` has `run_folder_name_from_title: true` and `run_folder_rename_after_step: N`): After step N completes successfully:
+   - Read the pipeline's `run_folder_rename_after_step` and the step list to get the step id (e.g. `step-08-create-carousel`).
+   - Locate the carousel draft file: try `squads/{name}/output/{run_id}/carousel-draft.md` and `squads/{name}/output/{run_id}/v1/carousel-draft.md` (read the one that exists).
+   - Extract the **title of slide 1**: find the line that starts with `Title:` (after "Slide 1" or at the first occurrence in the file) and take the rest of the line as the title text.
+   - **Slugify the title**: lowercase, replace spaces with `-`, replace accented chars (á→a, à→a, ã→a, â→a, é→e, ê→e, í→i, ó→o, ô→o, õ→o, ú→u, ç→c), remove any character that is not a-z, 0-9 or hyphen; limit to 60 characters (trim from the end if longer).
+   - **Date**: use today in format `YYYY-MM-DD` (from preferences or system).
+   - **New run_id** = `{slug}_{date}` (e.g. `por-que-as-vagas-que-pagam-mais-pedem-typescript_2026-03-17`).
+   - If the new_run_id is different from the current run_id and the new path does not already exist: run `mv squads/{name}/output/{run_id} squads/{name}/output/{new_run_id}` (or equivalent on the host OS), then set `run_id = new_run_id` in working memory and in `state.json` (so all subsequent steps use the new path). If the target folder already exists, do not rename (keep current run_id) and optionally inform the user.
 6. **Initialize state.json**: Create `squads/{name}/state.json` from scratch (see below). State writes are always mandatory.
    - **IMPORTANT**: You MUST write to `squads/{name}/state.json` before every step and after every handoff. This is non-negotiable. Never skip these writes.
    - Create `state.json` from scratch:
@@ -51,9 +59,9 @@ Before starting execution:
         - `name`: use the `displayName` column
         - `icon`: use the `icon` column
      b. Assign desk positions by agent order (0-based index):
-        - `col = (index % 3) + 1`
-        - `row = floor(index / 3) + 1`
-        (index 0 → col:1 row:1, index 1 → col:2 row:1, index 2 → col:3 row:1, index 3 → col:1 row:2, etc.)
+        - `col = (index % 2) + 1`
+        - `row = floor(index / 2) + 1`
+        (index 0 → col:1 row:1, index 1 → col:2 row:1, index 2 → col:1 row:2, etc.)
      c. Read `squads/{name}/squad.yaml` — count items in `pipeline.steps` for `total`
      d. Write `squads/{name}/state.json` with the Write tool:
         ```json
@@ -269,6 +277,10 @@ Apply this transformation consistently for every write in this step.
   **Date:** {today's date in YYYY-MM-DD format}
   ```
   This file is the `inputFile` for the researcher step that follows.
+
+### Run folder rename (title + date)
+
+After an agent completes a step and **before** veto check: if `pipeline.yaml` contains `run_folder_name_from_title: true` and `run_folder_rename_after_step: N`, and the step that **just completed** has 1-based index equal to N (e.g. N=8 for the 8th step), perform the logic in **5c** (rename run folder to slug of carousel title + date). Then continue with veto check and next step. All subsequent steps will use the new `run_id` from working memory and state.
 
 ### Veto Condition Enforcement
 

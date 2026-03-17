@@ -12,6 +12,7 @@ export function useSquadSocket() {
   const {
     setConnected,
     setSnapshot,
+    setSquadActive,
     updateSquadState,
     setSquadInactive,
   } = useSquadStore();
@@ -38,6 +39,9 @@ export function useSquadSocket() {
           switch (msg.type) {
             case "SNAPSHOT":
               setSnapshot(msg.squads, msg.activeStates);
+              break;
+            case "SQUAD_ACTIVE":
+              setSquadActive(msg.squad, msg.state);
               break;
             case "SQUAD_UPDATE":
               updateSquadState(msg.squad, msg.state);
@@ -76,5 +80,5 @@ export function useSquadSocket() {
       clearTimeout(reconnectTimer);
       wsRef.current?.close();
     };
-  }, [setConnected, setSnapshot, updateSquadState, setSquadInactive]);
+  }, [setConnected, setSnapshot, setSquadActive, updateSquadState, setSquadInactive]);
 }

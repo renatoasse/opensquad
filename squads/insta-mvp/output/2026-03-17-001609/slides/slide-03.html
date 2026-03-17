@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Inter:wght@400;500;600;700&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { width: 1080px; height: 1440px; overflow: hidden; font-family: 'Inter', sans-serif; background: #7C3AED; color: #fff; position: relative; }
+    .pill { position: absolute; top: 48px; left: 48px; background: #0a0a0a; color: #fff; padding: 10px 24px; border-radius: 999px; font-size: 18px; font-weight: 600; z-index: 10; }
+    .nav-circle { position: absolute; top: 48px; right: 48px; width: 48px; height: 48px; border: 2px solid rgba(255,255,255,0.8); border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 10; font-size: 20px; }
+    .num-deco { position: absolute; top: 90px; left: 24px; font-size: 260px; font-weight: 800; color: #fff; opacity: 0.35; line-height: 1; z-index: 1; font-family: 'Inter', sans-serif; }
+    .wrap { position: relative; padding: 100px 48px 200px; z-index: 4; }
+    .headline { font-size: 42px; font-weight: 400; line-height: 1.25; font-family: 'Permanent Marker', cursive; margin-bottom: 20px; }
+    .headline .circle { display: inline-block; border: 3px solid #0a0a0a; border-radius: 999px; padding: 2px 12px; background: #0a0a0a; color: #fff; }
+    .headline .underline { border-bottom: 3px solid rgba(0,0,0,0.4); padding-bottom: 2px; }
+    .body { font-size: 30px; font-weight: 500; line-height: 1.45; color: rgba(255,255,255,0.9); margin-bottom: 16px; }
+    .arrow { position: absolute; left: 48px; bottom: 200px; z-index: 6; }
+    .box { position: absolute; bottom: 80px; left: 48px; right: 48px; background: #0a0a0a; color: #fff; padding: 20px 28px; border-radius: 12px; font-weight: 700; font-size: 28px; z-index: 7; }
+    .dots { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 10; }
+    .dots span { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.3); }
+    .dots span.active { background: #fff; }
+  </style>
+</head>
+<body>
+  <div class="pill">MVP Flow</div>
+  <div class="nav-circle">→</div>
+  <span class="num-deco">2</span>
+  <div class="wrap">
+    <h2 class="headline">Tipagem pega <span class="circle">erro</span> antes de chegar em <span class="underline">produção</span> — e isso vale dinheiro.</h2>
+    <p class="body">Empresas que migraram para TypeScript relatam menos bugs em produção e refatoração mais segura. Para quem contrata, isso significa menos custo e menos risco.</p>
+  </div>
+  <svg class="arrow" width="140" height="70" viewBox="0 0 140 70"><path d="M 0 55 Q 70 5 120 35" stroke="rgba(0,0,0,0.4)" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+  <div class="box">Por isso as vagas que pagam mais exigem quem já sabe trabalhar com tipos.</div>
+  <div class="dots"><span></span><span></span><span class="active"></span><span></span><span></span><span></span><span></span><span></span></div>
+</body>
+</html>

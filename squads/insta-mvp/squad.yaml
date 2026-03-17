@@ -1,0 +1,31 @@
+# insta-mvp — Pesquisa, curadoria, copy, carrossel Instagram e publicação automática
+# Público: alunos de programação/IA (in100tiva / MVP Flow) e empreendedores de produtos digitais
+# Legenda: definida em conjunto por Sérgio SEO e Carla Carrossel; revisada por Renata Revisão
+
+squad:
+  code: insta-mvp
+  name: Insta MVP
+  description: >
+    Pesquisa e curadoria de conteúdo de programação/IA, copy e carrosséis
+    para Instagram Feed, com triangulação LuanPDD · In100tiva · MVP Flow,
+    mapa de hashtags e publicação automática.
+  icon: "📱"
+  performance_mode: alta
+
+skills:
+  - web_search
+  - web_fetch
+  - instagram-publisher
+
+data:
+  - pipeline/data/research-brief.md
+  - pipeline/data/domain-framework.md
+  - pipeline/data/quality-criteria.md
+  - pipeline/data/output-examples.md
+  - pipeline/data/anti-patterns.md
+  - pipeline/data/tone-of-voice.md
+  - pipeline/data/triangulation-guide.md
+  - pipeline/data/hashtag-map.yaml
+
+formats:
+  - instagram-feed

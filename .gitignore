@@ -1,8 +1,17 @@
+# Dependencies
 node_modules/
+
+# Environment (nunca commitar chaves)
 .env
+.env.local
+.env.*.local
+
+# Build / output
+dist/
 *.log
-squads/*/output/
-_opensquad/_memory/company.md
-_opensquad/_memory/preferences.md
-_opensquad/_browser_profile/
-docs/
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
