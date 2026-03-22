@@ -1,0 +1,55 @@
+name: "Pipeline — Investigação Criminal GAECO"
+squad: investigacao-criminal
+version: "1.0.0"
+
+steps:
+  - file: steps/step-01-dados-do-caso.md
+    type: checkpoint
+
+  - file: steps/step-02-coleta-osint.md
+    type: agent
+    agent: orlando-osint
+    execution: subagent
+    parallel_group: coleta
+
+  - file: steps/step-03-analise-documentos.md
+    type: agent
+    agent: debora-documentos
+    execution: subagent
+    parallel_group: coleta
+
+  - file: steps/step-04-aprovacao-achados.md
+    type: checkpoint
+
+  - file: steps/step-05-analise-redes.md
+    type: agent
+    agent: raul-redes
+    execution: inline
+    parallel_group: analise
+
+  - file: steps/step-06-analise-patrimonial.md
+    type: agent
+    agent: fabio-financeiro
+    execution: subagent
+    parallel_group: analise
+
+  - file: steps/step-07-perfil-investigativo.md
+    type: checkpoint
+
+  - file: steps/step-08-redacao-pecas.md
+    type: agent
+    agent: paula-penal
+    execution: inline
+
+  - file: steps/step-09-aprovacao-pecas.md
+    type: checkpoint
+    on_reject: step-08-redacao-pecas
+
+  - file: steps/step-10-revisao-juridica.md
+    type: agent
+    agent: victor-veredito
+    execution: inline
+
+  - file: steps/step-11-aprovacao-final.md
+    type: checkpoint
+    on_reject: step-08-redacao-pecas
