@@ -3,7 +3,8 @@
     "allow": [
       "Read(//c/Users/renat/.claude/plugins//**)",
       "Read(//c/Users/renat/.claude/plugins/**)",
-      "Read(//c/Users/renat/.claude/**)"
+      "Read(//c/Users/renat/.claude/**)",
+      "mcp__playwright__browser_install"
     ]
   },
   "outputStyle": "default"
