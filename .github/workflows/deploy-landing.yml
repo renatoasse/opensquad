@@ -1,0 +1,29 @@
+name: Deploy ScalenX Landing Page
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - claude/identify-system-architecture-OdL1S
+    paths:
+      - 'squads/scalenx-landing/index.html'
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./squads/scalenx-landing
+          publish_branch: gh-pages
+          destination_dir: .
+          force_orphan: true
