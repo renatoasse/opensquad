@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ScalenX — Estruturas de Vendas Automatizadas</title>
+  <meta name="description" content="Consultoria AI-first especializada em construir estruturas de vendas automatizadas. Mais eficiência, previsibilidade e escala comercial." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #000000;
+      --bg-subtle: #0c0c0c;
+      --bg-card:   #111111;
+      --border:    rgba(255,255,255,0.08);
+      --border-hover: rgba(255,255,255,0.16);
+      --text:      #ffffff;
+      --text-muted: #71717a;
+      --text-secondary: #a1a1aa;
+      --accent:    #e4e4e7;
+      --accent-glow: rgba(255,255,255,0.04);
+      --blue:      #3b82f6;
+      --blue-dim:  rgba(59,130,246,0.12);
+      --radius:    12px;
+      --radius-sm: 8px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ─── NOISE TEXTURE OVERLAY ─── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    /* ─── LAYOUT ─── */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    section { position: relative; z-index: 1; }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      border-bottom: 1px solid var(--border);
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .logo {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: #fff;
+      text-decoration: none;
+    }
+
+    .logo span {
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-link {
+      font-size: 14px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      transition: color 0.15s, background 0.15s;
+    }
+
+    .nav-link:hover { color: #fff; background: var(--accent-glow); }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s;
+      border: none;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: #fff;
+      color: #000;
+    }
+    .btn-primary:hover { background: #e4e4e7; }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { color: #fff; border-color: var(--border-hover); background: var(--accent-glow); }
+
+    /* ─── HERO ─── */
+    .hero {
+      padding: 160px 0 100px;
+      text-align: center;
+      position: relative;
+    }
+
+    /* Radial glow behind hero text */
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 60px; left: 50%;
+      transform: translateX(-50%);
+      width: 700px; height: 400px;
+      background: radial-gradient(ellipse at center, rgba(59,130,246,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 5px 14px;
+      margin-bottom: 32px;
+      background: var(--bg-card);
+    }
+
+    .hero-badge-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--blue);
+      box-shadow: 0 0 6px var(--blue);
+      flex-shrink: 0;
+    }
+
+    .hero h1 {
+      font-size: clamp(40px, 7vw, 72px);
+      font-weight: 800;
+      line-height: 1.08;
+      letter-spacing: -2.5px;
+      color: #fff;
+      max-width: 820px;
+      margin: 0 auto 24px;
+    }
+
+    .hero h1 .dim { color: var(--text-muted); }
+
+    .hero p {
+      font-size: 18px;
+      color: var(--text-secondary);
+      max-width: 520px;
+      margin: 0 auto 40px;
+      line-height: 1.7;
+      font-weight: 400;
+    }
+
+    .hero-cta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn-lg { padding: 12px 24px; font-size: 15px; }
+
+    /* ─── DIVIDER ─── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--border), transparent);
+    }
+
+    /* ─── LOGOS / SOCIAL PROOF ─── */
+    .logos-section {
+      padding: 64px 0;
+      text-align: center;
+    }
+
+    .logos-label {
+      font-size: 13px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 500;
+      margin-bottom: 32px;
+    }
+
+    .logos-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+
+    .logo-pill {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: -0.3px;
+      transition: color 0.15s;
+    }
+    .logo-pill:hover { color: var(--text-secondary); }
+
+    /* ─── SECTION HEADERS ─── */
+    .section-eyebrow {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--blue);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: clamp(28px, 4vw, 44px);
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      line-height: 1.1;
+      color: #fff;
+      margin-bottom: 16px;
+    }
+
+    .section-title .dim { color: var(--text-muted); }
+
+    .section-desc {
+      font-size: 17px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      max-width: 520px;
+    }
+
+    /* ─── PROBLEM SECTION ─── */
+    .problem-section {
+      padding: 100px 0;
+    }
+
+    .problem-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 56px;
+    }
+
+    .problem-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      transition: border-color 0.2s;
+    }
+    .problem-card:hover { border-color: var(--border-hover); }
+
+    .problem-icon {
+      font-size: 22px;
+      margin-bottom: 14px;
+    }
+
+    .problem-card h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 8px;
+      letter-spacing: -0.3px;
+    }
+
+    .problem-card p {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
+    /* ─── HOW IT WORKS ─── */
+    .how-section {
+      padding: 100px 0;
+    }
+
+    .how-header {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: start;
+      margin-bottom: 64px;
+    }
+
+    .steps-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .step {
+      display: flex;
+      gap: 20px;
+      padding: 24px 0;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+    .step:last-child { border-bottom: none; }
+
+    .step-number {
+      flex-shrink: 0;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .step-body h4 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 4px;
+      letter-spacing: -0.2px;
+    }
+
+    .step-body p {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* ─── SERVICES GRID ─── */
+    .services-section {
+      padding: 100px 0;
+    }
+
+    .services-header { margin-bottom: 56px; }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .service-card {
+      background: var(--bg);
+      padding: 32px 28px;
+      transition: background 0.2s;
+    }
+    .service-card:hover { background: var(--bg-card); }
+
+    .service-icon {
+      font-size: 24px;
+      margin-bottom: 16px;
+    }
+
+    .service-card h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 10px;
+      letter-spacing: -0.3px;
+    }
+
+    .service-card p {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
+    /* ─── DIFFERENTIALS ─── */
+    .diff-section {
+      padding: 100px 0;
+    }
+
+    .diff-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: start;
+    }
+
+    .diff-left { position: sticky; top: 80px; }
+
+    .diff-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-top: 40px;
+    }
+
+    .diff-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .diff-item:first-child { border-top: 1px solid var(--border); }
+
+    .diff-check {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--blue-dim);
+      border: 1px solid rgba(59,130,246,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+    }
+
+    .diff-check svg { width: 11px; height: 11px; color: var(--blue); }
+
+    .diff-text h4 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 4px;
+      letter-spacing: -0.2px;
+    }
+
+    .diff-text p {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* ─── METRICS ─── */
+    .metrics-section {
+      padding: 80px 0;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .metric-card {
+      background: var(--bg-card);
+      padding: 36px 28px;
+      text-align: center;
+    }
+
+    .metric-value {
+      font-size: 42px;
+      font-weight: 800;
+      letter-spacing: -2px;
+      color: #fff;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .metric-label {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* ─── FINAL CTA ─── */
+    .cta-section {
+      padding: 120px 0;
+      text-align: center;
+      position: relative;
+    }
+
+    .cta-section::before {
+      content: '';
+      position: absolute;
+      top: 40px; left: 50%;
+      transform: translateX(-50%);
+      width: 600px; height: 300px;
+      background: radial-gradient(ellipse at center, rgba(59,130,246,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .cta-section h2 {
+      font-size: clamp(32px, 5vw, 56px);
+      font-weight: 800;
+      letter-spacing: -2px;
+      line-height: 1.08;
+      margin-bottom: 20px;
+    }
+
+    .cta-section h2 .dim { color: var(--text-muted); }
+
+    .cta-section p {
+      font-size: 17px;
+      color: var(--text-secondary);
+      max-width: 440px;
+      margin: 0 auto 40px;
+    }
+
+    .cta-note {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 16px;
+    }
+
+    /* ─── FOOTER ─── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 48px 0 40px;
+    }
+
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 24px;
+    }
+
+    .footer-logo {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.4px;
+      color: #fff;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 24px;
+    }
+
+    .footer-link {
+      font-size: 14px;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .footer-link:hover { color: var(--text-secondary); }
+
+    .footer-copy {
+      font-size: 13px;
+      color: var(--text-muted);
+      width: 100%;
+      padding-top: 32px;
+      border-top: 1px solid var(--border);
+      margin-top: 24px;
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+
+      .hero { padding: 120px 0 80px; }
+      .hero h1 { letter-spacing: -1.5px; }
+
+      .problem-grid { grid-template-columns: 1fr; }
+      .how-header { grid-template-columns: 1fr; gap: 40px; }
+      .services-grid { grid-template-columns: 1fr; }
+      .diff-layout { grid-template-columns: 1fr; gap: 40px; }
+      .diff-left { position: static; }
+      .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 480px) {
+      .metrics-grid { grid-template-columns: 1fr; }
+      .hero-cta { flex-direction: column; align-items: stretch; }
+      .hero-cta .btn { justify-content: center; }
+    }
+
+    /* ─── ANIMATIONS ─── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-badge, .hero h1, .hero p, .hero-cta {
+      animation: fadeUp 0.6s ease both;
+    }
+    .hero-badge    { animation-delay: 0.05s; }
+    .hero h1       { animation-delay: 0.12s; }
+    .hero p        { animation-delay: 0.2s;  }
+    .hero-cta      { animation-delay: 0.28s; }
+  </style>
+</head>
+<body>
+
+  <!-- ─── NAV ─── -->
+  <nav>
+    <div class="nav-inner">
+      <a href="#" class="logo">Scalen<span>X</span></a>
+      <div class="nav-links">
+        <a href="#como-funciona" class="nav-link">Como funciona</a>
+        <a href="#servicos" class="nav-link">Serviços</a>
+        <a href="#diferenciais" class="nav-link">Diferenciais</a>
+        <a href="#contato" class="btn btn-ghost" style="margin-left:8px;">Falar com a equipe</a>
+        <a href="#contato" class="btn btn-primary">Começar agora →</a>
+      </div>
+      <a href="#contato" class="btn btn-primary" style="display:none;" id="mobile-cta">Começar →</a>
+    </div>
+  </nav>
+
+  <!-- ─── HERO ─── -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-badge">
+        <span class="hero-badge-dot"></span>
+        Consultoria AI-first para negócios que querem escalar
+      </div>
+
+      <h1>
+        Venda mais.<br />
+        <span class="dim">Com menos esforço.</span>
+      </h1>
+
+      <p>
+        Construímos estruturas de vendas automatizadas que funcionam com previsibilidade — sem depender de autoridade, audiência ou esforço manual constante.
+      </p>
+
+      <div class="hero-cta">
+        <a href="#contato" class="btn btn-primary btn-lg">
+          Quero uma estrutura de vendas
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </a>
+        <a href="#como-funciona" class="btn btn-ghost btn-lg">Ver como funciona</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ─── SOCIAL PROOF ─── -->
+  <section class="logos-section">
+    <div class="container">
+      <p class="logos-label">Estratégia + IA + Copy + Automação — em uma só estrutura</p>
+      <div class="logos-row">
+        <span class="logo-pill">Estratégia</span>
+        <span class="logo-pill">Copywriting</span>
+        <span class="logo-pill">Automação</span>
+        <span class="logo-pill">Inteligência Artificial</span>
+        <span class="logo-pill">Funis de Vendas</span>
+        <span class="logo-pill">Escala Comercial</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ─── PROBLEM ─── -->
+  <section class="problem-section">
+    <div class="container">
+      <span class="section-eyebrow">O problema</span>
+      <h2 class="section-title">
+        Vender na internet <span class="dim">não deveria ser</span><br />
+        tão dependente de você.
+      </h2>
+      <p class="section-desc">
+        A maioria dos negócios digitais trava porque a operação depende demais de esforço manual, autoridade pessoal ou audiência. A ScalenX existe para mudar isso.
+      </p>
+
+      <div class="problem-grid">
+        <div class="problem-card">
+          <div class="problem-icon">⚡</div>
+          <h3>Vendas imprevisíveis</h3>
+          <p>Receita instável, meses bons e meses ruins sem saber o porquê. Sem sistema, sem controle sobre o resultado.</p>
+        </div>
+        <div class="problem-card">
+          <div class="problem-icon">🔄</div>
+          <h3>Operação 100% manual</h3>
+          <p>Cada venda depende de você: atendimento, follow-up, fechamento. Não tem como crescer sem se esgotar.</p>
+        </div>
+        <div class="problem-card">
+          <div class="problem-icon">📉</div>
+          <h3>Dependência de audiência</h3>
+          <p>Acredita que só consegue vender com uma base enorme ou muito tempo de mercado. Isso é mito — com a estrutura certa, não precisa.</p>
+        </div>
+        <div class="problem-card">
+          <div class="problem-icon">🧩</div>
+          <h3>Copy, tráfego e produto desconectados</h3>
+          <p>Estratégia em um lugar, copy em outro, automação em outro. Cada peça funciona sozinha, mas o sistema não converte.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── HOW IT WORKS ─── -->
+  <section class="how-section" id="como-funciona">
+    <div class="container">
+      <div class="how-header">
+        <div>
+          <span class="section-eyebrow">Como funciona</span>
+          <h2 class="section-title">
+            Da estratégia<br />
+            <span class="dim">ao sistema rodando.</span>
+          </h2>
+          <p class="section-desc" style="margin-top:16px;">
+            Não entregamos slides. Entregamos uma máquina de vendas funcionando — integrada, testada e pronta para escalar.
+          </p>
+        </div>
+        <div class="steps-list">
+          <div class="step">
+            <div class="step-number">01</div>
+            <div class="step-body">
+              <h4>Diagnóstico da operação</h4>
+              <p>Mapeamos o estado atual: oferta, funil, copy, pontos de queda e oportunidades imediatas de conversão.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">02</div>
+            <div class="step-body">
+              <h4>Engenharia da oferta</h4>
+              <p>Reposicionamos ou construímos a oferta para maximizar o desejo percebido e reduzir fricção de compra.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">03</div>
+            <div class="step-body">
+              <h4>Arquitetura do funil</h4>
+              <p>Desenhamos e implementamos o mecanismo de vendas: copy, páginas, e-mails e sequências de conversão.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">04</div>
+            <div class="step-body">
+              <h4>Automação com IA</h4>
+              <p>Integramos ferramentas e IA para que o funil funcione no piloto automático — sem depender de você a cada etapa.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">05</div>
+            <div class="step-body">
+              <h4>Otimização contínua</h4>
+              <p>Acompanhamos métricas, rodamos testes e ajustamos o sistema para crescimento previsível mês a mês.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ─── SERVICES ─── -->
+  <section class="services-section" id="servicos">
+    <div class="container">
+      <div class="services-header">
+        <span class="section-eyebrow">Serviços</span>
+        <h2 class="section-title">
+          O que a ScalenX<br />
+          <span class="dim">constrói para você.</span>
+        </h2>
+      </div>
+      <div class="services-grid">
+        <div class="service-card">
+          <div class="service-icon">🎯</div>
+          <h3>Estruturação de Vendas</h3>
+          <p>Diagnóstico completo e construção de uma operação de vendas automatizada, com funil, copy e mecanismos de conversão integrados.</p>
+        </div>
+        <div class="service-card">
+          <div class="service-icon">✍️</div>
+          <h3>Engenharia de Copy</h3>
+          <p>Criação de copy estratégico para páginas de vendas, e-mails, VSLs e sequências de nutrição orientadas à conversão.</p>
+        </div>
+        <div class="service-card">
+          <div class="service-icon">🤖</div>
+          <h3>Automação com IA</h3>
+          <p>Implementação de agentes de IA e automações que executam tarefas comerciais repetitivas sem intervenção humana.</p>
+        </div>
+        <div class="service-card">
+          <div class="service-icon">📐</div>
+          <h3>Consultoria Estratégica</h3>
+          <p>Sessões estratégicas para reposicionar ofertas, identificar alavancas de crescimento e priorizar as ações de maior impacto.</p>
+        </div>
+        <div class="service-card">
+          <div class="service-icon">⚙️</div>
+          <h3>Sistemas Proprietários</h3>
+          <p>Desenvolvimento de mecanismos únicos de conversão — metodologias e processos que se tornam ativos exclusivos do seu negócio.</p>
+        </div>
+        <div class="service-card">
+          <div class="service-icon">📊</div>
+          <h3>Otimização de Resultados</h3>
+          <p>Análise de dados, testes A/B e ajustes contínuos para maximizar a taxa de conversão e o retorno sobre investimento.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── METRICS ─── -->
+  <section class="metrics-section">
+    <div class="container">
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-value">AI</div>
+          <div class="metric-label">Abordagem 100%<br />AI-first</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">4×</div>
+          <div class="metric-label">Mais eficiência<br />operacional</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">90%</div>
+          <div class="metric-label">Menos dependência<br />de execução manual</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">∞</div>
+          <div class="metric-label">Escalabilidade<br />sem limite de equipe</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── DIFFERENTIALS ─── -->
+  <section class="diff-section" id="diferenciais">
+    <div class="container">
+      <div class="diff-layout">
+        <div class="diff-left">
+          <span class="section-eyebrow">Diferenciais</span>
+          <h2 class="section-title">
+            Por que a<br />
+            <span class="dim">ScalenX?</span>
+          </h2>
+          <p class="section-desc" style="margin-top:16px;">
+            Não somos uma agência de marketing. Somos engenheiros de vendas que combinam estratégia, tecnologia e psicologia de mercado para construir ativos comerciais duradouros.
+          </p>
+        </div>
+
+        <div>
+          <div class="diff-list">
+            <div class="diff-item">
+              <div class="diff-check">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div class="diff-text">
+                <h4>Abordagem AI-first, não AI-hype</h4>
+                <p>Usamos IA onde ela gera resultado real — em automação comercial, copy em escala e otimização contínua. Sem firulas.</p>
+              </div>
+            </div>
+            <div class="diff-item">
+              <div class="diff-check">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div class="diff-text">
+                <h4>Estratégia + execução no mesmo lugar</h4>
+                <p>Não apenas aconselhamos — construímos. Do diagnóstico à implementação, sem fragmentação de responsabilidades.</p>
+              </div>
+            </div>
+            <div class="diff-item">
+              <div class="diff-check">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div class="diff-text">
+                <h4>Funciona sem autoridade ou audiência</h4>
+                <p>Nossa metodologia foi desenhada para negócios que ainda não têm reconhecimento de mercado. Vendemos antes da fama.</p>
+              </div>
+            </div>
+            <div class="diff-item">
+              <div class="diff-check">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div class="diff-text">
+                <h4>Mecanismos proprietários de conversão</h4>
+                <p>Desenvolvemos sistemas únicos que se tornam ativos do seu negócio — não templates genéricos aplicados a qualquer cliente.</p>
+              </div>
+            </div>
+            <div class="diff-item">
+              <div class="diff-check">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div class="diff-text">
+                <h4>Foco em previsibilidade, não em picos</h4>
+                <p>Construímos para crescimento sustentável. Uma máquina que vende todos os meses, não uma campanha que explode e some.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ─── FINAL CTA ─── -->
+  <section class="cta-section" id="contato">
+    <div class="container">
+      <h2>
+        Pronto para construir<br />
+        <span class="dim">sua máquina de vendas?</span>
+      </h2>
+      <p>
+        Fale com nossa equipe. Vamos analisar sua operação e mostrar como uma estrutura automatizada pode transformar seus resultados.
+      </p>
+      <a href="mailto:contato@scalenx.com.br" class="btn btn-primary btn-lg">
+        Falar com a ScalenX
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </a>
+      <p class="cta-note">Diagnóstico inicial gratuito &nbsp;·&nbsp; Sem compromisso</p>
+    </div>
+  </section>
+
+  <!-- ─── FOOTER ─── -->
+  <footer>
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-logo">ScalenX</div>
+        <div class="footer-links">
+          <a href="#como-funciona" class="footer-link">Como funciona</a>
+          <a href="#servicos" class="footer-link">Serviços</a>
+          <a href="#diferenciais" class="footer-link">Diferenciais</a>
+          <a href="#contato" class="footer-link">Contato</a>
+        </div>
+      </div>
+      <p class="footer-copy">
+        © 2026 Scale Business Intelligence Consulting LTDA — CNPJ 64.468.305/0001-05. Todos os direitos reservados.
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    // Show mobile CTA button on small screens
+    const mobileCta = document.getElementById('mobile-cta');
+    const mq = window.matchMedia('(max-width: 768px)');
+    function toggleMobileCta(e) {
+      mobileCta.style.display = e.matches ? 'inline-flex' : 'none';
+    }
+    toggleMobileCta(mq);
+    mq.addEventListener('change', toggleMobileCta);
+
+    // Smooth scroll for nav links
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const target = document.querySelector(a.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+
+    // Subtle scroll-based nav border intensification
+    const nav = document.querySelector('nav');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 10) {
+        nav.style.borderBottomColor = 'rgba(255,255,255,0.12)';
+      } else {
+        nav.style.borderBottomColor = 'rgba(255,255,255,0.08)';
+      }
+    });
+  </script>
+</body>
+</html>
