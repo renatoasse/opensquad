@@ -1,0 +1,28 @@
+name: "Investigação Criminal — GAECO"
+code: investigacao-criminal
+description: >
+  Squad de investigação criminal completo para o GAECO. Realiza coleta OSINT,
+  análise de documentos, mapeamento de redes criminais, análise patrimonial e
+  geração de peças jurídicas fundamentadas (pedidos de quebra, cautelares, denúncia).
+version: "1.0.0"
+created: "2026-03-22"
+mode: alta-performance
+
+squad_party: ./squad-party.csv
+
+skills:
+  - web_search
+  - web_fetch
+
+data:
+  - pipeline/data/research-brief.md
+  - pipeline/data/domain-framework.md
+  - pipeline/data/quality-criteria.md
+  - pipeline/data/output-examples.md
+  - pipeline/data/anti-patterns.md
+
+pipeline: ./pipeline/pipeline.yaml
+
+memory: ./_memory/memories.md
+
+output_dir: ./output/

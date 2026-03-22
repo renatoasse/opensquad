@@ -1,0 +1,7 @@
+id,name,title,icon,path,execution
+orlando-osint,Orlando OSINT,Especialista em Inteligência de Fontes Abertas,🔍,./agents/orlando-osint.agent.md,subagent
+debora-documentos,Débora Documentos,Analista de Documentos Investigativos,📋,./agents/debora-documentos.agent.md,subagent
+raul-redes,Raul Redes,Analista de Vínculos e Redes Criminais,🕸️,./agents/raul-redes.agent.md,inline
+fabio-financeiro,Fábio Financeiro,Analista Patrimonial e Financeiro,💰,./agents/fabio-financeiro.agent.md,subagent
+paula-penal,Paula Penal,Redatora de Peças Jurídicas Penais,⚖️,./agents/paula-penal.agent.md,inline
+victor-veredito,Victor Veredito,Revisor Jurídico,✅,./agents/victor-veredito.agent.md,inline
