@@ -18,13 +18,13 @@ Any `opensquad` user should be able to add powerful external capabilities to squ
 - ✓ Users can install and manage bundled skills and agents from the project catalog — existing
 - ✓ Users can create and run multi-agent squads inside supported IDEs — existing
 - ✓ Users can use a generated dashboard/virtual office to observe squad activity — existing
+- ✓ `opensquad` can ship a bundled Resend MCP skill in the catalog with agent-facing usage guidance — validated in Phase 1
+- ✓ Users can configure and repair Resend setup through guided CLI flows that persist local MCP config and non-secret setup state — validated in Phase 1
 
 ### Active
 
-- [ ] Add a Resend email skill adapted to the `opensquad` skill ecosystem
 - [ ] Support sending individual emails through Resend from squads and agents
 - [ ] Support batch email sending through the same skill
-- [ ] Guide users through Resend setup interactively and save configuration automatically instead of requiring manual env setup
 - [ ] Make email-capable agents and squads use or receive the Resend skill automatically when email delivery is needed
 - [ ] Establish a low-friction pattern for introducing future third-party skills into `opensquad`
 
@@ -56,9 +56,9 @@ Contact import is a desirable extension after initial email send and batch send 
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Build the first email skill around Resend | Resend already has solid docs and an official MCP server/skill ecosystem to reuse | — Pending |
-| Prefer MCP integration before direct API calls | Reuse lowers implementation risk and aligns with the goal of minimal changes | — Pending |
-| Optimize for non-developer onboarding | `opensquad` should reduce friction, not require manual env/config work | — Pending |
+| Build the first email skill around Resend | Resend already has solid docs and an official MCP server/skill ecosystem to reuse | ✓ Good |
+| Prefer MCP integration before direct API calls | Reuse lowers implementation risk and aligns with the goal of minimal changes | ✓ Good |
+| Optimize for non-developer onboarding | `opensquad` should reduce friction, not require manual env/config work | ✓ Good |
 | Make email usage discoverable or automatic in squad creation flows | Users should not need to know the internal skill catalog to get email capability | — Pending |
 | Treat this work as the first pattern for future external skills | The broader project objective is to keep expanding `opensquad` with new skills | — Pending |
 
@@ -80,4 +80,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-24 after initialization*
+*Last updated: 2026-03-24 after Phase 1 completion*
