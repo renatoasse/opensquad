@@ -2,7 +2,7 @@
 
 **Created:** 2026-03-24
 **Scope:** v1 requirements mapped 1:1 to phases, with a separate follow-on phase for v2 contact import work
-**Current status:** initialized, no execution started
+**Current status:** phase 1 in progress; skill packaging complete
 
 ## Roadmap Summary
 
@@ -21,6 +21,8 @@ Phases 1-3 cover every v1 requirement exactly once. Phase 4 is retained from the
 - A user can re-run setup after incomplete or invalid configuration and the flow repairs or refreshes saved state.
 
 **Requirements mapped:** SKILL-01, SKILL-02, SKILL-03, ONBD-01, ONBD-02, ONBD-03, ONBD-04
+
+**Progress:** bundled `resend` skill packaged in `skills/resend/SKILL.md` and cataloged in `skills/README.md`.
 
 ## Phase 2: Email Capability Activation
 
@@ -63,4 +65,3 @@ Phases 1-3 cover every v1 requirement exactly once. Phase 4 is retained from the
 - Phase 2 follows because users should encounter email capability naturally in squad creation and execution flows.
 - Phase 3 validates the actual delivery path after the skill and activation layers are in place.
 - Phase 4 stays separate because contact import is valuable, but it is not required to validate the core v1 email capability.
-
