@@ -7,16 +7,16 @@
 
 ### Skill Core
 
-- [ ] **SKILL-01**: Maintainer can ship a bundled `resend` skill in the `opensquad` catalog using the existing `skills/<id>/SKILL.md` format
-- [ ] **SKILL-02**: An installed `resend` skill exposes Resend email capabilities through the official MCP server as the default integration path
-- [ ] **SKILL-03**: Agents that receive the `resend` skill get clear usage instructions for single-send and batch-send workflows
+- [x] **SKILL-01**: Maintainer can ship a bundled `resend` skill in the `opensquad` catalog using the existing `skills/<id>/SKILL.md` format
+- [x] **SKILL-02**: An installed `resend` skill exposes Resend email capabilities through the official MCP server as the default integration path
+- [x] **SKILL-03**: Agents that receive the `resend` skill get clear usage instructions for single-send and batch-send workflows
 
 ### Onboarding
 
-- [ ] **ONBD-01**: User can complete Resend setup through an interactive guided flow without manually editing environment files
-- [ ] **ONBD-02**: Guided setup collects and persists the Resend API key for future squad and agent runs
-- [ ] **ONBD-03**: Guided setup explains sender/domain prerequisites and captures a default sender address when available
-- [ ] **ONBD-04**: User can re-run or repair Resend setup after an incomplete or invalid configuration
+- [x] **ONBD-01**: User can complete Resend setup through an interactive guided flow without manually editing environment files
+- [x] **ONBD-02**: Guided setup collects and persists the Resend API key for future squad and agent runs
+- [x] **ONBD-03**: Guided setup explains sender/domain prerequisites and captures a default sender address when available
+- [x] **ONBD-04**: User can re-run or repair Resend setup after an incomplete or invalid configuration
 
 ### Activation
 
@@ -59,13 +59,13 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SKILL-01 | Phase 1 | Pending |
-| SKILL-02 | Phase 1 | Pending |
-| SKILL-03 | Phase 1 | Pending |
-| ONBD-01 | Phase 1 | Pending |
-| ONBD-02 | Phase 1 | Pending |
-| ONBD-03 | Phase 1 | Pending |
-| ONBD-04 | Phase 1 | Pending |
+| SKILL-01 | Phase 1 | Complete |
+| SKILL-02 | Phase 1 | Complete |
+| SKILL-03 | Phase 1 | Complete |
+| ONBD-01 | Phase 1 | Complete |
+| ONBD-02 | Phase 1 | Complete |
+| ONBD-03 | Phase 1 | Complete |
+| ONBD-04 | Phase 1 | Complete |
 | ACTV-01 | Phase 2 | Pending |
 | ACTV-02 | Phase 2 | Pending |
 | ACTV-03 | Phase 2 | Pending |
@@ -88,4 +88,4 @@
 
 ---
 *Requirements defined: 2026-03-24*
-*Last updated: 2026-03-24 after roadmap creation*
+*Last updated: 2026-03-24 after phase 1 completion*
