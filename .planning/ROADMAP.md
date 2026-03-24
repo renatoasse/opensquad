@@ -2,7 +2,7 @@
 
 **Created:** 2026-03-24
 **Scope:** v1 requirements mapped 1:1 to phases, with a separate follow-on phase for v2 contact import work
-**Current status:** phase 2 in progress; provider registry and shared provider-state checks are in place
+**Current status:** phase 2 in progress; provider registry, shared provider-state checks, and runner guardrails are in place
 
 ## Roadmap Summary
 
@@ -36,7 +36,7 @@ Phases 1-3 cover every v1 requirement exactly once. Phase 4 is retained from the
 
 **Requirements mapped:** ACTV-01, ACTV-02, ACTV-03, PROV-01, PROV-02, PROV-03, PROV-04
 
-**Progress:** capability-first email provider registry added in `src/email-providers.js`; `src/skills-cli.js` now reuses shared provider inspection and persistence helpers for Resend setup and repair.
+**Progress:** capability-first email provider registry added in `src/email-providers.js`; `src/skills-cli.js` now reuses shared provider inspection and persistence helpers for Resend setup and repair; the pipeline runner now carries a narrow email-capability guardrail.
 
 ## Phase 3: Delivery Workflows
 

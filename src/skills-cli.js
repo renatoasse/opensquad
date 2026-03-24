@@ -4,9 +4,8 @@ import { join } from 'node:path';
 import { listInstalled, installSkill, removeSkill, getSkillMeta, getLocalizedDescription } from './skills.js';
 import {
   getEmailProviderDefinition,
-  inspectEmailProvider,
+  inspectEmailProviderHealth,
   providerNeedsRepair,
-  providerNeedsSetup,
   recommendEmailProvider,
   selectEmailProvider,
   writeEmailProviderSettings,
@@ -39,8 +38,8 @@ async function ensureResendInstalled(targetDir) {
 
 async function runResendSetup(targetDir) {
   await ensureResendInstalled(targetDir);
-  const currentProvider = await inspectEmailProvider(targetDir, RESEND_SKILL_ID);
-  if (currentProvider.status === 'configured') {
+  const currentProvider = await inspectEmailProviderHealth(targetDir, RESEND_SKILL_ID);
+  if (currentProvider.setupStatus === 'ready') {
     console.log('\n  Resend configuration is already healthy. No setup needed.\n');
     return;
   }
@@ -196,13 +195,7 @@ async function runSetup(id, targetDir) {
     return false;
   }
 
-  const provider = await inspectEmailProvider(targetDir, RESEND_SKILL_ID);
-  if (providerNeedsSetup(provider) || providerNeedsRepair(provider)) {
-    await runResendSetup(targetDir);
-    return;
-  }
-
-  console.log('\n  Resend configuration is already healthy. No setup needed.\n');
+  await runResendSetup(targetDir);
 }
 
 async function runRepair(id, targetDir) {
