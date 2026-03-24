@@ -59,30 +59,33 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SKILL-01 | Phase TBD | Pending |
-| SKILL-02 | Phase TBD | Pending |
-| SKILL-03 | Phase TBD | Pending |
-| ONBD-01 | Phase TBD | Pending |
-| ONBD-02 | Phase TBD | Pending |
-| ONBD-03 | Phase TBD | Pending |
-| ONBD-04 | Phase TBD | Pending |
-| ACTV-01 | Phase TBD | Pending |
-| ACTV-02 | Phase TBD | Pending |
-| ACTV-03 | Phase TBD | Pending |
-| DLVR-01 | Phase TBD | Pending |
-| DLVR-02 | Phase TBD | Pending |
-| DLVR-03 | Phase TBD | Pending |
-| DLVR-04 | Phase TBD | Pending |
-| PROV-01 | Phase TBD | Pending |
-| PROV-02 | Phase TBD | Pending |
-| PROV-03 | Phase TBD | Pending |
-| PROV-04 | Phase TBD | Pending |
+| SKILL-01 | Phase 1 | Pending |
+| SKILL-02 | Phase 1 | Pending |
+| SKILL-03 | Phase 1 | Pending |
+| ONBD-01 | Phase 1 | Pending |
+| ONBD-02 | Phase 1 | Pending |
+| ONBD-03 | Phase 1 | Pending |
+| ONBD-04 | Phase 1 | Pending |
+| ACTV-01 | Phase 2 | Pending |
+| ACTV-02 | Phase 2 | Pending |
+| ACTV-03 | Phase 2 | Pending |
+| DLVR-01 | Phase 3 | Pending |
+| DLVR-02 | Phase 3 | Pending |
+| DLVR-03 | Phase 3 | Pending |
+| DLVR-04 | Phase 3 | Pending |
+| PROV-01 | Phase 2 | Pending |
+| PROV-02 | Phase 2 | Pending |
+| PROV-03 | Phase 2 | Pending |
+| PROV-04 | Phase 2 | Pending |
 
 **Coverage:**
 - v1 requirements: 18 total
-- Mapped to phases: 0
-- Unmapped: 18 ⚠️
+- Mapped to phases: 18
+- Unmapped: 0
+
+**v2 note:**
+- CONT-01, CONT-02, and CONT-03 are intentionally left outside v1 traceability and are represented in the roadmap as Phase 4 follow-on work.
 
 ---
 *Requirements defined: 2026-03-24*
-*Last updated: 2026-03-24 after initialization*
+*Last updated: 2026-03-24 after roadmap creation*
