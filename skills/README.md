@@ -19,6 +19,10 @@ npx opensquad install <skill-name>
 | [image-creator](./image-creator/) | mcp | Render HTML/CSS into production-ready PNG images via Playwright. | _(none)_ | `npx opensquad install image-creator` |
 | [image-generator](./image-generator/) | script | Generate AI images via Openrouter API. Test mode (cheap) and production mode (high-quality). Supports reference images for brand consistency. | `OPENROUTER_API_KEY` | `npx opensquad install image-generator` |
 
+### Resend Setup
+
+After installing `resend`, run `npx opensquad skills setup resend` to capture the API key, default sender details, and local MCP registration without editing config files by hand.
+
 ## Skill Types
 
 - **mcp** -- Connects to an external MCP server (stdio or HTTP transport)

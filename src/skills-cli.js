@@ -1,10 +1,19 @@
 import { createInterface } from 'node:readline';
-import { stat } from 'node:fs/promises';
-import { join } from 'node:path';
+import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
 import { listInstalled, installSkill, removeSkill, getSkillMeta, getLocalizedDescription } from './skills.js';
 import { loadLocale, t, getLocaleCode } from './i18n.js';
 import { loadSavedLocale } from './init.js';
 import { logEvent } from './logger.js';
+import { createPrompt } from './prompt.js';
+
+const RESEND_SKILL_ID = 'resend';
+const RESEND_SETUP_CONFIG = {
+  command: 'npx',
+  args: ['-y', 'resend-mcp'],
+};
+const RESEND_STATE_PATH = '_opensquad/_memory/resend.md';
+const RESEND_SETTINGS_PATH = '.claude/settings.local.json';
 
 async function confirm(question) {
   const rl = createInterface({ input: process.stdin, output: process.stdout });
@@ -14,6 +23,128 @@ async function confirm(question) {
       resolve(answer.trim().toLowerCase());
     });
   });
+}
+
+async function ensureResendInstalled(targetDir) {
+  const installed = await listInstalled(targetDir);
+  if (!installed.includes(RESEND_SKILL_ID)) {
+    await installSkill(RESEND_SKILL_ID, targetDir);
+  }
+}
+
+async function runResendSetup(targetDir) {
+  await ensureResendInstalled(targetDir);
+
+  const prompt = createPrompt();
+  try {
+    console.log('\n  Resend setup\n');
+    console.log('  Resend requires a verified sender email or domain before mail can be sent.');
+    console.log('  Have your API key and sender details ready before continuing.\n');
+
+    const apiKey = await askRequiredSecret(prompt, '  Resend API key');
+    const defaultSenderEmail = await askOptionalText(
+      prompt,
+      '  Default sender email address (press Enter to skip)'
+    );
+    const senderDomain = await askOptionalText(
+      prompt,
+      '  Verified sender domain (press Enter to derive from the email address)'
+    );
+
+    await writeResendSettings(targetDir, apiKey);
+    await writeResendState(targetDir, {
+      defaultSenderEmail,
+      senderDomain: senderDomain || inferSenderDomain(defaultSenderEmail),
+    });
+
+    console.log('  Resend setup saved in .claude/settings.local.json and _opensquad/_memory/resend.md\n');
+  } finally {
+    prompt.close();
+  }
+}
+
+async function askRequiredSecret(prompt, question) {
+  while (true) {
+    const value = (await prompt.askSecret(question)).trim();
+    if (value) return value;
+    console.log('  Resend API key is required.\n');
+  }
+}
+
+async function askOptionalText(prompt, question) {
+  return (await prompt.ask(question)).trim();
+}
+
+function inferSenderDomain(senderEmail) {
+  const domain = senderEmail.split('@')[1];
+  return domain ? domain.trim() : '';
+}
+
+async function readJsonFile(filePath) {
+  try {
+    const raw = await readFile(filePath, 'utf-8');
+    return JSON.parse(raw);
+  } catch (err) {
+    if (err.code === 'ENOENT') return {};
+    if (err instanceof SyntaxError) {
+      throw new Error(`Invalid JSON in ${filePath}`, { cause: err });
+    }
+    throw err;
+  }
+}
+
+async function writeResendSettings(targetDir, apiKey) {
+  const settingsPath = join(targetDir, RESEND_SETTINGS_PATH);
+  const settingsDir = dirname(settingsPath);
+  const config = await readJsonFile(settingsPath);
+  const currentServers = config.mcpServers && typeof config.mcpServers === 'object'
+    ? config.mcpServers
+    : {};
+  const currentResend = currentServers[RESEND_SKILL_ID] && typeof currentServers[RESEND_SKILL_ID] === 'object'
+    ? currentServers[RESEND_SKILL_ID]
+    : {};
+  const currentEnv = currentResend.env && typeof currentResend.env === 'object'
+    ? currentResend.env
+    : {};
+
+  config.mcpServers = {
+    ...currentServers,
+    [RESEND_SKILL_ID]: {
+      ...currentResend,
+      ...RESEND_SETUP_CONFIG,
+      env: {
+        ...currentEnv,
+        RESEND_API_KEY: apiKey,
+      },
+    },
+  };
+
+  await mkdir(settingsDir, { recursive: true });
+  await writeFile(settingsPath, `${JSON.stringify(config, null, 2)}\n`, 'utf-8');
+}
+
+async function writeResendState(targetDir, { defaultSenderEmail, senderDomain }) {
+  const statePath = join(targetDir, RESEND_STATE_PATH);
+  await mkdir(dirname(statePath), { recursive: true });
+
+  const lines = [
+    '# Resend Setup',
+    '',
+    `- configured_at: ${new Date().toISOString()}`,
+    '- setup_complete: true',
+  ];
+
+  if (defaultSenderEmail) {
+    lines.push(`- default_sender_email: ${defaultSenderEmail}`);
+  }
+
+  if (senderDomain) {
+    lines.push(`- sender_domain: ${senderDomain}`);
+  }
+
+  lines.push('- api_key_storage: .claude/settings.local.json', '');
+
+  await writeFile(statePath, `${lines.join('\n')}`, 'utf-8');
 }
 
 export async function skillsCli(subcommand, args, targetDir) {
@@ -34,6 +165,9 @@ export async function skillsCli(subcommand, args, targetDir) {
     } else if (subcommand === 'install') {
       const installed = await runInstall(args[0], targetDir);
       if (installed === false) return { success: false };
+    } else if (subcommand === 'setup') {
+      const setup = await runSetup(args[0], targetDir);
+      if (setup === false) return { success: false };
     } else if (subcommand === 'remove') {
       const removed = await runRemove(args[0], targetDir);
       if (removed === false) return { success: false };
@@ -94,6 +228,9 @@ async function runInstall(id, targetDir) {
     await installSkill(id, targetDir);
     console.log(`  ${t('skillsReinstalled', { id })}\n`);
     await logEvent('skill:install', { name: id, reinstall: true }, targetDir);
+    if (id === RESEND_SKILL_ID) {
+      await runResendSetup(targetDir);
+    }
     return;
   }
 
@@ -101,6 +238,19 @@ async function runInstall(id, targetDir) {
   await installSkill(id, targetDir);
   console.log(`  ${t('skillsInstalled', { id })}\n`);
   await logEvent('skill:install', { name: id }, targetDir);
+
+  if (id === RESEND_SKILL_ID) {
+    await runResendSetup(targetDir);
+  }
+}
+
+async function runSetup(id, targetDir) {
+  if (id !== RESEND_SKILL_ID) {
+    console.log('\n  Usage: opensquad skills setup resend\n');
+    return false;
+  }
+
+  await runResendSetup(targetDir);
 }
 
 async function runRemove(id, targetDir) {
