@@ -151,6 +151,14 @@ export async function inspectEmailProvider(targetDir, providerId) {
   });
 }
 
+export async function inspectEmailProviderHealth(targetDir, providerId) {
+  const provider = await inspectEmailProvider(targetDir, providerId);
+
+  return buildProviderRecord(provider, {
+    setupStatus: provider.healthy ? 'ready' : 'repair-needed',
+  });
+}
+
 export async function listConfiguredEmailProviders(targetDir) {
   const configuredProviders = [];
 
