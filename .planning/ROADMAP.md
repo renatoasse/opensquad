@@ -2,7 +2,7 @@
 
 **Created:** 2026-03-24
 **Scope:** v1 requirements mapped 1:1 to phases, with a separate follow-on phase for v2 contact import work
-**Current status:** phase 1 in progress; skill packaging and guided setup complete
+**Current status:** phase 1 complete; skill packaging, guided setup, repair, and hygiene complete
 
 ## Roadmap Summary
 
@@ -22,7 +22,7 @@ Phases 1-3 cover every v1 requirement exactly once. Phase 4 is retained from the
 
 **Requirements mapped:** SKILL-01, SKILL-02, SKILL-03, ONBD-01, ONBD-02, ONBD-03, ONBD-04
 
-**Progress:** bundled `resend` skill packaged in `skills/resend/SKILL.md`, cataloged in `skills/README.md`, and backed by a guided setup flow that persists local MCP config and non-secret state.
+**Progress:** bundled `resend` skill packaged in `skills/resend/SKILL.md`, cataloged in `skills/README.md`, and backed by guided setup and repair flows that persist local MCP config and non-secret state.
 
 ## Phase 2: Email Capability Activation
 

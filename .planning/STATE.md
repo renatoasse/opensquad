@@ -6,11 +6,11 @@
 
 ## Current State
 
-- Status: phase 1 in progress
+- Status: phase 1 complete
 - Milestone: v1 roadmap defined
-- Current phase: 01-resend-foundation
-- Completed phases: none
-- Active work: 02-guided-setup complete
+- Current phase: 02-email-capability-activation
+- Completed phases: 01-resend-foundation
+- Active work: none
 - Traceability coverage: 18/18 v1 requirements mapped
 
 ## Roadmap Snapshot
@@ -24,4 +24,4 @@
 
 - v1 work is fully traced in `.planning/REQUIREMENTS.md`.
 - Phase 4 is retained as follow-on work from research and is intentionally outside v1 coverage.
-- Phase 1 skill packaging and guided setup are complete; repair and hygiene work remain.
+- Phase 1 skill packaging, guided setup, repair, and hygiene are complete.

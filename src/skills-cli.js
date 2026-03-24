@@ -93,6 +93,80 @@ async function readJsonFile(filePath) {
   }
 }
 
+function parseResendState(raw) {
+  const fields = {};
+
+  for (const line of raw.split('\n')) {
+    const match = line.match(/^\s*-\s*([^:]+):\s*(.*)$/);
+    if (match) {
+      fields[match[1].trim()] = match[2].trim();
+    }
+  }
+
+  return fields;
+}
+
+async function readResendState(targetDir) {
+  const statePath = join(targetDir, RESEND_STATE_PATH);
+
+  try {
+    const raw = await readFile(statePath, 'utf-8');
+    return { raw, fields: parseResendState(raw) };
+  } catch (err) {
+    if (err.code === 'ENOENT') return null;
+    throw err;
+  }
+}
+
+function isNonEmptyString(value) {
+  return typeof value === 'string' && value.trim().length > 0;
+}
+
+function isResendServerConfigValid(config) {
+  if (!config || typeof config !== 'object') return false;
+
+  const commandValid = config.command === RESEND_SETUP_CONFIG.command;
+  const argsValid = Array.isArray(config.args)
+    && config.args.length === RESEND_SETUP_CONFIG.args.length
+    && config.args.every((value, index) => value === RESEND_SETUP_CONFIG.args[index]);
+  const envValid = config.env && typeof config.env === 'object'
+    && isNonEmptyString(config.env.RESEND_API_KEY);
+
+  return commandValid && argsValid && envValid;
+}
+
+async function assessResendRepair(targetDir) {
+  const settings = await readJsonFile(join(targetDir, RESEND_SETTINGS_PATH));
+  const currentServers = settings.mcpServers && typeof settings.mcpServers === 'object'
+    ? settings.mcpServers
+    : {};
+  const resendConfig = currentServers[RESEND_SKILL_ID];
+  const state = await readResendState(targetDir);
+
+  const issues = [];
+
+  if (!isResendServerConfigValid(resendConfig)) {
+    issues.push('mcpServers.resend is missing or incomplete');
+  }
+
+  if (!state) {
+    issues.push('workspace memory file is missing');
+  } else {
+    const { fields } = state;
+    if (fields.setup_complete !== 'true') {
+      issues.push('setup_complete marker is missing');
+    }
+    if (!isNonEmptyString(fields.configured_at)) {
+      issues.push('configured_at marker is missing');
+    }
+  }
+
+  return {
+    needsRepair: issues.length > 0,
+    issues,
+  };
+}
+
 async function writeResendSettings(targetDir, apiKey) {
   const settingsPath = join(targetDir, RESEND_SETTINGS_PATH);
   const settingsDir = dirname(settingsPath);
@@ -168,6 +242,9 @@ export async function skillsCli(subcommand, args, targetDir) {
     } else if (subcommand === 'setup') {
       const setup = await runSetup(args[0], targetDir);
       if (setup === false) return { success: false };
+    } else if (subcommand === 'repair') {
+      const repair = await runRepair(args[0], targetDir);
+      if (repair === false) return { success: false };
     } else if (subcommand === 'remove') {
       const removed = await runRemove(args[0], targetDir);
       if (removed === false) return { success: false };
@@ -249,6 +326,28 @@ async function runSetup(id, targetDir) {
     console.log('\n  Usage: opensquad skills setup resend\n');
     return false;
   }
+
+  await runResendSetup(targetDir);
+}
+
+async function runRepair(id, targetDir) {
+  if (id !== RESEND_SKILL_ID) {
+    console.log('\n  Usage: opensquad skills repair resend\n');
+    return false;
+  }
+
+  const { needsRepair, issues } = await assessResendRepair(targetDir);
+
+  if (!needsRepair) {
+    console.log('\n  Resend configuration is already healthy. No repair needed.\n');
+    return;
+  }
+
+  console.log('\n  Resend configuration needs repair:\n');
+  for (const issue of issues) {
+    console.log(`  - ${issue}`);
+  }
+  console.log('');
 
   await runResendSetup(targetDir);
 }
