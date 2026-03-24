@@ -1,19 +1,24 @@
 import { createInterface } from 'node:readline';
-import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
+import { stat } from 'node:fs/promises';
+import { join } from 'node:path';
 import { listInstalled, installSkill, removeSkill, getSkillMeta, getLocalizedDescription } from './skills.js';
+import {
+  getEmailProviderDefinition,
+  inspectEmailProvider,
+  providerNeedsRepair,
+  providerNeedsSetup,
+  recommendEmailProvider,
+  selectEmailProvider,
+  writeEmailProviderSettings,
+  writeEmailProviderState,
+} from './email-providers.js';
 import { loadLocale, t, getLocaleCode } from './i18n.js';
 import { loadSavedLocale } from './init.js';
 import { logEvent } from './logger.js';
 import { createPrompt } from './prompt.js';
 
-const RESEND_SKILL_ID = 'resend';
-const RESEND_SETUP_CONFIG = {
-  command: 'npx',
-  args: ['-y', 'resend-mcp'],
-};
-const RESEND_STATE_PATH = '_opensquad/_memory/resend.md';
-const RESEND_SETTINGS_PATH = '.claude/settings.local.json';
+const RESEND_PROVIDER = getEmailProviderDefinition('resend');
+const RESEND_SKILL_ID = RESEND_PROVIDER.id;
 
 async function confirm(question) {
   const rl = createInterface({ input: process.stdin, output: process.stdout });
@@ -34,6 +39,11 @@ async function ensureResendInstalled(targetDir) {
 
 async function runResendSetup(targetDir) {
   await ensureResendInstalled(targetDir);
+  const currentProvider = await inspectEmailProvider(targetDir, RESEND_SKILL_ID);
+  if (currentProvider.status === 'configured') {
+    console.log('\n  Resend configuration is already healthy. No setup needed.\n');
+    return;
+  }
 
   const prompt = createPrompt();
   try {
@@ -51,8 +61,8 @@ async function runResendSetup(targetDir) {
       '  Verified sender domain (press Enter to derive from the email address)'
     );
 
-    await writeResendSettings(targetDir, apiKey);
-    await writeResendState(targetDir, {
+    await writeEmailProviderSettings(targetDir, RESEND_PROVIDER, { RESEND_API_KEY: apiKey });
+    await writeEmailProviderState(targetDir, RESEND_PROVIDER, {
       defaultSenderEmail,
       senderDomain: senderDomain || inferSenderDomain(defaultSenderEmail),
     });
@@ -78,147 +88,6 @@ async function askOptionalText(prompt, question) {
 function inferSenderDomain(senderEmail) {
   const domain = senderEmail.split('@')[1];
   return domain ? domain.trim() : '';
-}
-
-async function readJsonFile(filePath) {
-  try {
-    const raw = await readFile(filePath, 'utf-8');
-    return JSON.parse(raw);
-  } catch (err) {
-    if (err.code === 'ENOENT') return {};
-    if (err instanceof SyntaxError) {
-      throw new Error(`Invalid JSON in ${filePath}`, { cause: err });
-    }
-    throw err;
-  }
-}
-
-function parseResendState(raw) {
-  const fields = {};
-
-  for (const line of raw.split('\n')) {
-    const match = line.match(/^\s*-\s*([^:]+):\s*(.*)$/);
-    if (match) {
-      fields[match[1].trim()] = match[2].trim();
-    }
-  }
-
-  return fields;
-}
-
-async function readResendState(targetDir) {
-  const statePath = join(targetDir, RESEND_STATE_PATH);
-
-  try {
-    const raw = await readFile(statePath, 'utf-8');
-    return { raw, fields: parseResendState(raw) };
-  } catch (err) {
-    if (err.code === 'ENOENT') return null;
-    throw err;
-  }
-}
-
-function isNonEmptyString(value) {
-  return typeof value === 'string' && value.trim().length > 0;
-}
-
-function isResendServerConfigValid(config) {
-  if (!config || typeof config !== 'object') return false;
-
-  const commandValid = config.command === RESEND_SETUP_CONFIG.command;
-  const argsValid = Array.isArray(config.args)
-    && config.args.length === RESEND_SETUP_CONFIG.args.length
-    && config.args.every((value, index) => value === RESEND_SETUP_CONFIG.args[index]);
-  const envValid = config.env && typeof config.env === 'object'
-    && isNonEmptyString(config.env.RESEND_API_KEY);
-
-  return commandValid && argsValid && envValid;
-}
-
-async function assessResendRepair(targetDir) {
-  const settings = await readJsonFile(join(targetDir, RESEND_SETTINGS_PATH));
-  const currentServers = settings.mcpServers && typeof settings.mcpServers === 'object'
-    ? settings.mcpServers
-    : {};
-  const resendConfig = currentServers[RESEND_SKILL_ID];
-  const state = await readResendState(targetDir);
-
-  const issues = [];
-
-  if (!isResendServerConfigValid(resendConfig)) {
-    issues.push('mcpServers.resend is missing or incomplete');
-  }
-
-  if (!state) {
-    issues.push('workspace memory file is missing');
-  } else {
-    const { fields } = state;
-    if (fields.setup_complete !== 'true') {
-      issues.push('setup_complete marker is missing');
-    }
-    if (!isNonEmptyString(fields.configured_at)) {
-      issues.push('configured_at marker is missing');
-    }
-  }
-
-  return {
-    needsRepair: issues.length > 0,
-    issues,
-  };
-}
-
-async function writeResendSettings(targetDir, apiKey) {
-  const settingsPath = join(targetDir, RESEND_SETTINGS_PATH);
-  const settingsDir = dirname(settingsPath);
-  const config = await readJsonFile(settingsPath);
-  const currentServers = config.mcpServers && typeof config.mcpServers === 'object'
-    ? config.mcpServers
-    : {};
-  const currentResend = currentServers[RESEND_SKILL_ID] && typeof currentServers[RESEND_SKILL_ID] === 'object'
-    ? currentServers[RESEND_SKILL_ID]
-    : {};
-  const currentEnv = currentResend.env && typeof currentResend.env === 'object'
-    ? currentResend.env
-    : {};
-
-  config.mcpServers = {
-    ...currentServers,
-    [RESEND_SKILL_ID]: {
-      ...currentResend,
-      ...RESEND_SETUP_CONFIG,
-      env: {
-        ...currentEnv,
-        RESEND_API_KEY: apiKey,
-      },
-    },
-  };
-
-  await mkdir(settingsDir, { recursive: true });
-  await writeFile(settingsPath, `${JSON.stringify(config, null, 2)}\n`, 'utf-8');
-}
-
-async function writeResendState(targetDir, { defaultSenderEmail, senderDomain }) {
-  const statePath = join(targetDir, RESEND_STATE_PATH);
-  await mkdir(dirname(statePath), { recursive: true });
-
-  const lines = [
-    '# Resend Setup',
-    '',
-    `- configured_at: ${new Date().toISOString()}`,
-    '- setup_complete: true',
-  ];
-
-  if (defaultSenderEmail) {
-    lines.push(`- default_sender_email: ${defaultSenderEmail}`);
-  }
-
-  if (senderDomain) {
-    lines.push(`- sender_domain: ${senderDomain}`);
-  }
-
-  lines.push('- api_key_storage: .claude/settings.local.json', '');
-
-  await writeFile(statePath, `${lines.join('\n')}`, 'utf-8');
 }
 
 export async function skillsCli(subcommand, args, targetDir) {
@@ -327,7 +196,13 @@ async function runSetup(id, targetDir) {
     return false;
   }
 
-  await runResendSetup(targetDir);
+  const provider = await inspectEmailProvider(targetDir, RESEND_SKILL_ID);
+  if (providerNeedsSetup(provider) || providerNeedsRepair(provider)) {
+    await runResendSetup(targetDir);
+    return;
+  }
+
+  console.log('\n  Resend configuration is already healthy. No setup needed.\n');
 }
 
 async function runRepair(id, targetDir) {
@@ -336,18 +211,37 @@ async function runRepair(id, targetDir) {
     return false;
   }
 
-  const { needsRepair, issues } = await assessResendRepair(targetDir);
+  const { selection, provider, configuredProviders } = await selectEmailProvider({ targetDir });
+  if (selection === 'ambiguous') {
+    console.log('\n  Multiple email providers are configured:\n');
+    for (const record of configuredProviders) {
+      console.log(`  - ${record.id} (${record.status})`);
+    }
+    console.log('');
+    return;
+  }
 
-  if (!needsRepair) {
+  if (selection === 'recommended') {
+    const recommendation = recommendEmailProvider({ targetDir });
+    if (recommendation) {
+      console.log('\n  No configured email provider was found. Recommending Resend as the default v1 provider.\n');
+    }
+    await runResendSetup(targetDir);
+    return;
+  }
+
+  if (provider && provider.healthy) {
     console.log('\n  Resend configuration is already healthy. No repair needed.\n');
     return;
   }
 
-  console.log('\n  Resend configuration needs repair:\n');
-  for (const issue of issues) {
-    console.log(`  - ${issue}`);
+  if (provider && providerNeedsRepair(provider)) {
+    console.log('\n  Resend configuration needs repair:\n');
+    for (const issue of provider.issues) {
+      console.log(`  - ${issue}`);
+    }
+    console.log('');
   }
-  console.log('');
 
   await runResendSetup(targetDir);
 }

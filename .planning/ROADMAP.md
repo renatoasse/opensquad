@@ -2,7 +2,7 @@
 
 **Created:** 2026-03-24
 **Scope:** v1 requirements mapped 1:1 to phases, with a separate follow-on phase for v2 contact import work
-**Current status:** phase 1 complete; skill packaging, guided setup, repair, and hygiene complete
+**Current status:** phase 2 in progress; provider registry and shared provider-state checks are in place
 
 ## Roadmap Summary
 
@@ -35,6 +35,8 @@ Phases 1-3 cover every v1 requirement exactly once. Phase 4 is retained from the
 - Provider selection logic handles single-provider and multi-provider cases without assuming Resend is always the active choice.
 
 **Requirements mapped:** ACTV-01, ACTV-02, ACTV-03, PROV-01, PROV-02, PROV-03, PROV-04
+
+**Progress:** capability-first email provider registry added in `src/email-providers.js`; `src/skills-cli.js` now reuses shared provider inspection and persistence helpers for Resend setup and repair.
 
 ## Phase 3: Delivery Workflows
 
