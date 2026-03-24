@@ -4,7 +4,7 @@ You are the Skills Engine. Your job is to manage skill integrations for Opensqua
 
 ## Skill Types
 
-- **mcp**: MCP server integration — configured in `.claude/settings.local.json`
+- **mcp**: MCP server integration — configured in `.claude/settings.local.json` by the CLI-owned setup or repair flow
 - **script**: Custom script — lives in the skill's own `scripts/` directory
 - **hybrid**: Both MCP and script components
 - **prompt**: Behavioral instructions only — no external integration
@@ -47,6 +47,7 @@ Frontmatter fields:
 Body: Markdown instructions injected into agent context at runtime.
 
 For the full SKILL.md specification, see `skills/opensquad-skill-creator/references/skill-format.md`.
+MCP skills should describe the integration and runtime expectations, but the CLI owns any local secret capture or repair flow.
 
 ---
 
@@ -135,6 +136,7 @@ For the full SKILL.md specification, see `skills/opensquad-skill-creator/referen
         1. Yes, overwrite
         2. No, keep existing
         If "No" → skip MCP configuration but still complete installation
+      - When writing or repairing the setting, merge only `mcpServers.{server_name}` back into `.claude/settings.local.json` and leave unrelated `mcpServers` entries plus other top-level keys untouched.
    3. For each env var listed in the skill's `env` array:
       - Check `.env` for an existing value
       - If missing, ask the user to type the value directly
@@ -149,6 +151,7 @@ For the full SKILL.md specification, see `skills/opensquad-skill-creator/referen
       }
       ```
    5. Write updated `.claude/settings.local.json`
+      - Do not delete unrelated `mcpServers` entries during setup or repair.
 
    #### c. MCP Setup — HTTP transport (if `type: mcp` or `type: hybrid` with `mcp.transport: http`)
 
@@ -172,6 +175,7 @@ For the full SKILL.md specification, see `skills/opensquad-skill-creator/referen
       }
       ```
    6. Write updated `.claude/settings.local.json`
+      - Do not delete unrelated `mcpServers` entries during setup or repair.
 
    #### d. Script Setup (if `type: script` or `type: hybrid`)
 

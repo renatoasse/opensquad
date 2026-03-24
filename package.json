@@ -41,6 +41,7 @@
   "dependencies": {
     "@inquirer/checkbox": "^5.1.0",
     "@inquirer/input": "^5.0.0",
+    "@inquirer/password": "^4.0.18",
     "@inquirer/select": "^5.1.0"
   },
   "devDependencies": {

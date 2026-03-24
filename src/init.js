@@ -9,6 +9,7 @@ import { logEvent } from './logger.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const TEMPLATES_DIR = join(__dirname, '..', 'templates');
+const RESEND_SKILL_ID = 'resend';
 
 const LANGUAGES = [
   { label: 'Português (Brasil)', value: 'Português (Brasil)' },
@@ -70,6 +71,7 @@ export async function init(targetDir, options = {}) {
   await copyCommonTemplates(targetDir);
   await copyIdeTemplates(ides, targetDir);
   await installAllSkills(targetDir);
+  await maybePrintResendSetupHint();
   if (!options._skipPrompts) {
     await installDependencies(targetDir);
   }
@@ -133,6 +135,14 @@ async function installAllSkills(targetDir) {
     await installSkill(id, targetDir);
     console.log(`  ${t('createdFile', { path: `skills/${id}/SKILL.md` })}`);
   }
+}
+
+async function maybePrintResendSetupHint() {
+  const available = await listAvailable();
+  if (!available.includes(RESEND_SKILL_ID)) return;
+
+  console.log('\n  Resend is bundled with this workspace.');
+  console.log('  After init, run `opensquad skills setup resend` to finish local MCP configuration.\n');
 }
 
 async function installDependencies(targetDir) {

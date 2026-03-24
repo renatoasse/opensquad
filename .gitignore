@@ -4,7 +4,9 @@ node_modules/
 squads/*/output/
 _opensquad/_memory/company.md
 _opensquad/_memory/preferences.md
+.claude/settings.local.json
 _opensquad/_browser_profile/
 docs/
 .superpowers/
+.planning
 temp/

@@ -25,6 +25,11 @@ Before starting execution:
    c. If type: mcp, verify MCP is configured in `.claude/settings.local.json`
       - If missing → **ERROR**: "Skill '{skill}' MCP not configured. Reinstall the skill."
    All skills must resolve successfully before the pipeline starts (fail fast).
+3b. **Email capability guardrail**: If any resolved skill declares email capability in its frontmatter `categories:` or `provides:` fields, verify that at least one email provider is already configured before execution begins.
+   - Reuse the same provider-state check as the CLI: `.claude/settings.local.json#mcpServers.<provider>` plus `_opensquad/_memory/<provider>.md`.
+   - If no email provider is configured, stop with:
+     "Email-capable squad detected, but no email provider is configured. Run `opensquad skills setup resend` or choose a provider in the Architect flow."
+   - This is only a guardrail. Do not install skills, infer new intent, or attempt provider selection here.
 4. **Load model tier config** (optional reference): Read `_opensquad/config.yaml` to understand the intended model tier for each agent type. This is informational — the Pipeline Runner does NOT use this config directly when dispatching. Individual steps declare their own `model_tier` in their frontmatter, set by the Architect at squad creation time.
    - If the file exists: read and note the tier values for reference.
    - If the file doesn't exist: ignore silently — all steps default to `powerful` at dispatch.

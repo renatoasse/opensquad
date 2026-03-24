@@ -35,7 +35,9 @@ export async function getSkillMeta(id) {
     const raw = await readFile(join(BUNDLED_SKILLS_DIR, id, 'SKILL.md'), 'utf-8');
     const content = raw.replace(/\r\n/g, '\n');
     const fmMatch = content.match(/^---\n([\s\S]*?)\n---/);
-    if (!fmMatch) return { name: id, description: '', descriptions: {}, type: '', env: [] };
+    if (!fmMatch) {
+      return { name: id, description: '', descriptions: {}, type: '', env: [], categories: [], provides: [] };
+    }
 
     const fm = fmMatch[1];
     const name = fm.match(/^name:\s*(.+)$/m)?.[1]?.trim() || id;
@@ -76,7 +78,40 @@ export async function getSkillMeta(id) {
       }
     }
 
-    const result = { name, description, descriptions, type, env };
+    function parseListField(fieldName) {
+      const inlineList = fm.match(new RegExp(`^${fieldName}:\\s*\\[(.*)\\]\\s*$`, 'm'));
+      if (inlineList) {
+        return inlineList[1]
+          .split(',')
+          .map((value) => value.trim().replace(/^['"]|['"]$/g, ''))
+          .filter(Boolean);
+      }
+
+      const inlineValue = fm.match(new RegExp(`^${fieldName}:\\s*(.+)$`, 'm'));
+      if (inlineValue) {
+        return inlineValue[1]
+          .split(',')
+          .map((value) => value.trim().replace(/^['"]|['"]$/g, ''))
+          .filter(Boolean);
+      }
+
+      const blockMatch = fm.match(new RegExp(`^${fieldName}:\\s*\\n((?:\\s+-\\s+.+\\n?)+)`, 'm'));
+      if (blockMatch) {
+        const values = [];
+        for (const line of blockMatch[1].split('\n')) {
+          const item = line.match(/^\s+-\s+(.+)/);
+          if (item) values.push(item[1].trim().replace(/^['"]|['"]$/g, ''));
+        }
+        return values;
+      }
+
+      return [];
+    }
+
+    const categories = parseListField('categories');
+    const provides = parseListField('provides');
+
+    const result = { name, description, descriptions, type, env, categories, provides };
     metaCache.set(id, result);
     return result;
   } catch (err) {

@@ -6,6 +6,10 @@ export function createPrompt() {
       const { default: input } = await import('@inquirer/input');
       return input({ message: question });
     },
+    async askSecret(question) {
+      const { default: password } = await import('@inquirer/password');
+      return password({ message: question, mask: '*' });
+    },
     async choose(question, options) {
       const { default: select } = await import('@inquirer/select');
 
