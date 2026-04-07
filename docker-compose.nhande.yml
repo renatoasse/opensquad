@@ -1,0 +1,34 @@
+name: nhande-agentes
+
+services:
+  nhande-agentes:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+    container_name: nhande-agentes
+    restart: unless-stopped
+    environment:
+      - PORT=4000
+      - SQUADS_DIR=/squads
+    volumes:
+      - /opt/nhande/agentes/squads:/squads
+    networks:
+      - proxy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.nhande-agentes.rule=Host(`agentes.nhande.com`)
+      - traefik.http.routers.nhande-agentes.entrypoints=websecure
+      - traefik.http.routers.nhande-agentes.tls.certresolver=letsencrypt
+      - traefik.http.routers.nhande-agentes.middlewares=security-headers@file
+      - traefik.http.services.nhande-agentes.loadbalancer.server.port=4000
+      - traefik.http.services.nhande-agentes.loadbalancer.responseForwarding.flushInterval=1ms
+
+networks:
+  proxy:
+    external: true
