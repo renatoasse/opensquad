@@ -53,6 +53,8 @@ O Escritório Virtual é uma interface visual 2D que mostra seus agentes trabalh
 
 ```bash
 npx serve squads/<nome-do-squad>/dashboard
+# ou, se seu projeto usa layout por departamento:
+npx serve marketing/squads/<nome-do-squad>/dashboard
 ```
 
 **Passo 3 —** Abra `http://localhost:3000` no seu navegador.
@@ -114,6 +116,8 @@ The Virtual Office is a 2D visual interface that shows your agents working in re
 
 ```bash
 npx serve squads/<squad-name>/dashboard
+# or, if your project uses a department-based layout:
+npx serve marketing/squads/<squad-name>/dashboard
 ```
 
 **Step 3 —** Open `http://localhost:3000` in your browser.

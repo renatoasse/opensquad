@@ -1,5 +1,5 @@
 import { cp, mkdir, readdir, readFile, writeFile, stat } from 'node:fs/promises';
-import { join, dirname } from 'node:path';
+import { join, dirname, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execSync } from 'node:child_process';
 import { createPrompt } from './prompt.js';
@@ -154,8 +154,9 @@ export async function loadSavedLocale(targetDir) {
 async function installAllSkills(targetDir) {
   const available = await listAvailable();
   for (const id of available) {
-    await installSkill(id, targetDir);
-    console.log(`  ${t('createdFile', { path: `skills/${id}/SKILL.md` })}`);
+    const skillDir = await installSkill(id, targetDir);
+    const skillPath = join(relative(targetDir, skillDir), 'SKILL.md').replaceAll('\\', '/');
+    console.log(`  ${t('createdFile', { path: skillPath })}`);
   }
 }
 

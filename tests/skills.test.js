@@ -59,6 +59,21 @@ test('listInstalled returns installed skill ids from skills/', async () => {
   }
 });
 
+test('listInstalled includes installed skills from both legacy and marketing layouts', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
+  try {
+    await mkdir(join(dir, 'skills', 'legacy-skill'), { recursive: true });
+    await mkdir(join(dir, 'marketing', 'skills', 'department-skill'), { recursive: true });
+
+    const result = await listInstalled(dir);
+    assert.ok(result.includes('legacy-skill'));
+    assert.ok(result.includes('department-skill'));
+    assert.equal(result.length, 2);
+  } finally {
+    await rm(dir, { recursive: true });
+  }
+});
+
 // --- listAvailable ---
 
 test('listAvailable returns bundled skill ids', async () => {
@@ -88,6 +103,53 @@ test('installSkill creates skills/ directory if missing', async () => {
     await installSkill('apify', dir);
     const content = await readFile(join(dir, 'skills', 'apify', 'SKILL.md'), 'utf-8');
     assert.ok(content.length > 0);
+  } finally {
+    await rm(dir, { recursive: true });
+  }
+});
+
+test('installSkill writes to marketing/skills when that layout exists', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
+  try {
+    await mkdir(join(dir, 'marketing', 'skills'), { recursive: true });
+    await installSkill('apify', dir);
+
+    const content = await readFile(join(dir, 'marketing', 'skills', 'apify', 'SKILL.md'), 'utf-8');
+    assert.ok(content.length > 0);
+  } finally {
+    await rm(dir, { recursive: true });
+  }
+});
+
+test('installSkill writes to marketing/skills when marketing/ exists but skills/ does not', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
+  try {
+    await mkdir(join(dir, 'marketing'), { recursive: true });
+    await installSkill('apify', dir);
+
+    const content = await readFile(join(dir, 'marketing', 'skills', 'apify', 'SKILL.md'), 'utf-8');
+    assert.ok(content.length > 0);
+  } finally {
+    await rm(dir, { recursive: true });
+  }
+});
+
+test('installSkill updates the existing legacy skill in place during migration', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
+  try {
+    await mkdir(join(dir, 'marketing', 'skills'), { recursive: true });
+    const legacySkillDir = join(dir, 'skills', 'apify');
+    await mkdir(legacySkillDir, { recursive: true });
+    await writeFile(join(legacySkillDir, 'SKILL.md'), 'legacy copy', 'utf-8');
+
+    await installSkill('apify', dir);
+
+    const updatedLegacyContent = await readFile(join(dir, 'skills', 'apify', 'SKILL.md'), 'utf-8');
+    assert.notEqual(updatedLegacyContent, 'legacy copy');
+    await assert.rejects(
+      () => readFile(join(dir, 'marketing', 'skills', 'apify', 'SKILL.md'), 'utf-8'),
+      { code: 'ENOENT' }
+    );
   } finally {
     await rm(dir, { recursive: true });
   }
@@ -175,6 +237,49 @@ test('removeSkill throws on invalid skill id', async () => {
   }
 });
 
+test('removeSkill deletes the skill directory from marketing/skills', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
+  try {
+    const skillDir = join(dir, 'marketing', 'skills', 'seo-optimizer');
+    await mkdir(skillDir, { recursive: true });
+    await writeFile(join(skillDir, 'SKILL.md'), SAMPLE_SKILL_MD);
+
+    await removeSkill('seo-optimizer', dir);
+
+    await assert.rejects(
+      () => readFile(join(skillDir, 'SKILL.md'), 'utf-8'),
+      { code: 'ENOENT' }
+    );
+  } finally {
+    await rm(dir, { recursive: true });
+  }
+});
+
+test('removeSkill deletes duplicated skill directories from both layouts', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
+  try {
+    const legacySkillDir = join(dir, 'skills', 'seo-optimizer');
+    const marketingSkillDir = join(dir, 'marketing', 'skills', 'seo-optimizer');
+    await mkdir(legacySkillDir, { recursive: true });
+    await mkdir(marketingSkillDir, { recursive: true });
+    await writeFile(join(legacySkillDir, 'SKILL.md'), SAMPLE_SKILL_MD);
+    await writeFile(join(marketingSkillDir, 'SKILL.md'), SAMPLE_SKILL_MD);
+
+    await removeSkill('seo-optimizer', dir);
+
+    await assert.rejects(
+      () => readFile(join(legacySkillDir, 'SKILL.md'), 'utf-8'),
+      { code: 'ENOENT' }
+    );
+    await assert.rejects(
+      () => readFile(join(marketingSkillDir, 'SKILL.md'), 'utf-8'),
+      { code: 'ENOENT' }
+    );
+  } finally {
+    await rm(dir, { recursive: true });
+  }
+});
+
 // --- getSkillVersion ---
 
 test('getSkillVersion returns version from SKILL.md frontmatter', async () => {
@@ -221,6 +326,35 @@ test('getSkillVersion returns null when SKILL.md has no frontmatter', async () =
     await writeFile(join(skillDir, 'SKILL.md'), '# SEO Optimizer\nNo frontmatter here.\n');
     const version = await getSkillVersion('seo-optimizer', dir);
     assert.equal(version, null);
+  } finally {
+    await rm(dir, { recursive: true });
+  }
+});
+
+test('getSkillVersion reads from marketing/skills when present', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
+  try {
+    const skillDir = join(dir, 'marketing', 'skills', 'seo-optimizer');
+    await mkdir(skillDir, { recursive: true });
+    await writeFile(join(skillDir, 'SKILL.md'), SAMPLE_SKILL_MD);
+
+    const version = await getSkillVersion('seo-optimizer', dir);
+    assert.equal(version, '1.2.0');
+  } finally {
+    await rm(dir, { recursive: true });
+  }
+});
+
+test('getSkillVersion reads from legacy skills/ during a mixed-layout migration', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
+  try {
+    await mkdir(join(dir, 'marketing', 'skills'), { recursive: true });
+    const skillDir = join(dir, 'skills', 'seo-optimizer');
+    await mkdir(skillDir, { recursive: true });
+    await writeFile(join(skillDir, 'SKILL.md'), SAMPLE_SKILL_MD);
+
+    const version = await getSkillVersion('seo-optimizer', dir);
+    assert.equal(version, '1.2.0');
   } finally {
     await rm(dir, { recursive: true });
   }

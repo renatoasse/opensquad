@@ -152,8 +152,9 @@ export async function update(targetDir) {
     const meta = await getSkillMeta(id);
     if (!meta) continue;
     if (meta.type === 'mcp' || meta.type === 'hybrid') continue;
-    await installSkill(id, targetDir);
-    console.log(`  ${t('createdFile', { path: `skills/${id}/SKILL.md` })}`);
+    const skillDir = await installSkill(id, targetDir);
+    const skillPath = join(relative(targetDir, skillDir), 'SKILL.md').replaceAll('\\', '/');
+    console.log(`  ${t('createdFile', { path: skillPath })}`);
     count++;
   }
 
