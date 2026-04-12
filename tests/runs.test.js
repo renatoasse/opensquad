@@ -201,3 +201,56 @@ test('listRuns ignores non-run output directories like images and slides', async
     await rm(dir, { recursive: true, force: true });
   }
 });
+
+test('listRuns preserves legacy squad history when marketing/squads also exists', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'osq-runs-'));
+  try {
+    await mkdir(join(dir, 'marketing', 'squads'), { recursive: true });
+    const legacyRunDir = join(dir, 'squads', 'legacy-squad', 'output', '2026-03-17-120000');
+    await mkdir(legacyRunDir, { recursive: true });
+    await writeFile(join(legacyRunDir, 'state.json'), JSON.stringify({
+      squad: 'legacy-squad',
+      status: 'completed',
+      step: { current: 1, total: 1 },
+      startedAt: '2026-03-17T12:00:00Z',
+      completedAt: '2026-03-17T12:01:00Z',
+    }), 'utf-8');
+
+    const runs = await listRuns(null, dir);
+    assert.equal(runs.length, 1);
+    assert.equal(runs[0].squad, 'legacy-squad');
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('listRuns de-duplicates identical run ids across layouts during migration', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'osq-runs-'));
+  try {
+    const runId = '2026-03-17-120000';
+    const marketingRunDir = join(dir, 'marketing', 'squads', 'my-squad', 'output', runId);
+    const legacyRunDir = join(dir, 'squads', 'my-squad', 'output', runId);
+    await mkdir(marketingRunDir, { recursive: true });
+    await mkdir(legacyRunDir, { recursive: true });
+    await writeFile(join(marketingRunDir, 'state.json'), JSON.stringify({
+      squad: 'my-squad',
+      status: 'completed',
+      step: { current: 1, total: 1 },
+      startedAt: '2026-03-17T12:00:00Z',
+      completedAt: '2026-03-17T12:01:00Z',
+    }), 'utf-8');
+    await writeFile(join(legacyRunDir, 'state.json'), JSON.stringify({
+      squad: 'my-squad',
+      status: 'failed',
+      step: { current: 1, total: 1 },
+      startedAt: '2026-03-17T12:00:00Z',
+      failedAt: '2026-03-17T12:00:30Z',
+    }), 'utf-8');
+
+    const runs = await listRuns(null, dir);
+    assert.equal(runs.length, 1);
+    assert.equal(runs[0].status, 'completed');
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});

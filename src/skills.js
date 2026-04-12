@@ -4,6 +4,10 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const BUNDLED_SKILLS_DIR = join(__dirname, '..', 'skills');
+const PROJECT_SKILLS_DIR_PARTS = [
+  ['marketing', 'skills'],
+  ['skills'],
+];
 
 const metaCache = new Map();
 
@@ -16,25 +20,52 @@ async function pathExists(path) {
   }
 }
 
-async function resolveProjectSkillsDir(targetDir) {
-  const marketingSkillsDir = join(targetDir, 'marketing', 'skills');
-  if (await pathExists(marketingSkillsDir)) {
+function getProjectSkillsDirCandidates(targetDir) {
+  return PROJECT_SKILLS_DIR_PARTS.map((parts) => join(targetDir, ...parts));
+}
+
+async function getExistingProjectSkillsDirs(targetDir) {
+  const dirs = [];
+  for (const dir of getProjectSkillsDirCandidates(targetDir)) {
+    if (await pathExists(dir)) {
+      dirs.push(dir);
+    }
+  }
+  return dirs;
+}
+
+async function resolvePreferredProjectSkillsDir(targetDir) {
+  const marketingDir = join(targetDir, 'marketing');
+  const marketingSkillsDir = join(marketingDir, 'skills');
+  if (await pathExists(marketingDir) || await pathExists(marketingSkillsDir)) {
     return marketingSkillsDir;
   }
   return join(targetDir, 'skills');
 }
 
-export async function listInstalled(targetDir) {
-  try {
-    const skillsDir = await resolveProjectSkillsDir(targetDir);
-    const entries = await readdir(skillsDir, { withFileTypes: true });
-    return entries
-      .filter((e) => e.isDirectory() && e.name !== 'opensquad-skill-creator')
-      .map((e) => e.name);
-  } catch (err) {
-    if (err.code === 'ENOENT') return [];
-    throw err;
+async function resolveInstalledSkillDir(id, targetDir) {
+  for (const skillsDir of await getExistingProjectSkillsDirs(targetDir)) {
+    const skillDir = join(skillsDir, id);
+    if (await pathExists(skillDir)) {
+      return skillDir;
+    }
   }
+  return null;
+}
+
+export async function listInstalled(targetDir) {
+  const installed = new Set();
+
+  for (const skillsDir of await getExistingProjectSkillsDirs(targetDir)) {
+    const entries = await readdir(skillsDir, { withFileTypes: true });
+    for (const entry of entries) {
+      if (entry.isDirectory() && entry.name !== 'opensquad-skill-creator') {
+        installed.add(entry.name);
+      }
+    }
+  }
+
+  return [...installed];
 }
 
 export async function listAvailable() {
@@ -120,22 +151,25 @@ export async function installSkill(id, targetDir) {
     if (err.code === 'ENOENT') throw new Error(`Skill '${id}' not found in registry`, { cause: err });
     throw err;
   }
-  const skillsDir = await resolveProjectSkillsDir(targetDir);
-  const destDir = join(skillsDir, id);
+  const existingSkillDir = await resolveInstalledSkillDir(id, targetDir);
+  const preferredSkillsDir = await resolvePreferredProjectSkillsDir(targetDir);
+  const destDir = existingSkillDir || join(preferredSkillsDir, id);
   const resolvedSrc = resolve(srcDir);
   const resolvedDest = resolve(destDir);
   if (resolvedSrc === resolvedDest || resolvedDest.startsWith(resolvedSrc + sep)) {
-    return;
+    return destDir;
   }
   await cp(srcDir, destDir, { recursive: true });
   metaCache.delete(id);
+  return destDir;
 }
 
 export async function removeSkill(id, targetDir) {
   validateSkillId(id);
-  const skillsDir = await resolveProjectSkillsDir(targetDir);
-  const skillDir = join(skillsDir, id);
-  await rm(skillDir, { recursive: true, force: true });
+  for (const skillsDir of getProjectSkillsDirCandidates(targetDir)) {
+    const skillDir = join(skillsDir, id);
+    await rm(skillDir, { recursive: true, force: true });
+  }
   metaCache.delete(id);
 }
 
@@ -145,8 +179,9 @@ export function clearMetaCache() {
 
 export async function getSkillVersion(id, targetDir) {
   try {
-    const skillsDir = await resolveProjectSkillsDir(targetDir);
-    const skillPath = join(skillsDir, id, 'SKILL.md');
+    const skillDir = await resolveInstalledSkillDir(id, targetDir);
+    if (!skillDir) return null;
+    const skillPath = join(skillDir, 'SKILL.md');
     const content = await readFile(skillPath, 'utf-8');
     const fmMatch = content.match(/^---\n([\s\S]*?)\n---/);
     if (!fmMatch) return null;

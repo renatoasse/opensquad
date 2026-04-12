@@ -2,6 +2,10 @@ import { access, readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 const MAX_RUNS = 20;
+const PROJECT_SQUADS_DIR_PARTS = [
+  ['marketing', 'squads'],
+  ['squads'],
+];
 
 async function pathExists(path) {
   try {
@@ -12,68 +16,96 @@ async function pathExists(path) {
   }
 }
 
-async function resolveProjectSquadsDir(targetDir) {
-  const marketingSquadsDir = join(targetDir, 'marketing', 'squads');
-  if (await pathExists(marketingSquadsDir)) {
-    return marketingSquadsDir;
+function getProjectSquadsDirCandidates(targetDir) {
+  return PROJECT_SQUADS_DIR_PARTS.map((parts) => join(targetDir, ...parts));
+}
+
+async function getExistingProjectSquadsDirs(targetDir) {
+  const dirs = [];
+  for (const dir of getProjectSquadsDirCandidates(targetDir)) {
+    if (await pathExists(dir)) {
+      dirs.push(dir);
+    }
   }
-  return join(targetDir, 'squads');
+  return dirs;
 }
 
 function isRunDirName(name) {
   return /^\d{4}-\d{2}-\d{2}-\d{6}(?:-\d+)?$/.test(name);
 }
 
-export async function listRuns(squadName, targetDir = process.cwd()) {
-  const squadsDir = await resolveProjectSquadsDir(targetDir);
-  let squadNames;
+async function collectProjectSquadDirs(targetDir, squadName) {
+  const squadDirsByName = new Map();
 
-  try {
+  for (const squadsDir of await getExistingProjectSquadsDirs(targetDir)) {
     if (squadName) {
-      squadNames = [squadName];
-    } else {
-      const entries = await readdir(squadsDir, { withFileTypes: true });
-      squadNames = entries.filter((e) => e.isDirectory()).map((e) => e.name);
+      const squadDir = join(squadsDir, squadName);
+      if (!await pathExists(squadDir)) continue;
+      squadDirsByName.set(squadName, [...(squadDirsByName.get(squadName) || []), squadDir]);
+      continue;
     }
-  } catch {
-    return [];
-  }
 
-  const runs = [];
-
-  for (const name of squadNames) {
-    const outputDir = join(squadsDir, name, 'output');
-    let runDirs;
+    let entries;
     try {
-      const entries = await readdir(outputDir, { withFileTypes: true });
-      runDirs = entries.filter((e) => e.isDirectory() && isRunDirName(e.name)).map((e) => e.name);
+      entries = await readdir(squadsDir, { withFileTypes: true });
     } catch {
       continue;
     }
 
-    for (const runId of runDirs) {
-      const run = { squad: name, runId, status: 'unknown', steps: null, duration: null };
-
-      try {
-        const raw = await readFile(join(outputDir, runId, 'state.json'), 'utf-8');
-        const state = JSON.parse(raw);
-        run.status = state.status || 'unknown';
-        if (state.step) run.steps = `${state.step.current}/${state.step.total}`;
-        if (state.startedAt && (state.completedAt || state.failedAt)) {
-          const start = new Date(state.startedAt).getTime();
-          const end = new Date(state.completedAt || state.failedAt).getTime();
-          run.duration = formatDuration(end - start);
-        }
-      } catch {
-        // No state.json or malformed — keep defaults
-      }
-
-      runs.push(run);
+    for (const entry of entries) {
+      if (!entry.isDirectory()) continue;
+      squadDirsByName.set(entry.name, [
+        ...(squadDirsByName.get(entry.name) || []),
+        join(squadsDir, entry.name),
+      ]);
     }
   }
 
-  runs.sort((a, b) => b.runId.localeCompare(a.runId));
-  return runs.slice(0, MAX_RUNS);
+  return squadDirsByName;
+}
+
+export async function listRuns(squadName, targetDir = process.cwd()) {
+  const squadDirsByName = await collectProjectSquadDirs(targetDir, squadName);
+  const runs = new Map();
+
+  for (const [name, squadDirs] of squadDirsByName) {
+    for (const squadDir of squadDirs) {
+      const outputDir = join(squadDir, 'output');
+      let runDirs;
+      try {
+        const entries = await readdir(outputDir, { withFileTypes: true });
+        runDirs = entries.filter((e) => e.isDirectory() && isRunDirName(e.name)).map((e) => e.name);
+      } catch {
+        continue;
+      }
+
+      for (const runId of runDirs) {
+        const runKey = `${name}:${runId}`;
+        if (runs.has(runKey)) continue;
+
+        const run = { squad: name, runId, status: 'unknown', steps: null, duration: null };
+
+        try {
+          const raw = await readFile(join(outputDir, runId, 'state.json'), 'utf-8');
+          const state = JSON.parse(raw);
+          run.status = state.status || 'unknown';
+          if (state.step) run.steps = `${state.step.current}/${state.step.total}`;
+          if (state.startedAt && (state.completedAt || state.failedAt)) {
+            const start = new Date(state.startedAt).getTime();
+            const end = new Date(state.completedAt || state.failedAt).getTime();
+            run.duration = formatDuration(end - start);
+          }
+        } catch {
+          // No state.json or malformed — keep defaults
+        }
+
+        runs.set(runKey, run);
+      }
+    }
+  }
+
+  const sortedRuns = [...runs.values()].sort((a, b) => b.runId.localeCompare(a.runId));
+  return sortedRuns.slice(0, MAX_RUNS);
 }
 
 export function formatDuration(ms) {
