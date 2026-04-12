@@ -59,6 +59,19 @@ test('listInstalled returns installed skill ids from skills/', async () => {
   }
 });
 
+test('listInstalled prefers marketing/skills when present', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
+  try {
+    await mkdir(join(dir, 'skills', 'legacy-skill'), { recursive: true });
+    await mkdir(join(dir, 'marketing', 'skills', 'department-skill'), { recursive: true });
+
+    const result = await listInstalled(dir);
+    assert.deepEqual(result, ['department-skill']);
+  } finally {
+    await rm(dir, { recursive: true });
+  }
+});
+
 // --- listAvailable ---
 
 test('listAvailable returns bundled skill ids', async () => {
@@ -87,6 +100,19 @@ test('installSkill creates skills/ directory if missing', async () => {
   try {
     await installSkill('apify', dir);
     const content = await readFile(join(dir, 'skills', 'apify', 'SKILL.md'), 'utf-8');
+    assert.ok(content.length > 0);
+  } finally {
+    await rm(dir, { recursive: true });
+  }
+});
+
+test('installSkill writes to marketing/skills when that layout exists', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
+  try {
+    await mkdir(join(dir, 'marketing', 'skills'), { recursive: true });
+    await installSkill('apify', dir);
+
+    const content = await readFile(join(dir, 'marketing', 'skills', 'apify', 'SKILL.md'), 'utf-8');
     assert.ok(content.length > 0);
   } finally {
     await rm(dir, { recursive: true });
@@ -175,6 +201,24 @@ test('removeSkill throws on invalid skill id', async () => {
   }
 });
 
+test('removeSkill deletes the skill directory from marketing/skills', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
+  try {
+    const skillDir = join(dir, 'marketing', 'skills', 'seo-optimizer');
+    await mkdir(skillDir, { recursive: true });
+    await writeFile(join(skillDir, 'SKILL.md'), SAMPLE_SKILL_MD);
+
+    await removeSkill('seo-optimizer', dir);
+
+    await assert.rejects(
+      () => readFile(join(skillDir, 'SKILL.md'), 'utf-8'),
+      { code: 'ENOENT' }
+    );
+  } finally {
+    await rm(dir, { recursive: true });
+  }
+});
+
 // --- getSkillVersion ---
 
 test('getSkillVersion returns version from SKILL.md frontmatter', async () => {
@@ -221,6 +265,20 @@ test('getSkillVersion returns null when SKILL.md has no frontmatter', async () =
     await writeFile(join(skillDir, 'SKILL.md'), '# SEO Optimizer\nNo frontmatter here.\n');
     const version = await getSkillVersion('seo-optimizer', dir);
     assert.equal(version, null);
+  } finally {
+    await rm(dir, { recursive: true });
+  }
+});
+
+test('getSkillVersion reads from marketing/skills when present', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
+  try {
+    const skillDir = join(dir, 'marketing', 'skills', 'seo-optimizer');
+    await mkdir(skillDir, { recursive: true });
+    await writeFile(join(skillDir, 'SKILL.md'), SAMPLE_SKILL_MD);
+
+    const version = await getSkillVersion('seo-optimizer', dir);
+    assert.equal(version, '1.2.0');
   } finally {
     await rm(dir, { recursive: true });
   }

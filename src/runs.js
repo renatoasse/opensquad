@@ -1,10 +1,31 @@
-import { readdir, readFile } from 'node:fs/promises';
+import { access, readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 const MAX_RUNS = 20;
 
+async function pathExists(path) {
+  try {
+    await access(path);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function resolveProjectSquadsDir(targetDir) {
+  const marketingSquadsDir = join(targetDir, 'marketing', 'squads');
+  if (await pathExists(marketingSquadsDir)) {
+    return marketingSquadsDir;
+  }
+  return join(targetDir, 'squads');
+}
+
+function isRunDirName(name) {
+  return /^\d{4}-\d{2}-\d{2}-\d{6}(?:-\d+)?$/.test(name);
+}
+
 export async function listRuns(squadName, targetDir = process.cwd()) {
-  const squadsDir = join(targetDir, 'squads');
+  const squadsDir = await resolveProjectSquadsDir(targetDir);
   let squadNames;
 
   try {
@@ -25,7 +46,7 @@ export async function listRuns(squadName, targetDir = process.cwd()) {
     let runDirs;
     try {
       const entries = await readdir(outputDir, { withFileTypes: true });
-      runDirs = entries.filter((e) => e.isDirectory()).map((e) => e.name);
+      runDirs = entries.filter((e) => e.isDirectory() && isRunDirName(e.name)).map((e) => e.name);
     } catch {
       continue;
     }

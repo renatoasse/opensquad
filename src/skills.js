@@ -1,4 +1,4 @@
-import { cp, readdir, readFile, rm, stat } from 'node:fs/promises';
+import { access, cp, readdir, readFile, rm, stat } from 'node:fs/promises';
 import { dirname, join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -7,9 +7,26 @@ const BUNDLED_SKILLS_DIR = join(__dirname, '..', 'skills');
 
 const metaCache = new Map();
 
+async function pathExists(path) {
+  try {
+    await access(path);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function resolveProjectSkillsDir(targetDir) {
+  const marketingSkillsDir = join(targetDir, 'marketing', 'skills');
+  if (await pathExists(marketingSkillsDir)) {
+    return marketingSkillsDir;
+  }
+  return join(targetDir, 'skills');
+}
+
 export async function listInstalled(targetDir) {
   try {
-    const skillsDir = join(targetDir, 'skills');
+    const skillsDir = await resolveProjectSkillsDir(targetDir);
     const entries = await readdir(skillsDir, { withFileTypes: true });
     return entries
       .filter((e) => e.isDirectory() && e.name !== 'opensquad-skill-creator')
@@ -103,7 +120,8 @@ export async function installSkill(id, targetDir) {
     if (err.code === 'ENOENT') throw new Error(`Skill '${id}' not found in registry`, { cause: err });
     throw err;
   }
-  const destDir = join(targetDir, 'skills', id);
+  const skillsDir = await resolveProjectSkillsDir(targetDir);
+  const destDir = join(skillsDir, id);
   const resolvedSrc = resolve(srcDir);
   const resolvedDest = resolve(destDir);
   if (resolvedSrc === resolvedDest || resolvedDest.startsWith(resolvedSrc + sep)) {
@@ -115,7 +133,8 @@ export async function installSkill(id, targetDir) {
 
 export async function removeSkill(id, targetDir) {
   validateSkillId(id);
-  const skillDir = join(targetDir, 'skills', id);
+  const skillsDir = await resolveProjectSkillsDir(targetDir);
+  const skillDir = join(skillsDir, id);
   await rm(skillDir, { recursive: true, force: true });
   metaCache.delete(id);
 }
@@ -126,7 +145,8 @@ export function clearMetaCache() {
 
 export async function getSkillVersion(id, targetDir) {
   try {
-    const skillPath = join(targetDir, 'skills', id, 'SKILL.md');
+    const skillsDir = await resolveProjectSkillsDir(targetDir);
+    const skillPath = join(skillsDir, id, 'SKILL.md');
     const content = await readFile(skillPath, 'utf-8');
     const fmMatch = content.match(/^---\n([\s\S]*?)\n---/);
     if (!fmMatch) return null;
