@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "opensquad-dashboard",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["_opensquad/dashboard/server.js"],
+      "port": 3000
+    }
+  ]
+}
