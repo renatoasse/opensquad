@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Opensquad Dashboard</title>
+<style>
+  /* ── reset & base ─────────────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #08080d;
+    --surface:   #0f0f18;
+    --surface2:  #16161f;
+    --border:    #1e1e2e;
+    --text:      #e2e2ef;
+    --muted:     #6b6b8a;
+    --amber:     #f59e0b;
+    --amber-dim: rgba(245,158,11,.15);
+    --green:     #22c55e;
+    --green-dim: rgba(34,197,94,.12);
+    --blue:      #60a5fa;
+    --blue-dim:  rgba(96,165,250,.12);
+    --red:       #f87171;
+    --radius:    10px;
+    --font:      'Inter', 'Segoe UI', system-ui, sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  /* ── layout ───────────────────────────────────────────────────────────── */
+  .app { display: flex; flex-direction: column; min-height: 100vh; }
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 28px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    position: sticky; top: 0; z-index: 10;
+  }
+
+  .logo {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 700; font-size: 15px; letter-spacing: .5px;
+  }
+  .logo-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--amber);
+    box-shadow: 0 0 8px var(--amber);
+  }
+  .logo-dot.pulse { animation: pulse-amber 1.8s ease-in-out infinite; }
+
+  .header-right { display: flex; align-items: center; gap: 12px; }
+  .refresh-badge {
+    font-size: 11px; color: var(--muted);
+    display: flex; align-items: center; gap: 5px;
+  }
+  .refresh-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green);
+    animation: pulse-green 2s ease-in-out infinite;
+  }
+
+  main { flex: 1; padding: 28px; max-width: 1200px; margin: 0 auto; width: 100%; }
+
+  /* ── empty state ──────────────────────────────────────────────────────── */
+  .empty {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 12px;
+    padding: 80px 20px; color: var(--muted); text-align: center;
+  }
+  .empty-icon { font-size: 40px; opacity: .4; }
+  .empty h2 { font-size: 16px; font-weight: 600; color: var(--muted); }
+  .empty p  { font-size: 13px; max-width: 300px; }
+
+  /* ── squad card ───────────────────────────────────────────────────────── */
+  .squads { display: flex; flex-direction: column; gap: 24px; }
+
+  .squad-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .squad-card.active { border-color: rgba(245,158,11,.35); }
+
+  .squad-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--border);
+  }
+  .squad-title { display: flex; align-items: center; gap: 10px; }
+  .squad-name  { font-weight: 700; font-size: 15px; }
+  .squad-code  { font-size: 11px; color: var(--muted); font-family: monospace; }
+
+  .status-badge {
+    padding: 3px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 600; letter-spacing: .5px;
+    text-transform: uppercase;
+  }
+  .badge-running  { background: var(--amber-dim);  color: var(--amber);  }
+  .badge-idle     { background: var(--surface2);    color: var(--muted);  }
+  .badge-completed{ background: var(--green-dim);   color: var(--green);  }
+  .badge-failed   { background: rgba(248,113,113,.12); color: var(--red); }
+
+  /* ── progress bar ────────────────────────────────────────────────────── */
+  .progress-wrap { padding: 14px 22px; border-bottom: 1px solid var(--border); }
+  .progress-meta {
+    display: flex; justify-content: space-between;
+    font-size: 12px; color: var(--muted); margin-bottom: 8px;
+  }
+  .progress-meta strong { color: var(--text); }
+  .progress-bar {
+    height: 4px; background: var(--border); border-radius: 2px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--amber);
+    border-radius: 2px;
+    transition: width .6s cubic-bezier(.4,0,.2,1);
+  }
+  .progress-fill.complete { background: var(--green); }
+
+  /* ── agent grid ───────────────────────────────────────────────────────── */
+  .agents-section { padding: 20px 22px; }
+  .agents-section h3 {
+    font-size: 11px; font-weight: 600; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 14px;
+  }
+  .agents-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .agent-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 14px 12px;
+    display: flex; flex-direction: column; gap: 8px;
+    transition: border-color .2s, background .2s;
+    position: relative; overflow: hidden;
+  }
+
+  /* status-specific styles */
+  .agent-card.working {
+    border-color: rgba(245,158,11,.4);
+    background: rgba(245,158,11,.04);
+  }
+  .agent-card.working::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(245,158,11,.06) 0%, transparent 60%);
+  }
+  .agent-card.done {
+    border-color: rgba(34,197,94,.2);
+    background: rgba(34,197,94,.02);
+  }
+  .agent-card.delivering {
+    border-color: rgba(96,165,250,.3);
+    background: rgba(96,165,250,.04);
+  }
+
+  .agent-top { display: flex; align-items: center; gap: 8px; }
+  .agent-icon {
+    font-size: 20px; line-height: 1;
+    filter: grayscale(0);
+    transition: filter .3s;
+  }
+  .agent-card.idle .agent-icon { filter: grayscale(.6) opacity(.5); }
+  .agent-info { flex: 1; min-width: 0; }
+  .agent-name {
+    font-weight: 600; font-size: 13px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .agent-card.idle .agent-name { color: var(--muted); }
+  .agent-title {
+    font-size: 11px; color: var(--muted);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  .agent-status {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 11px; font-weight: 500;
+  }
+  .status-indicator {
+    width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+  }
+  .si-idle       { background: var(--muted); opacity: .4; }
+  .si-working    { background: var(--amber); animation: pulse-amber 1.4s ease-in-out infinite; }
+  .si-delivering { background: var(--blue);  animation: pulse-blue  1.4s ease-in-out infinite; }
+  .si-done       { background: var(--green); }
+
+  .status-text-idle       { color: var(--muted); }
+  .status-text-working    { color: var(--amber); }
+  .status-text-delivering { color: var(--blue);  }
+  .status-text-done       { color: var(--green); }
+
+  /* ── handoff banner ───────────────────────────────────────────────────── */
+  .handoff {
+    margin: 0 22px 20px;
+    padding: 12px 16px;
+    background: var(--blue-dim);
+    border: 1px solid rgba(96,165,250,.2);
+    border-radius: var(--radius);
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+  .handoff-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+  .handoff-content { flex: 1; min-width: 0; }
+  .handoff-route {
+    font-size: 11px; font-weight: 600; color: var(--blue);
+    margin-bottom: 2px; letter-spacing: .3px;
+  }
+  .handoff-msg { font-size: 12px; color: var(--muted); }
+
+  /* ── run history ──────────────────────────────────────────────────────── */
+  .history-section { padding: 0 22px 20px; }
+  .history-section h3 {
+    font-size: 11px; font-weight: 600; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 10px;
+  }
+  .runs-table { width: 100%; border-collapse: collapse; }
+  .runs-table th, .runs-table td {
+    text-align: left; padding: 7px 10px;
+    font-size: 12px; border-bottom: 1px solid var(--border);
+  }
+  .runs-table th { color: var(--muted); font-weight: 500; }
+  .runs-table td { color: var(--text); }
+  .runs-table tr:last-child td { border-bottom: none; }
+  .run-id-cell { font-family: monospace; color: var(--muted); font-size: 11px; }
+  .resultado-aprovado { color: var(--green); font-weight: 600; }
+  .resultado-abortado { color: var(--red);   font-weight: 600; }
+  .resultado-other    { color: var(--muted); }
+
+  /* ── no active squads (only history) ─────────────────────────────────── */
+  .idle-header {
+    padding: 16px 22px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ── last-run summary ────────────────────────────────────────────────── */
+  .last-run-wrap { padding: 16px 22px; border-bottom: 1px solid var(--border); }
+  .last-run-meta {
+    display: flex; gap: 20px; flex-wrap: wrap;
+  }
+  .lrm-item { display: flex; flex-direction: column; gap: 2px; }
+  .lrm-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+  .lrm-value { font-size: 13px; font-weight: 600; }
+
+  /* ── animations ───────────────────────────────────────────────────────── */
+  @keyframes pulse-amber {
+    0%, 100% { opacity: 1;   box-shadow: 0 0 0 0 rgba(245,158,11,.5); }
+    50%       { opacity: .7; box-shadow: 0 0 0 4px rgba(245,158,11,0); }
+  }
+  @keyframes pulse-green {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: .4; }
+  }
+  @keyframes pulse-blue {
+    0%, 100% { opacity: 1;   box-shadow: 0 0 0 0 rgba(96,165,250,.5); }
+    50%       { opacity: .7; box-shadow: 0 0 0 4px rgba(96,165,250,0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .squad-card { animation: fadeIn .3s ease; }
+
+  /* ── responsive ───────────────────────────────────────────────────────── */
+  @media (max-width: 600px) {
+    main { padding: 16px; }
+    .agents-grid { grid-template-columns: repeat(2, 1fr); }
+    header { padding: 12px 16px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="logo">
+      <div class="logo-dot" id="globalDot"></div>
+      Opensquad
+    </div>
+    <div class="header-right">
+      <div class="refresh-badge">
+        <div class="refresh-dot"></div>
+        ao vivo · atualiza a cada 2s
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div id="root"></div>
+  </main>
+</div>
+
+<script>
+// ── constants ────────────────────────────────────────────────────────────────
+const POLL_MS = 2000;
+
+const STATUS_LABEL = {
+  idle:       'Aguardando',
+  working:    'Trabalhando',
+  delivering: 'Entregando',
+  done:       'Concluído',
+};
+
+// ── fetch ────────────────────────────────────────────────────────────────────
+async function fetchSquads() {
+  try {
+    const res = await fetch('/api/squads');
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
+// ── render helpers ────────────────────────────────────────────────────────────
+function badgeClass(status) {
+  if (status === 'running')   return 'badge-running';
+  if (status === 'completed') return 'badge-completed';
+  if (status === 'failed')    return 'badge-failed';
+  return 'badge-idle';
+}
+
+function badgeLabel(status) {
+  if (status === 'running')   return 'Rodando';
+  if (status === 'completed') return 'Concluído';
+  if (status === 'failed')    return 'Falhou';
+  return 'Ocioso';
+}
+
+function resultadoClass(r) {
+  if (!r) return 'resultado-other';
+  const l = r.toLowerCase();
+  if (l === 'aprovado' || l === 'publicado') return 'resultado-aprovado';
+  if (l === 'abortado' || l === 'rejeitado') return 'resultado-abortado';
+  return 'resultado-other';
+}
+
+function renderAgent(agent) {
+  const st = agent.status || 'idle';
+  return `
+    <div class="agent-card ${st}">
+      <div class="agent-top">
+        <span class="agent-icon">${agent.icon || '🤖'}</span>
+        <div class="agent-info">
+          <div class="agent-name">${agent.name}</div>
+        </div>
+      </div>
+      <div class="agent-status">
+        <div class="status-indicator si-${st}"></div>
+        <span class="status-text-${st}">${STATUS_LABEL[st] || st}</span>
+      </div>
+    </div>
+  `;
+}
+
+function renderAgentGrid(agents) {
+  if (!agents || !agents.length) return '';
+
+  // sort by row then col
+  const sorted = [...agents].sort((a, b) => {
+    const ra = a.desk?.row ?? 99, rb = b.desk?.row ?? 99;
+    const ca = a.desk?.col ?? 99, cb = b.desk?.col ?? 99;
+    return ra !== rb ? ra - rb : ca - cb;
+  });
+
+  return `
+    <div class="agents-section">
+      <h3>Agentes</h3>
+      <div class="agents-grid">
+        ${sorted.map(renderAgent).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function renderHandoff(handoff) {
+  if (!handoff || !handoff.message) return '';
+  const route = handoff.to
+    ? `${handoff.from} → ${handoff.to}`
+    : handoff.from;
+  return `
+    <div class="handoff">
+      <span class="handoff-icon">↔</span>
+      <div class="handoff-content">
+        <div class="handoff-route">${route}</div>
+        <div class="handoff-msg">${handoff.message}</div>
+      </div>
+    </div>
+  `;
+}
+
+function renderProgress(step) {
+  if (!step) return '';
+  const pct = step.total ? Math.round((step.current / step.total) * 100) : 0;
+  const complete = pct === 100;
+  return `
+    <div class="progress-wrap">
+      <div class="progress-meta">
+        <span>Step <strong>${step.current}</strong> / ${step.total}
+          ${step.label ? `<span style="color:var(--muted);font-family:monospace;font-size:11px;margin-left:6px">${step.label}</span>` : ''}
+        </span>
+        <span><strong style="color:${complete ? 'var(--green)' : 'var(--amber)'}">${pct}%</strong></span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill ${complete ? 'complete' : ''}" style="width:${pct}%"></div>
+      </div>
+    </div>
+  `;
+}
+
+function renderRuns(runs) {
+  if (!runs || !runs.length) return '';
+  return `
+    <div class="history-section">
+      <h3>Histórico</h3>
+      <table class="runs-table">
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Tema</th>
+            <th>Output</th>
+            <th>Resultado</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${runs.map(r => `
+            <tr>
+              <td class="run-id-cell">${r.date}</td>
+              <td>${r.tema}</td>
+              <td style="color:var(--muted)">${r.output}</td>
+              <td class="${resultadoClass(r.resultado)}">${r.resultado}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function renderLastRun(lastRun) {
+  if (!lastRun) return '';
+  const duration = (lastRun.startedAt && lastRun.completedAt)
+    ? (() => {
+        const ms = new Date(lastRun.completedAt) - new Date(lastRun.startedAt);
+        const m  = Math.floor(ms / 60000);
+        const s  = Math.floor((ms % 60000) / 1000);
+        return m > 0 ? `${m}m ${s}s` : `${s}s`;
+      })()
+    : '—';
+
+  return `
+    <div class="last-run-wrap">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;font-weight:600">
+        Último Run · ${lastRun._runId || '—'}
+      </div>
+      <div class="last-run-meta">
+        <div class="lrm-item">
+          <span class="lrm-label">Status</span>
+          <span class="lrm-value" style="color:var(--green)">${badgeLabel(lastRun.status)}</span>
+        </div>
+        <div class="lrm-item">
+          <span class="lrm-label">Agentes</span>
+          <span class="lrm-value">${lastRun.agents?.length ?? '—'}</span>
+        </div>
+        <div class="lrm-item">
+          <span class="lrm-label">Duração</span>
+          <span class="lrm-value">${duration}</span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderSquad(squad) {
+  const state = squad.activeState;
+
+  if (state) {
+    // pipeline ativo
+    const isRunning = state.status === 'running';
+    return `
+      <div class="squad-card active">
+        <div class="squad-header">
+          <div class="squad-title">
+            <div>
+              <div class="squad-name">${state.squad || squad.name}</div>
+              <div class="squad-code">${squad.name}</div>
+            </div>
+          </div>
+          <span class="status-badge ${badgeClass(state.status)}">${badgeLabel(state.status)}</span>
+        </div>
+        ${renderProgress(state.step)}
+        ${renderAgentGrid(state.agents)}
+        ${state.handoff ? renderHandoff(state.handoff) : ''}
+        ${renderRuns(squad.runs)}
+      </div>
+    `;
+  }
+
+  // squad ocioso
+  return `
+    <div class="squad-card">
+      <div class="squad-header idle-header">
+        <div class="squad-title">
+          <div>
+            <div class="squad-name">${squad.name}</div>
+            <div class="squad-code">nenhum pipeline ativo</div>
+          </div>
+        </div>
+        <span class="status-badge badge-idle">Ocioso</span>
+      </div>
+      ${renderLastRun(squad.lastRun)}
+      ${renderRuns(squad.runs)}
+    </div>
+  `;
+}
+
+// ── main loop ─────────────────────────────────────────────────────────────────
+let prevData = null;
+
+function hasActiveRun(squads) {
+  return squads?.some(s => s.activeState?.status === 'running');
+}
+
+async function tick() {
+  const squads = await fetchSquads();
+  if (!squads) return;
+
+  // só re-renderiza se mudou algo
+  const sig = JSON.stringify(squads);
+  if (sig === prevData) return;
+  prevData = sig;
+
+  const root = document.getElementById('root');
+  const dot  = document.getElementById('globalDot');
+
+  if (!squads.length) {
+    dot.classList.remove('pulse');
+    root.innerHTML = `
+      <div class="empty">
+        <div class="empty-icon">◎</div>
+        <h2>Nenhum squad encontrado</h2>
+        <p>Crie um squad com <code>/opensquad create</code> para começar.</p>
+      </div>
+    `;
+    return;
+  }
+
+  const active = hasActiveRun(squads);
+  if (active) dot.classList.add('pulse');
+  else dot.classList.remove('pulse');
+
+  root.innerHTML = `<div class="squads">${squads.map(renderSquad).join('')}</div>`;
+}
+
+tick();
+setInterval(tick, POLL_MS);
+</script>
+</body>
+</html>
