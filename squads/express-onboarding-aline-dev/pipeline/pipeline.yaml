@@ -10,21 +10,26 @@ steps:
     file: "steps/step-02-provisionamento.md"
 
   - id: step-03
+    name: "Atualizar Projeto no Firestore"
+    agent: kevin-keeper
+    file: "steps/step-07-update-project.md"
+
+  - id: step-04
     name: "Entrega Marketplace R$4.210"
     agent: helena-eng
     file: "steps/step-03-marketplace.md"
 
-  - id: step-04
+  - id: step-05
     name: "Aguardar Preenchimento Técnico"
     type: "checkpoint"
     description: "Aguarda entrada do formulário técnico no app Aline Builds."
 
-  - id: step-05
+  - id: step-06
     name: "Configuração da Engine White-Label"
     agent: anderson-arch
     file: "steps/step-04-engine-config.md"
 
-  - id: step-06
+  - id: step-07
     name: "Auditoria de Segurança"
     agent: gael-auditor
     file: "steps/step-05-security-audit.md"
