@@ -1,0 +1,136 @@
+name: "Pipeline — Fábrica de Carrosséis"
+version: "2.0.0"
+created: "2026-03-03"
+squad: "instagram-carrossel"
+
+description: >
+  Pipeline completo para transformar um tema em carrossel de Instagram publicado
+  automaticamente. 7 checkpoints de controle garantem que o usuário aprova cada
+  decisão crítica antes de avançar.
+
+mode: "alta-performance"
+
+steps:
+  - id: step-01
+    name: "Entrada de Conteúdo"
+    type: checkpoint
+    file: steps/step-01-input-content.md
+
+  - id: step-02
+    name: "Pesquisa de Notícias"
+    type: agent
+    agent: researcher
+    tasks:
+      - find-and-rank-news
+    file: steps/step-02-find-news.md
+    depends_on: step-01
+
+  - id: step-03
+    name: "Seleção de Notícia"
+    type: checkpoint
+    file: steps/step-03-select-story.md
+    depends_on: step-02
+
+  - id: step-04
+    name: "Geração de Ângulos"
+    type: agent
+    agent: copywriter
+    tasks:
+      - generate-angles
+    file: steps/step-04-generate-angles.md
+    depends_on: step-03
+
+  - id: step-05
+    name: "Seleção de Ângulo"
+    type: checkpoint
+    file: steps/step-05-select-angle.md
+    depends_on: step-04
+
+  - id: step-06
+    name: "Criação do Copy"
+    type: agent
+    agent: copywriter
+    tasks:
+      - create-slides
+      - optimize-copy
+    file: steps/step-06-create-copy.md
+    depends_on: step-05
+
+  - id: step-07
+    name: "Aprovação do Texto"
+    type: checkpoint
+    file: steps/step-07-approve-copy.md
+    depends_on: step-06
+
+  - id: step-08
+    name: "Proposta Visual"
+    type: agent
+    agent: image-designer
+    tasks:
+      - propose-visual-identities
+    file: steps/step-08-propose-visuals.md
+    depends_on: step-07
+
+  - id: step-09
+    name: "Seleção de Identidade Visual"
+    type: checkpoint
+    file: steps/step-09-select-visual.md
+    depends_on: step-08
+
+  - id: step-10
+    name: "Criação dos Slides"
+    type: agent
+    agent: image-designer
+    tasks:
+      - create-slides
+      - render-export
+    file: steps/step-10-create-slides.md
+    depends_on: step-09
+
+  - id: step-11
+    name: "Aprovação das Imagens"
+    type: checkpoint
+    file: steps/step-11-approve-images.md
+    depends_on: step-10
+
+  - id: step-12
+    name: "Revisão de Qualidade"
+    type: agent
+    agent: reviewer
+    optional: true
+    tasks:
+      - score-content
+      - generate-feedback
+    file: steps/step-12-review.md
+    depends_on: step-11
+
+  - id: step-13
+    name: "Publicação no Instagram"
+    type: agent
+    agent: publisher
+    tasks:
+      - validate-publish
+    file: steps/step-13-publish.md
+    depends_on: step-12
+
+checkpoints:
+  - step-01  # Input: tema + prazo
+  - step-03  # Seleção de notícia
+  - step-05  # Seleção de ângulo
+  - step-07  # Aprovação do texto
+  - step-09  # Seleção de identidade visual
+  - step-11  # Aprovação das imagens
+
+output:
+  artifacts:
+    - output/ranked-stories.yaml
+    - output/selected-story.yaml
+    - output/angles-brief.yaml
+    - output/selected-angle.yaml
+    - output/carousel-draft.md
+    - output/selected-visual.yaml
+    - output/design-system.md
+    - output/slides/
+    - output/slides/rendered/
+    - output/review-final.md
+    - output/publish-report.md

@@ -1,0 +1,117 @@
+source_summary: >
+  O TSE concluiu em 2 de março de 2026 a aprovação de um pacote de 14 resoluções para as
+  eleições gerais de outubro de 2026. O destaque é a regulamentação sem precedentes do uso de
+  IA em campanhas: blackout de 96h combinadas (72h antes + 24h depois do pleito), identificação
+  obrigatória de conteúdo sintético, proibição de algoritmos recomendarem candidatos e
+  responsabilidade solidária das plataformas que não removerem conteúdo ilícito declarado pela
+  Justiça Eleitoral.
+date_of_content: "2 e 3 de março de 2026"
+
+key_facts:
+  - fact: "TSE aprovou um pacote de 14 resoluções para as eleições gerais de 2026 em sessão concluída em 2 de março de 2026"
+    data: "14 resoluções — 7 aprovadas em fevereiro, 7 concluídas em 2 de março de 2026"
+    source: "CNN Brasil, março 2026"
+    source_url: "https://www.cnnbrasil.com.br/eleicoes/tse-conclui-julgamento-de-resolucoes-para-as-eleicoes-de-2026/"
+    confidence: HIGH
+
+  - fact: "Blackout digital de 72h + 24h: proibição de publicar, republicar ou impulsionar conteúdo novo feito por IA nas 72h antes do pleito e nas 24h após seu encerramento"
+    data: "96 horas de blackout total — válido inclusive para conteúdo devidamente identificado como IA"
+    source: "Jornal de Brasília / Tribuna do Sertão, 2 mar 2026"
+    source_url: "https://jornaldebrasilia.com.br/noticias/politica-e-poder/tse-proibe-propaganda-eleitoral-gerada-por-inteligencia-artificial-72-horas-antes-da-votacao/"
+    confidence: HIGH
+
+  - fact: "Conteúdo feito por IA está proibido no período de blackout mesmo quando devidamente rotulado e identificado como IA"
+    data: "Transparência (label de IA) não isenta da proibição durante o blackout — confirmado no texto aprovado"
+    source: "InfoSAJ / Tribuna do Sertão, março 2026"
+    source_url: "https://infosaj.com.br/eleicoes-2026-regras-barram-ia-tres-dias-antes-da-votacao-e-proibem-plataformas-de-sugerir-candidatos/"
+    confidence: HIGH
+
+  - fact: "Identificação obrigatória de qualquer propaganda eleitoral que use imagem, voz ou conteúdo manipulado por IA, inclusive em material impresso"
+    data: "Exigência de forma explícita, destacada e acessível — deve indicar qual tecnologia foi empregada"
+    source: "Contec Brasil, março 2026"
+    source_url: "https://contec.org.br/de-identificacao-obrigatoria-a-responsabilizacao-de-plataformas-veja-o-que-muda-no-uso-de-ia-para-as-eleicoes-2026/"
+    confidence: HIGH
+
+  - fact: "Sistemas de IA de plataformas proibidos de ranquear, recomendar, sugerir ou priorizar candidatos — mesmo indiretamente"
+    data: "Proibição abrange opiniões, preferências eleitorais, recomendações de voto e favorecimento político-eleitoral, direto ou indireto"
+    source: "Poder360, 2 mar 2026"
+    source_url: "https://www.poder360.com.br/poder-eleicoes/tse-proibe-que-ia-recomende-candidatos-a-eleitores/"
+    confidence: HIGH
+
+  - fact: "Plataformas que não removerem conteúdo de IA declarado ilícito pela Justiça Eleitoral respondem solidariamente"
+    data: "Devem criar campos declarando uso de IA e elaborar planos com indicadores mensuráveis de prevenção de riscos eleitorais"
+    source: "CNN Brasil / Contec Brasil, março 2026"
+    source_url: "https://www.cnnbrasil.com.br/eleicoes/tse-atualiza-regras-e-impoe-limites-a-ia-na-eleicao-de-2026/"
+    confidence: HIGH
+
+  - fact: "Mais de 1.400 propostas públicas analisadas antes da votação final, com três dias de audiências públicas em fevereiro de 2026"
+    data: "Mais de 1.400 sugestões da sociedade civil + audiências em 3, 4 e 5 de fevereiro de 2026"
+    source: "TSE.jus.br / Poder360, janeiro-fevereiro 2026"
+    source_url: "https://www.poder360.com.br/poder-eleicoes/tse-aprova-pacote-de-14-resolucoes-para-as-eleicoes-de-2026/"
+    confidence: HIGH
+
+  - fact: "Uso de IA para gerar imagens sexualizadas ou pornográficas de candidatos foi explicitamente vetado"
+    data: "Conteúdo sintético de natureza sexual sobre candidatos — proibição expressa no texto aprovado"
+    source: "InfoSAJ, março 2026"
+    source_url: "https://infosaj.com.br/eleicoes-2026-regras-barram-ia-tres-dias-antes-da-votacao-e-proibem-plataformas-de-sugerir-candidatos/"
+    confidence: HIGH
+
+  - fact: "Calendário eleitoral confirmado: 1º turno em 4 de outubro de 2026; 2º turno eventual em 25 de outubro de 2026"
+    data: "Presidente, governadores, senadores, deputados federais e estaduais — 4 out 2026"
+    source: "TSE / CNN Brasil, março 2026"
+    source_url: "https://www.cnnbrasil.com.br/eleicoes/tse-conclui-julgamento-de-resolucoes-para-as-eleicoes-de-2026/"
+    confidence: HIGH
+
+  - fact: "Perfis falsos ou automatizados que ameacem a integridade eleitoral ficam proibidos"
+    data: "Inclui contas operadas de forma automatizada para influenciar o eleitorado"
+    source: "Contec Brasil / Poder360, março 2026"
+    source_url: "https://contec.org.br/de-identificacao-obrigatoria-a-responsabilizacao-de-plataformas-veja-o-que-muda-no-uso-de-ia-para-as-eleicoes-2026/"
+    confidence: HIGH
+
+core_tension: >
+  A revelação mais contraintuitiva das novas regras do TSE não é a proibição de IA em si — é
+  que o blackout se aplica mesmo a conteúdo DEVIDAMENTE IDENTIFICADO como feito por IA. A lógica
+  que muitos criadores e agências adotavam ("se eu avisar que é IA, está tudo bem") foi
+  explicitamente invalidada. Transparência e rotulagem, por si sós, não bastam: durante as 96
+  horas combinadas (72h antes + 24h depois), nenhum conteúdo novo de IA pode ser publicado,
+  independentemente de qualquer aviso ou disclosure. Isso estabelece um precedente regulatório
+  inédito que vai além do combate à desinformação e atinge o uso legítimo e identificado de IA
+  como ferramenta criativa e de comunicação.
+
+hook_candidates:
+  - data: "96 horas de blackout total — 72h antes + 24h depois do pleito"
+    hook_draft: "96 horas sem IA. Mesmo com aviso de 'feito por IA', está proibido. O TSE criou o maior freio regulatório à IA da história eleitoral brasileira."
+    emotional_trigger: SURPRESA
+
+  - data: "Conteúdo identificado como IA também está proibido no período de blackout"
+    hook_draft: "Não adianta colocar o aviso 'feito por IA'. Nas 72h antes da eleição, nem isso é suficiente. A lei mudou — e a maioria não sabe ainda."
+    emotional_trigger: DISSONÂNCIA
+
+  - data: "Algoritmos de plataformas proibidos de recomendar candidatos — mesmo indiretamente"
+    hook_draft: "O feed do Instagram não poderá mais te sugerir um candidato. Isso é real, está na lei, e começa em outubro de 2026."
+    emotional_trigger: SURPRESA
+
+  - data: "Mais de 1.400 propostas analisadas + 14 resoluções aprovadas + responsabilidade solidária das plataformas"
+    hook_draft: "14 regras. 1.400 propostas. Meta, Google e TikTok na mira da Justiça. O Brasil acabou de montar o maior arcabouço de regulação de IA eleitoral da América Latina."
+    emotional_trigger: URGÊNCIA
+
+  - data: "Regras se aplicam a criadores de conteúdo, agências e campanhas — qualquer conteúdo novo de IA no blackout"
+    hook_draft: "Se você cria conteúdo com IA, precisa saber disso antes de outubro. Tem regra nova — e a ignorância não vai te salvar de ser derrubado."
+    emotional_trigger: FOMO
+
+supplementary_context:
+  - topic: "Confirmação da aprovação das 14 resoluções e data exata"
+    finding: "Confirmado: TSE concluiu o julgamento das 14 resoluções em 2 de março de 2026. O pacote foi aprovado em duas sessões — 7 resoluções em fevereiro e 7 concluídas na sessão extraordinária de 2 de março."
+    source: "CNN Brasil — https://www.cnnbrasil.com.br/eleicoes/tse-conclui-julgamento-de-resolucoes-para-as-eleicoes-de-2026/"
+
+  - topic: "Confirmação de que conteúdo rotulado como IA também está proibido no blackout"
+    finding: "Confirmado: a proibição abrange publicação, republicação ou impulsionamento de novos conteúdos produzidos ou alterados por IA — inclusive os devidamente identificados. O label de IA não isenta da proibição durante o blackout de 72h + 24h."
+    source: "InfoSAJ / Tribuna do Sertão — https://infosaj.com.br/eleicoes-2026-regras-barram-ia-tres-dias-antes-da-votacao-e-proibem-plataformas-de-sugerir-candidatos/"
+
+  - topic: "Escopo real da proibição de IA em recomendações de candidatos nas plataformas"
+    finding: "Confirmado: algoritmos de recomendação de plataformas (feeds, sugestões, chatbots) ficam proibidos de ranquear, sugerir ou priorizar candidaturas, partidos ou coligações — incluindo formas indiretas de favorecimento ou desfavorecimento político-eleitoral."
+    source: "Poder360 — https://www.poder360.com.br/poder-eleicoes/tse-proibe-que-ia-recomende-candidatos-a-eleitores/"
+
+  - topic: "Responsabilidade solidária das plataformas — mecanismo real"
+    finding: "Confirmado: plataformas que não removerem, de forma imediata, conteúdos sintéticos irregulares após notificação da Justiça Eleitoral respondem solidariamente. Devem também remover conteúdo idêntico ao de decisões anteriores sem necessidade de nova reanálise judicial."
+    source: "CNN Brasil / Contec Brasil — https://contec.org.br/de-identificacao-obrigatoria-a-responsabilizacao-de-plataformas-veja-o-que-muda-no-uso-de-ia-para-as-eleicoes-2026/"

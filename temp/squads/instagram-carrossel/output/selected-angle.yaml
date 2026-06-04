@@ -1,0 +1,16 @@
+angle_id: 2
+angle_title: "IA vs Democracia"
+angle_type: "Pergunta Incômoda"
+hook_draft: |
+  Pode um vídeo de IA mudar o seu voto?
+  O TSE acredita que sim. 
+  E a nova regra é a prova disso. 🧠
+slide_structure:
+  - slide_2: "A corrida contra o tempo: IA é rápida, a justiça é lenta."
+  - slide_3: "Deepfakes fatais: O dano que não dá tempo de desmentir."
+  - slide_4: "A solução drástica: Proibir tudo 3 dias antes da eleição."
+  - slide_5: "É o fim da propaganda eleitoral digital livre?"
+  - slide_6: "A tecnologia chegou ao limite do que a lei consegue controlar."
+  - slide_7: "Você acredita que a IA pode manipular o resultado? Diz aí."
+user_adjustments: ""
+selected_at: "2026-03-03 10:30"

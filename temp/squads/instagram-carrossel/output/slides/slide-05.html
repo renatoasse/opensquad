@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1080">
+  <title>Slide 05 — Por Que o TSE Fez Isso Agora</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg-primary: #0A0E1A;
+      --text-white: #FFFFFF;
+      --text-secondary: #8899AA;
+      --accent: #1E90FF;
+      --font-family: 'Inter', sans-serif;
+    }
+    body {
+      width: 1080px; height: 1440px; overflow: hidden;
+      font-family: var(--font-family);
+      background: var(--bg-primary);
+      color: var(--text-white);
+      display: flex; flex-direction: column;
+      justify-content: center;
+      padding: 80px 72px;
+      position: relative;
+    }
+    .label {
+      font-size: 22px; font-weight: 700; color: var(--accent);
+      text-transform: uppercase; letter-spacing: 3px;
+      margin-bottom: 40px;
+    }
+    .question-big {
+      font-size: 44px; font-weight: 700; color: var(--text-white);
+      line-height: 1.3; margin-bottom: 48px;
+    }
+    .pense {
+      font-size: 22px; font-weight: 700; color: var(--accent);
+      text-transform: uppercase; letter-spacing: 2px;
+      margin-bottom: 24px;
+    }
+    .body-text {
+      font-size: 30px; font-weight: 400; color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    .body-text strong { color: var(--text-white); font-weight: 700; }
+    .conclusion-line {
+      margin-top: 48px;
+      padding-top: 32px;
+      border-top: 1px solid rgba(30,144,255,0.25);
+      font-size: 28px; font-weight: 700; color: var(--text-white);
+      line-height: 1.5;
+    }
+    .conclusion-line span { color: var(--accent); }
+    .slide-num {
+      position: absolute; bottom: 72px; left: 72px;
+      font-size: 22px; font-weight: 500; color: var(--text-secondary);
+    }
+    .deco-line {
+      position: absolute; top: 0; right: 0;
+      width: 4px; height: 100%;
+      background: linear-gradient(to bottom, transparent, var(--accent), transparent);
+      opacity: 0.3;
+    }
+  </style>
+</head>
+<body>
+  <div class="deco-line"></div>
+  <div class="label">A pergunta incômoda</div>
+  <h2 class="question-big">Se IA ficou poderosa<br>o suficiente para o<br>Estado precisar criar<br>uma lei específica<br>para controlá-la...</h2>
+  <div class="pense">Pense nisso:</div>
+  <p class="body-text">
+    ...o que isso diz sobre<br>
+    <strong>onde chegamos?</strong>
+  </p>
+  <p class="conclusion-line">
+    Não é crítica à IA.<br>
+    É um <span>reconhecimento</span><br>
+    do que ela se tornou.
+  </p>
+  <span class="slide-num">5 / 8</span>
+</body>
+</html>

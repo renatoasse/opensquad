@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1080">
+  <title>Slide 06 — Por Que o TSE Fez Isso Agora</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg-primary: #0A0E1A;
+      --text-white: #FFFFFF;
+      --text-secondary: #8899AA;
+      --accent: #1E90FF;
+      --font-family: 'Inter', sans-serif;
+    }
+    body {
+      width: 1080px; height: 1440px; overflow: hidden;
+      font-family: var(--font-family);
+      background: var(--bg-primary);
+      color: var(--text-white);
+      display: flex; flex-direction: column;
+      justify-content: center;
+      padding: 80px 72px;
+      position: relative;
+    }
+    .label {
+      font-size: 22px; font-weight: 700; color: var(--accent);
+      text-transform: uppercase; letter-spacing: 3px;
+      margin-bottom: 40px;
+    }
+    .title {
+      font-size: 48px; font-weight: 700; color: var(--text-white);
+      line-height: 1.2; margin-bottom: 56px;
+    }
+    .stat-block {
+      background: rgba(30,144,255,0.1);
+      border: 1px solid rgba(30,144,255,0.3);
+      border-radius: 16px;
+      padding: 40px;
+      margin-bottom: 40px;
+    }
+    .stat-number {
+      font-size: 80px; font-weight: 900; color: var(--accent);
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 28px; font-weight: 400; color: var(--text-white);
+      margin-top: 12px; line-height: 1.4;
+    }
+    .stat2 {
+      display: flex; gap: 24px; align-items: flex-start;
+      font-size: 28px; color: var(--text-secondary); line-height: 1.5;
+    }
+    .stat2 strong { color: var(--text-white); font-weight: 700; }
+    .dot { min-width: 8px; height: 8px; border-radius: 50%; background: var(--accent); margin-top: 12px; }
+    .takeaway {
+      margin-top: 40px;
+      font-size: 28px; font-weight: 700; color: var(--text-secondary);
+      line-height: 1.5;
+    }
+    .takeaway strong { color: var(--text-white); }
+    .slide-num {
+      position: absolute; bottom: 72px; left: 72px;
+      font-size: 22px; font-weight: 500; color: var(--text-secondary);
+    }
+    .deco-line {
+      position: absolute; top: 0; right: 0;
+      width: 4px; height: 100%;
+      background: linear-gradient(to bottom, transparent, var(--accent), transparent);
+      opacity: 0.3;
+    }
+  </style>
+</head>
+<body>
+  <div class="deco-line"></div>
+  <div class="label">O dado que surpreende</div>
+  <h2 class="title">Esse debate existia<br>antes de você<br>perceber.</h2>
+  <div class="stat-block">
+    <div class="stat-number">1.400+</div>
+    <div class="stat-label">propostas da sociedade civil<br>analisadas pelo TSE</div>
+  </div>
+  <div class="stat2">
+    <div class="dot"></div>
+    <p>Mais <strong>3 dias de audiências públicas</strong> realizadas em fevereiro de 2026 — antes da votação final</p>
+  </div>
+  <p class="takeaway">
+    A regulação de IA não surgiu de surpresa.<br>
+    Ela foi <strong>construída coletivamente</strong>.
+  </p>
+  <span class="slide-num">6 / 8</span>
+</body>
+</html>

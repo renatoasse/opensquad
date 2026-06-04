@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1080">
+  <title>Slide 02 — Por Que o TSE Fez Isso Agora</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg-primary: #0A0E1A;
+      --text-white: #FFFFFF;
+      --text-secondary: #8899AA;
+      --accent: #1E90FF;
+      --font-family: 'Inter', sans-serif;
+    }
+    body {
+      width: 1080px; height: 1440px; overflow: hidden;
+      font-family: var(--font-family);
+      background: var(--bg-primary);
+      color: var(--text-white);
+      display: flex; flex-direction: column;
+      justify-content: center;
+      padding: 80px 72px;
+      position: relative;
+    }
+    .label {
+      font-size: 22px; font-weight: 700; color: var(--accent);
+      text-transform: uppercase; letter-spacing: 3px;
+      margin-bottom: 40px;
+    }
+    .title {
+      font-size: 48px; font-weight: 700; color: var(--text-white);
+      line-height: 1.2; margin-bottom: 48px;
+    }
+    .items { display: flex; flex-direction: column; gap: 32px; }
+    .item {
+      display: flex; gap: 24px; align-items: flex-start;
+    }
+    .bullet {
+      min-width: 10px; height: 10px; border-radius: 50%;
+      background: var(--accent); margin-top: 12px;
+    }
+    .item-text { font-size: 30px; font-weight: 400; line-height: 1.5; color: var(--text-white); }
+    .item-text strong { color: var(--accent); font-weight: 700; }
+    .source {
+      margin-top: 48px;
+      font-size: 22px; color: var(--text-secondary);
+      border-top: 1px solid rgba(30,144,255,0.25);
+      padding-top: 24px;
+    }
+    .slide-num {
+      position: absolute; bottom: 72px; left: 72px;
+      font-size: 22px; font-weight: 500; color: var(--text-secondary);
+    }
+    .deco-line {
+      position: absolute; top: 0; right: 0;
+      width: 4px; height: 100%;
+      background: linear-gradient(to bottom, transparent, var(--accent), transparent);
+      opacity: 0.3;
+    }
+  </style>
+</head>
+<body>
+  <div class="deco-line"></div>
+  <div class="label">O que aconteceu</div>
+  <h2 class="title">Em 2 de março de 2026,<br>o TSE aprovou<br>14 resoluções.</h2>
+  <div class="items">
+    <div class="item">
+      <div class="bullet"></div>
+      <p class="item-text">Proibição de publicar, republicar ou impulsionar <strong>qualquer conteúdo novo de IA</strong> nas 96h que cercam o pleito</p>
+    </div>
+    <div class="item">
+      <div class="bullet"></div>
+      <p class="item-text"><strong>72h antes</strong> da eleição + <strong>24h depois</strong> do encerramento</p>
+    </div>
+    <div class="item">
+      <div class="bullet"></div>
+      <p class="item-text">Zero exceções — <strong>nem conteúdo identificado como IA</strong> está isento</p>
+    </div>
+  </div>
+  <p class="source">TSE.jus.br / CNN Brasil — março 2026</p>
+  <span class="slide-num">2 / 8</span>
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1080">
+  <title>Slide 08 — CTA</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg-primary: #0A0E1A;
+      --text-white: #FFFFFF;
+      --text-secondary: #8899AA;
+      --accent: #1E90FF;
+      --font-family: 'Inter', sans-serif;
+    }
+    body {
+      width: 1080px; height: 1440px; overflow: hidden;
+      font-family: var(--font-family);
+      background: var(--bg-primary);
+      color: var(--text-white);
+      display: flex; flex-direction: column;
+      justify-content: center;
+      padding: 80px 72px;
+      position: relative;
+    }
+    .label {
+      font-size: 22px; font-weight: 700; color: var(--accent);
+      text-transform: uppercase; letter-spacing: 3px;
+      margin-bottom: 40px;
+    }
+    .title {
+      font-size: 48px; font-weight: 700; color: var(--text-white);
+      line-height: 1.2; margin-bottom: 16px;
+    }
+    .subtitle {
+      font-size: 30px; color: var(--text-secondary);
+      margin-bottom: 56px; line-height: 1.5;
+    }
+    .options { display: flex; flex-direction: column; gap: 20px; margin-bottom: 56px; }
+    .option {
+      display: flex; gap: 24px; align-items: center;
+      padding: 24px 28px;
+      border: 1px solid rgba(30,144,255,0.25);
+      border-radius: 12px;
+      background: rgba(30,144,255,0.06);
+    }
+    .opt-num {
+      min-width: 52px; height: 52px; border-radius: 50%;
+      background: var(--accent); color: white;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px; font-weight: 900;
+    }
+    .opt-text {
+      font-size: 30px; font-weight: 700; color: var(--text-white);
+    }
+    .divider {
+      height: 1px; background: rgba(30,144,255,0.25);
+      margin-bottom: 40px;
+    }
+    .actions { display: flex; flex-direction: column; gap: 20px; }
+    .action-item {
+      display: flex; gap: 16px; align-items: center;
+      font-size: 28px; color: var(--text-secondary);
+    }
+    .action-icon {
+      font-size: 32px;
+    }
+    .action-item strong { color: var(--text-white); font-weight: 700; }
+    .slide-num {
+      position: absolute; bottom: 72px; left: 72px;
+      font-size: 22px; font-weight: 500; color: var(--text-secondary);
+    }
+    .brand {
+      position: absolute; bottom: 72px; right: 72px;
+      font-size: 22px; font-weight: 700; color: var(--accent);
+    }
+    .deco-line {
+      position: absolute; top: 0; right: 0;
+      width: 4px; height: 100%;
+      background: linear-gradient(to bottom, transparent, var(--accent), transparent);
+      opacity: 0.3;
+    }
+  </style>
+</head>
+<body>
+  <div class="deco-line"></div>
+  <div class="label">Você decide</div>
+  <h2 class="title">A regulação de IA<br>nas eleições chegou:</h2>
+  <p class="subtitle">Comenta com o número da sua opinião</p>
+  <div class="options">
+    <div class="option">
+      <div class="opt-num">1</div>
+      <div class="opt-text">Cedo demais</div>
+    </div>
+    <div class="option">
+      <div class="opt-num">2</div>
+      <div class="opt-text">Na hora certa</div>
+    </div>
+    <div class="option">
+      <div class="opt-num">3</div>
+      <div class="opt-text">Tarde demais</div>
+    </div>
+  </div>
+  <div class="divider"></div>
+  <div class="actions">
+    <div class="action-item">
+      <span class="action-icon">💾</span>
+      <span><strong>Salva</strong> — esse debate vai crescer antes de outubro</span>
+    </div>
+    <div class="action-item">
+      <span class="action-icon">📤</span>
+      <span><strong>Compartilha</strong> com quem cria conteúdo com IA</span>
+    </div>
+  </div>
+  <span class="slide-num">8 / 8</span>
+  <span class="brand">@semcodar</span>
+</body>
+</html>

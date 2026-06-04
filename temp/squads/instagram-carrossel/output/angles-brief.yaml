@@ -1,0 +1,116 @@
+content_summary: "TSE aprova em março de 2026 o maior pacote de regras de IA eleitoral da América Latina: blackout de 96h combinadas, proibição de algoritmos recomendarem candidatos e responsabilidade solidária das plataformas."
+
+angles:
+  - id: 1
+    title: "A Regra que Ninguém Esperava"
+    type: "Revelador"
+    emotional_trigger: DISSONÂNCIA
+    hook_draft: |
+      Você colocou o aviso "feito por IA".
+      Mesmo assim, está proibido.
+      O TSE mudou as regras — e pegou todo mundo de surpresa.
+      (Entenda o que ninguém está explicando direito)
+    slide_structure:
+      - slide_2: "O que o TSE aprovou: 14 resoluções, mais de 1.400 propostas analisadas — o maior arcabouço de regulação de IA eleitoral da América Latina"
+      - slide_3: "A regra do blackout de 96h: 72h antes + 24h depois do pleito, zero conteúdo novo de IA — nem republicação, nem impulsionamento"
+      - slide_4: "A virada contraintuitiva: o aviso 'feito por IA' não resolve. Conteúdo identificado também está proibido no período de blackout"
+      - slide_5: "O que muda na prática para criadores, agências e campanhas: timeline de compliance para quem usa IA no dia a dia"
+      - slide_6: "Por que o TSE tomou essa decisão: a lógica do 'dano irreversível' — IA é rápida demais para o sistema jurídico reagir a tempo"
+      - slide_7: "Reflexão: A transparência virou condição necessária mas insuficiente. Que outras áreas vão seguir esse precedente?"
+      - slide_8: "CTA: Salva esse carrossel e compartilha — porque a maioria dos criadores de conteúdo com IA ainda não sabe disso"
+    strength: >
+      Funciona pela dissonância cognitiva direta: quebra a crença mais comum do público de IA
+      (de que rotular o conteúdo resolve o problema legal). Para a audiência Sem Codar —
+      que usa IA para criar e automatizar — isso é informação de impacto imediato e prático.
+      Alta probabilidade de salvamento e compartilhamento.
+    weakness: >
+      Requer que o leitor já use IA para criar conteúdo para sentir a dissonância completa.
+      Para iniciantes totais, o impacto pode ser menor se não se identificarem como criadores.
+
+  - id: 2
+    title: "O Fim da IA nos Algoritmos"
+    type: "Tendência + Oportunidade"
+    emotional_trigger: URGÊNCIA
+    hook_draft: |
+      O algoritmo do Instagram não poderá mais te sugerir um candidato.
+      O do Google também não.
+      Isso mudou agora — e é só o começo da regulação de IA no Brasil.
+    slide_structure:
+      - slide_2: "O que o TSE decidiu: proibição total de sistemas de IA recomendarem, ranquearem ou priorizarem candidatos — mesmo de forma indireta"
+      - slide_3: "Quem está na mira: Meta, Google, TikTok e qualquer plataforma com algoritmo de recomendação. Responsabilidade solidária quem não cumprir"
+      - slide_4: "O precedente: se a lei pode proibir IA de recomendar candidatos, o que mais pode ser regulado nos próximos meses?"
+      - slide_5: "A oportunidade para quem entende de IA e No-Code: empresas vão precisar de profissionais que saibam criar sistemas em conformidade com essas regras"
+      - slide_6: "Tendência global: Brasil não está sozinho — UE, EUA e outros países avançam na mesma direção de regulação de IA"
+      - slide_7: "Reflexão: Regulação de IA não é o fim da IA — é o sinal de que ela cresceu o suficiente para ser levada a sério pelo Estado"
+      - slide_8: "CTA: Comenta aqui — você acha que a regulação vai travar a inovação ou proteger o mercado?"
+    strength: >
+      Conecta a notícia do TSE com tendência global de regulação de IA, criando relevância
+      além do contexto eleitoral. Para a comunidade Sem Codar, a lente de 'oportunidade
+      profissional' é especialmente atrativa — quem domina compliance de IA vira peça rara
+      no mercado. Gera debate nos comentários.
+    weakness: >
+      Pode parecer mais denso ou abstrato para quem está no início da jornada com IA.
+      O ângulo de oportunidade profissional pode não ressoar para todos os perfis da audiência.
+
+  - id: 3
+    title: "Guia: O Que Você Pode e Não Pode Fazer com IA nas Eleições"
+    type: "Passo a Passo"
+    emotional_trigger: FOMO
+    hook_draft: |
+      Se você cria conteúdo com IA, tem 4 regras novas que você precisa saber antes de outubro.
+      Ignorar qualquer uma delas pode derrubar sua conta ou gerar processo.
+      Aqui está o guia completo (salva antes de fechar).
+    slide_structure:
+      - slide_2: "Regra 1 — Blackout de 96h: nas 72h antes e 24h depois do pleito, zero conteúdo novo de IA — proibido publicar, republicar ou impulsionar"
+      - slide_3: "Regra 2 — Label obrigatório: qualquer conteúdo de campanha que use IA deve informar explicitamente que é IA e qual tecnologia foi usada — inclusive em material impresso"
+      - slide_4: "Regra 3 — Conteúdo sintético proibido: imagens sexualizadas ou pornográficas de candidatos geradas por IA são crime eleitoral explícito"
+      - slide_5: "Regra 4 — Algoritmos fora: se você usa chatbot ou automação que pode recomendar candidatos, você precisa desabilitar isso no período eleitoral"
+      - slide_6: "O que as plataformas são obrigadas a fazer: remoção imediata de conteúdo ilícito + campos declarando uso de IA + planos de prevenção com métricas"
+      - slide_7: "Reflexão: Compliance de IA vai virar habilidade essencial para criadores e agências — quem aprender antes sai na frente"
+      - slide_8: "CTA: Salva esse guia e manda pra quem cria conteúdo com IA. Outubro chega rápido."
+    strength: >
+      Formato mais alto nível de salvamento e compartilhamento entre criadores de conteúdo
+      e profissionais de marketing digital — a audiência mais ativa da Sem Codar. É acionável,
+      concreto e resolve um problema real (medo de punição sem saber as regras). O FOMO de
+      'não saber a regra e ser pego' é poderoso para essa audiência.
+    weakness: >
+      Pode envelhecer rapidamente se o TSE ajustar as resoluções antes de outubro. Menos
+      impacto emocional de abertura do que os ângulos 1 e 2 — depende mais da utilidade
+      do que do choque inicial para gerar engajamento.
+
+  - id: 4
+    title: "Por Que o TSE Fez Isso Agora"
+    type: "Pergunta Incômoda"
+    emotional_trigger: CURIOSIDADE
+    hook_draft: |
+      Por que o TSE proibiu conteúdo de IA 72h antes da eleição?
+      A resposta revela algo que a maioria não quer admitir sobre IA.
+    slide_structure:
+      - slide_2: "O problema que o TSE identificou: IA consegue criar e viralizar um deepfake em horas — mas a Justiça leva dias para reagir"
+      - slide_3: "O princípio do 'dano irreversível': em 72h, uma mentira de IA pode definir uma eleição antes de qualquer desmentido chegar"
+      - slide_4: "A pergunta incômoda: se IA pode fabricar realidade convincente o suficiente para precisar de lei específica, o que isso diz sobre onde estamos?"
+      - slide_5: "O dado que surpreende: mais de 1.400 propostas da sociedade foram analisadas — esse debate já estava acontecendo antes de você perceber"
+      - slide_6: "A contradição central: usamos IA para criar melhor, mais rápido, com mais alcance — e agora o Estado diz 'não tão rápido assim'"
+      - slide_7: "Reflexão: Regulação não significa que IA é ruim. Significa que chegamos num ponto de maturidade em que ela precisa de regras — como o carro, o avião, o rádio"
+      - slide_8: "CTA: O que você acha? A regulação chegou cedo demais, na hora certa ou tarde demais? Comenta."
+    strength: >
+      Ativa curiosidade profunda e tende a gerar comentários ricos e salvamentos por quem se
+      identifica como pensador crítico de tecnologia. Posiciona a Sem Codar como comunidade
+      que pensa além do 'como usar IA' e questiona 'o que IA significa'. Funciona bem para
+      audiência já engajada com o tema.
+    weakness: >
+      Menor potencial de compartilhamento imediato comparado com ângulos mais acionáveis.
+      A audiência iniciante pode não ter contexto suficiente para sentir o peso da 'pergunta
+      incômoda' sem conhecer o cenário de IA mais amplo.
+
+recommended_angle: 1
+recommendation_reason: >
+  O Ângulo 1 (A Regra que Ninguém Esperava) é o mais forte para a audiência Sem Codar por
+  três razões específicas: (1) explora a dissonância cognitiva mais direta e verificável —
+  a crença de que 'rotular como IA resolve tudo' é extremamente comum nessa comunidade e está
+  errada segundo as novas regras; (2) é acionável de forma imediata — quem usa IA para criar
+  conteúdo precisa saber disso antes de outubro; (3) combina alto impacto de abertura com
+  profundidade de desenvolvimento — o hook choca, os slides explicam, a reflexão posiciona.
+  Para uma comunidade de criadores e profissionais que usam IA no dia a dia, a informação de
+  que 'transparência não basta' é simultaneamente surpreendente, relevante e urgente — a
+  combinação ideal para salvamento e compartilhamento orgânico.

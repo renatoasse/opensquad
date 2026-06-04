@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1080">
+  <title>Slide 03 — Por Que o TSE Fez Isso Agora</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg-primary: #0A0E1A;
+      --text-white: #FFFFFF;
+      --text-secondary: #8899AA;
+      --accent: #1E90FF;
+      --font-family: 'Inter', sans-serif;
+    }
+    body {
+      width: 1080px; height: 1440px; overflow: hidden;
+      font-family: var(--font-family);
+      background: var(--bg-primary);
+      color: var(--text-white);
+      display: flex; flex-direction: column;
+      justify-content: center;
+      padding: 80px 72px;
+      position: relative;
+    }
+    .label {
+      font-size: 22px; font-weight: 700; color: var(--accent);
+      text-transform: uppercase; letter-spacing: 3px;
+      margin-bottom: 40px;
+    }
+    .title {
+      font-size: 48px; font-weight: 700; color: var(--text-white);
+      line-height: 1.2; margin-bottom: 56px;
+    }
+    .comparison {
+      display: flex; flex-direction: column; gap: 0;
+    }
+    .comp-item {
+      padding: 28px 32px;
+      border-left: 4px solid var(--accent);
+      margin-bottom: 24px;
+      background: rgba(30,144,255,0.07);
+      border-radius: 0 12px 12px 0;
+    }
+    .comp-label {
+      font-size: 22px; font-weight: 700; color: var(--accent);
+      margin-bottom: 8px;
+      text-transform: uppercase; letter-spacing: 2px;
+    }
+    .comp-text {
+      font-size: 32px; font-weight: 700; color: var(--text-white);
+      line-height: 1.3;
+    }
+    .vs {
+      font-size: 28px; font-weight: 900; color: var(--text-secondary);
+      text-align: center; margin: 8px 0;
+    }
+    .conclusion {
+      margin-top: 40px;
+      font-size: 28px; font-weight: 400; color: var(--text-secondary);
+      line-height: 1.5;
+    }
+    .conclusion strong { color: var(--text-white); font-weight: 700; }
+    .slide-num {
+      position: absolute; bottom: 72px; left: 72px;
+      font-size: 22px; font-weight: 500; color: var(--text-secondary);
+    }
+    .deco-line {
+      position: absolute; top: 0; right: 0;
+      width: 4px; height: 100%;
+      background: linear-gradient(to bottom, transparent, var(--accent), transparent);
+      opacity: 0.3;
+    }
+  </style>
+</head>
+<body>
+  <div class="deco-line"></div>
+  <div class="label">O problema real</div>
+  <h2 class="title">A assimetria de<br>velocidade que<br>o TSE enfrentou</h2>
+  <div class="comparison">
+    <div class="comp-item">
+      <div class="comp-label">IA cria um deepfake</div>
+      <div class="comp-text">Minutos</div>
+    </div>
+    <div class="vs">vs</div>
+    <div class="comp-item">
+      <div class="comp-label">O deepfake viraliza</div>
+      <div class="comp-text">Horas</div>
+    </div>
+    <div class="vs">vs</div>
+    <div class="comp-item">
+      <div class="comp-label">A Justiça reage</div>
+      <div class="comp-text">Dias</div>
+    </div>
+  </div>
+  <p class="conclusion">Isso não é hipótese.<br>É a <strong>realidade técnica</strong> que motivou a lei.</p>
+  <span class="slide-num">3 / 8</span>
+</body>
+</html>

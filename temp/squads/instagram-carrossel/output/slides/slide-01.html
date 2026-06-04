@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1080">
+  <title>Slide 01 — Por Que o TSE Fez Isso Agora</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg-primary: #0A0E1A;
+      --text-white: #FFFFFF;
+      --text-secondary: #8899AA;
+      --accent: #1E90FF;
+      --font-family: 'Inter', sans-serif;
+    }
+    body {
+      width: 1080px; height: 1440px; overflow: hidden;
+      font-family: var(--font-family);
+      background: var(--bg-primary);
+      color: var(--text-white);
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: flex-start;
+      padding: 80px 72px;
+      position: relative;
+    }
+    .tag {
+      font-size: 22px; font-weight: 700; color: var(--accent);
+      text-transform: uppercase; letter-spacing: 3px;
+      margin-bottom: 40px;
+    }
+    .question {
+      font-size: 62px; font-weight: 700; color: var(--text-white);
+      line-height: 1.2; margin-bottom: 48px;
+      max-width: 880px;
+    }
+    .question .accent { color: var(--accent); }
+    .reveal {
+      font-size: 32px; font-weight: 400; color: var(--text-secondary);
+      line-height: 1.5; max-width: 820px;
+      border-left: 4px solid var(--accent);
+      padding-left: 28px;
+    }
+    .reveal strong { color: var(--text-white); font-weight: 700; }
+    .swipe {
+      position: absolute; bottom: 72px; right: 72px;
+      display: flex; align-items: center; gap: 12px;
+      font-size: 22px; font-weight: 500; color: var(--accent);
+    }
+    .swipe-arrow {
+      width: 40px; height: 40px; border-radius: 50%;
+      border: 2px solid var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+    }
+    .slide-num {
+      position: absolute; bottom: 72px; left: 72px;
+      font-size: 22px; font-weight: 500; color: var(--text-secondary);
+    }
+    .deco-line {
+      position: absolute; top: 0; right: 0;
+      width: 4px; height: 100%;
+      background: linear-gradient(to bottom, transparent, var(--accent), transparent);
+      opacity: 0.4;
+    }
+  </style>
+</head>
+<body>
+  <div class="deco-line"></div>
+  <div class="tag">Pergunta incômoda</div>
+  <h1 class="question">
+    Por que o TSE proibiu<br>
+    conteúdo de <span class="accent">IA</span><br>
+    <span class="accent">72h</span> antes<br>
+    da eleição?
+  </h1>
+  <p class="reveal">
+    A resposta revela algo que<br>
+    <strong>a maioria não quer admitir</strong><br>
+    sobre onde a IA chegou.
+  </p>
+  <div class="swipe">
+    Swipe
+    <div class="swipe-arrow">→</div>
+  </div>
+  <span class="slide-num">1 / 8</span>
+</body>
+</html>

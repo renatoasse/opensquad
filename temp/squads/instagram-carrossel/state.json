@@ -1,0 +1,20 @@
+{
+  "squad": "instagram-carrossel",
+  "status": "running",
+  "step": { "current": 5, "total": 9, "label": "step-05" },
+  "agents": [
+    { "id": "researcher", "name": "Ângela Ângulo", "icon": "🔍", "status": "done", "deliverTo": null, "desk": { "col": 1, "row": 1 } },
+    { "id": "copywriter", "name": "Carlos Carrossel", "icon": "✍️", "status": "done", "deliverTo": null, "desk": { "col": 2, "row": 1 } },
+    { "id": "image-designer", "name": "Davi Design", "icon": "🎨", "status": "working", "deliverTo": null, "desk": { "col": 1, "row": 2 } },
+    { "id": "reviewer", "name": "Vera Veredito", "icon": "✅", "status": "idle", "deliverTo": null, "desk": { "col": 2, "row": 2 } },
+    { "id": "publisher", "name": "Paula Post", "icon": "📤", "status": "idle", "deliverTo": null, "desk": { "col": 1, "row": 3 } }
+  ],
+  "handoff": {
+    "from": "copywriter",
+    "to": "image-designer",
+    "message": "Copy de 8 slides completo e otimizado — ângulo Pergunta Incômoda sobre regulação de IA do TSE",
+    "completedAt": "2026-03-03T13:55:49.000Z"
+  },
+  "startedAt": "2026-03-03T00:00:00.000Z",
+  "updatedAt": "2026-03-03T13:55:49.000Z"
+}

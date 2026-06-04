@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1080">
+  <title>Slide 04 — Por Que o TSE Fez Isso Agora</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg-primary: #0A0E1A;
+      --text-white: #FFFFFF;
+      --text-secondary: #8899AA;
+      --accent: #1E90FF;
+      --font-family: 'Inter', sans-serif;
+    }
+    body {
+      width: 1080px; height: 1440px; overflow: hidden;
+      font-family: var(--font-family);
+      background: var(--bg-primary);
+      color: var(--text-white);
+      display: flex; flex-direction: column;
+      justify-content: center;
+      padding: 80px 72px;
+      position: relative;
+    }
+    .label {
+      font-size: 22px; font-weight: 700; color: var(--accent);
+      text-transform: uppercase; letter-spacing: 3px;
+      margin-bottom: 40px;
+    }
+    .quote-block {
+      border-left: 6px solid var(--accent);
+      padding: 32px 36px;
+      background: rgba(30,144,255,0.08);
+      border-radius: 0 16px 16px 0;
+      margin-bottom: 48px;
+    }
+    .quote-text {
+      font-size: 34px; font-weight: 400; color: var(--text-white);
+      line-height: 1.5; font-style: italic;
+    }
+    .quote-attr {
+      margin-top: 20px;
+      font-size: 22px; color: var(--accent); font-weight: 700;
+    }
+    .conclusion {
+      font-size: 30px; font-weight: 400; color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    .conclusion strong { color: var(--text-white); font-weight: 700; }
+    .highlight-box {
+      margin-top: 40px;
+      padding: 24px 32px;
+      border: 1px solid rgba(30,144,255,0.3);
+      border-radius: 12px;
+      font-size: 28px; font-weight: 700; color: var(--accent);
+      line-height: 1.4;
+    }
+    .slide-num {
+      position: absolute; bottom: 72px; left: 72px;
+      font-size: 22px; font-weight: 500; color: var(--text-secondary);
+    }
+    .deco-line {
+      position: absolute; top: 0; right: 0;
+      width: 4px; height: 100%;
+      background: linear-gradient(to bottom, transparent, var(--accent), transparent);
+      opacity: 0.3;
+    }
+  </style>
+</head>
+<body>
+  <div class="deco-line"></div>
+  <div class="label">O princípio do dano irreversível</div>
+  <div class="quote-block">
+    <p class="quote-text">"Excluir surpresas indesejadas no período mais crítico do processo eleitoral."</p>
+    <p class="quote-attr">Min. Kássio Nunes Marques — relator das resoluções</p>
+  </div>
+  <p class="conclusion">
+    Em <strong>72 horas</strong>, uma mentira de IA pode<br>
+    definir uma eleição —<br>
+    antes de qualquer desmentido<br>
+    chegar à maioria dos eleitores.
+  </p>
+  <div class="highlight-box">
+    Alguns danos<br>não têm volta.
+  </div>
+  <span class="slide-num">4 / 8</span>
+</body>
+</html>

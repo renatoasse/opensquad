@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1080">
+  <title>Slide 07 — Reflexão</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg-primary: #0A0E1A;
+      --bg-reflection: #0D1B35;
+      --text-white: #FFFFFF;
+      --text-secondary: #8899AA;
+      --accent: #1E90FF;
+      --font-family: 'Inter', sans-serif;
+    }
+    body {
+      width: 1080px; height: 1440px; overflow: hidden;
+      font-family: var(--font-family);
+      background: var(--bg-reflection);
+      color: var(--text-white);
+      display: flex; flex-direction: column;
+      justify-content: center;
+      padding: 80px 72px;
+      position: relative;
+    }
+    .reflection-bar {
+      width: 80px; height: 6px;
+      background: var(--accent);
+      border-radius: 3px;
+      margin-bottom: 48px;
+    }
+    .label {
+      font-size: 22px; font-weight: 700; color: var(--accent);
+      text-transform: uppercase; letter-spacing: 3px;
+      margin-bottom: 40px;
+    }
+    .main-text {
+      font-size: 44px; font-weight: 700; color: var(--text-white);
+      line-height: 1.3; margin-bottom: 48px;
+    }
+    .analogy-list { display: flex; flex-direction: column; gap: 24px; }
+    .analogy-item {
+      display: flex; gap: 20px; align-items: center;
+    }
+    .icon-circle {
+      min-width: 56px; height: 56px; border-radius: 50%;
+      background: rgba(30,144,255,0.15);
+      border: 1px solid rgba(30,144,255,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px;
+    }
+    .analogy-text { font-size: 28px; color: var(--text-secondary); line-height: 1.4; }
+    .analogy-text strong { color: var(--text-white); font-weight: 700; }
+    .final-line {
+      margin-top: 48px;
+      padding-top: 32px;
+      border-top: 1px solid rgba(30,144,255,0.3);
+      font-size: 30px; font-weight: 700; color: var(--accent);
+      line-height: 1.4;
+    }
+    .slide-num {
+      position: absolute; bottom: 72px; left: 72px;
+      font-size: 22px; font-weight: 500; color: var(--text-secondary);
+    }
+  </style>
+</head>
+<body>
+  <div class="reflection-bar"></div>
+  <div class="label">Reflexão</div>
+  <h2 class="main-text">Regulação não significa<br>que IA é ruim.</h2>
+  <div class="analogy-list">
+    <div class="analogy-item">
+      <div class="icon-circle">🚗</div>
+      <p class="analogy-text">O <strong>carro</strong> precisou de habilitação<br>e sinalização</p>
+    </div>
+    <div class="analogy-item">
+      <div class="icon-circle">✈️</div>
+      <p class="analogy-text">O <strong>avião</strong> precisou de controle<br>de tráfego aéreo</p>
+    </div>
+    <div class="analogy-item">
+      <div class="icon-circle">📻</div>
+      <p class="analogy-text">O <strong>rádio</strong> precisou de<br>concessão de frequência</p>
+    </div>
+  </div>
+  <p class="final-line">
+    Toda tecnologia que muda o mundo<br>
+    chega a esse ponto.<br>
+    A IA chegou ao dela.
+  </p>
+  <span class="slide-num">7 / 8</span>
+</body>
+</html>
