@@ -1,0 +1,7 @@
+tests/
+test-results/
+temp/squads/
+.claude/settings.local.json
+dashboards/test-results/
+docs/
+.github/

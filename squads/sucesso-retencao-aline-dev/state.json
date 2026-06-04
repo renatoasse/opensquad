@@ -1,0 +1,23 @@
+{
+  "squad": "sucesso-retencao",
+  "status": "idle",
+  "step": {
+    "current": 0,
+    "total": 9,
+    "label": ""
+  },
+  "agents": [
+    {"id": "kelly-qa","name": "Kelly QA","icon": "✅","status": "idle","desk": {"col":1,"row":1}},
+    {"id": "ravi-suporte","name": "Ravi Suporte","icon": "🛡️","status": "idle","desk": {"col":2,"row":1}},
+    {"id": "alex-auditor","name": "Alex Auditor","icon": "⚡","status": "idle","desk": {"col":3,"row":1}},
+    {"id": "celina-cs","name": "Celina CS","icon": "💎","status": "idle","desk": {"col":4,"row":1}},
+    {"id": "ronaldo-analista-roi","name": "Ronaldo ROI","icon": "📈","status": "idle","desk": {"col":1,"row":2}},
+    {"id": "gael-killswitch","name": "Gael Kill-Switch","icon": "🔒","status": "idle","desk": {"col":2,"row":2}},
+    {"id": "lavinis-estrategista","name": "Lavínis Expansão","icon": "🚀","status": "idle","desk": {"col":3,"row":2}},
+    {"id": "maite-concierge","name": "Maitê Concierge","icon": "🤝","status": "idle","desk": {"col":4,"row":2}},
+    {"id": "georgia-relatorio","name": "Geórgia Gerente","icon": "📊","status": "idle","desk": {"col":1,"row":3}}
+  ],
+  "handoff": null,
+  "startedAt": null,
+  "updatedAt": "2026-06-03T21:00:00Z"
+}

@@ -1,0 +1,8 @@
+{
+  "name": "opensquad-project",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "playwright": "^1.58.2"
+  }
+}

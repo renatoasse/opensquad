@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "rube": {
+      "type": "http",
+      "url": "https://rube.app/mcp"
+    },
+    "canva": {
+      "type": "http",
+      "url": "https://mcp.canva.com/mcp"
+    }
+  },
+  "enabledMcpjsonServers": [
+    "playwright"
+  ]
+}

@@ -1,0 +1,65 @@
+# Squad Configuration: Onboarding VIP
+# Version: 2.1.0
+
+name: "onboarding-vip"
+description: "Automatiza a entrega técnica imediata após confirmação de pagamento. Para Setup R$7.100: Kevin cria repo + boas-vindas, Anderson gera engine-config + roadmap. Para Marketplace R$4.210: Helena entrega código + Replit AS-IS. Gael audita segurança continuamente. Onboarding VIP — entrega self-service com excelência técnica."
+type: "onboarding_automation"
+status: "active"
+
+# Triggers
+schedule:
+  cron: "" # On-demand via Hotmart webhook
+
+# Pipeline Definition
+pipeline:
+  steps:
+    - id: "webhook_checkpoint"
+      type: "checkpoint"
+      task: "Receber e validar webhook de pagamento aprovado da Hotmart"
+      required: true
+
+    - id: "provisionamento_setup"
+      agent: "Kevin Keeper"
+      task: "Criar repositório privado GitHub e enviar e-mail de boas-vindas VIP (Setup R$7.100)"
+      required: false
+
+    - id: "entrega_marketplace"
+      agent: "Helena Eng"
+      task: "Entregar código do Marketplace R$4.210: repositório GitHub + ambiente Replit AS-IS + links de acesso"
+      required: false
+
+    - id: "form_checkpoint"
+      type: "checkpoint"
+      task: "Aguardar preenchimento do formulário técnico no app Aline Builds (Setup R$7.100)"
+      required: false
+
+    - id: "engine_config"
+      agent: "Anderson Arch"
+      task: "Processar formulário técnico e gerar engine-config.json + roadmap MVP"
+      required: false
+
+    - id: "seguranca_auditoria"
+      agent: "Gael Auditor"
+      task: "Auditar Firestore Security Rules, logs e bloquear tentativas de fraude"
+      required: true
+
+# Permissions & Data
+storage:
+  path: "squads/express-onboarding-aline-dev/pipeline/output/"
+  retention_days: 90
+
+skills:
+  - github_api
+  - email_sender
+  - web_fetch
+  - telegram-bridge
+
+system_context:
+  company: "_opensquad/_memory/company.md"
+  preferences: "_opensquad/_memory/preferences.md"
+  user: "_opensquad/_memory/user.md"
+  agents: "_opensquad/_memory/agents.md"
+  memory: "_opensquad/_memory/memory.md"
+  claude: "_opensquad/_memory/claude.md"
+  hotmart: "_opensquad/_memory/hotmart_rules.md"
+  growth: "_opensquad/_memory/growth_trends_rules.md"

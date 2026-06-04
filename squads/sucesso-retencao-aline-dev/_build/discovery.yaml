@@ -1,0 +1,26 @@
+squad_code: "sucesso-retencao-aline-dev"
+purpose: "Customer Success e manutenção do licenciamento mensal de R$ 563,00 através da comprovação de ROI e auditorias técnicas ativas."
+domain: "automation"
+
+company:
+  name: "Aline Builds"
+  tone: "Parceria estratégica, focado em ROI e performance técnica"
+  products: "Licenciamento de Engine, Elite Onboarding"
+
+language: "Português (Brasil)"
+
+context:
+  trigger: "Agendamento semanal/mensal (Cron) ou alertas de Webhook"
+  systems: "Logs da Engine, Stripe, Integrações (WhatsApp/Insta), Slack/WhatsApp (alertas), E-mail"
+  audience: "Clientes de licenciamento ativo (R$ 563/mês)"
+  tone: "Parceiro estratégico que comprova valor continuamente"
+
+tools_needed:
+  - "email_sender"
+  - "web_fetch"
+  - "slack_notifier"
+
+investigation:
+  enabled: false
+
+target_formats: []

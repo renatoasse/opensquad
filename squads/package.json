@@ -1,0 +1,13 @@
+{
+  "name": "opensquad-project",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dashboard": "npm run dev --prefix dashboard --",
+    "dashboard:build": "npm run build --prefix dashboard",
+    "dashboard:preview": "npm run preview --prefix dashboard --"
+  },
+  "dependencies": {
+    "playwright": "^1.58.2"
+  }
+}

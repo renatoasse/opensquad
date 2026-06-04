@@ -1,0 +1,30 @@
+steps:
+  - id: step-01
+    name: "Gatilho de Confirmação (Webhook)"
+    type: "checkpoint"
+    description: "Recebe e valida webhook de pagamento aprovado da Hotmart."
+
+  - id: step-02
+    name: "Provisionamento Setup R$7.100"
+    agent: kevin-keeper
+    file: "steps/step-02-provisionamento.md"
+
+  - id: step-03
+    name: "Entrega Marketplace R$4.210"
+    agent: helena-eng
+    file: "steps/step-03-marketplace.md"
+
+  - id: step-04
+    name: "Aguardar Preenchimento Técnico"
+    type: "checkpoint"
+    description: "Aguarda entrada do formulário técnico no app Aline Builds."
+
+  - id: step-05
+    name: "Configuração da Engine White-Label"
+    agent: anderson-arch
+    file: "steps/step-04-engine-config.md"
+
+  - id: step-06
+    name: "Auditoria de Segurança"
+    agent: gael-auditor
+    file: "steps/step-05-security-audit.md"

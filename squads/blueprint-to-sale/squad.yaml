@@ -1,0 +1,95 @@
+# Squad Configuration: Blueprint-to-Sale Automation
+# Versão Sênior (Refatorada via OpenSquad Architect)
+# Version: 3.2.0
+
+name: "blueprint-to-sale"
+description: >
+  Automação end-to-end: Do blueprint Firestore à venda e entrega do repo GitHub,
+  com triagem inteligente de templates, upsell High-Ticket e recrutamento de afiliados.
+  Otimizada para atuar sob demanda quando um novo blueprint é detectado ou webhook da Hotmart é recebido.
+type: "sales_automation"
+status: "active"
+
+# Trigger: Novo blueprint no Firestore (Atuando apenas quando gerado)
+schedule:
+  trigger: "event"
+  event_source: "firestore_query"
+  timezone: "America/Sao_Paulo"
+  retrigger_threshold: 0 # Evita re-processar o mesmo ID
+
+# Data Source: Firebase Firestore
+data_source:
+  type: "firestore"
+  project_id: "${FIREBASE_PROJECT_ID}"
+  collection: "${FIRESTORE_COLLECTION}"
+  query:
+    order_by: "createdAt"
+    direction: "desc"
+    limit: 1
+    # Filtro apenas para itens que ainda não foram processados pela automação
+    where:
+      - field: "automation_status"
+        operator: "!="
+        value: "processed"
+  fields_to_extract:
+    - "userId"
+    - "userEmail"
+    - "userName"
+    - "userGithub"
+    - "idea"
+    - "appName"
+    - "problem"
+    - "audience"
+    - "features"
+    - "createdAt"
+
+# Integrações Base
+integrations:
+  github:
+    owner: "${GITHUB_OWNER}"
+    token: "${GITHUB_PAT}"
+    repo_prefix: "alinebuilds"
+    visibility: "private"
+  firebase:
+    project_id: "${FIREBASE_PROJECT_ID}"
+    collection: "${FIRESTORE_COLLECTION}"
+  email:
+    service: "${EMAIL_SERVICE}"
+    api_key: "${EMAIL_API_KEY}"
+    from: "${EMAIL_FROM}"
+  payment:
+    price: "R$ 4.210,00"
+    price_value: 4210
+    currency: "BRL"
+    webhook_secret: "${HOTMART_WEBHOOK_SECRET}"
+    link: "${PAYMENT_LINK_BASE}"
+
+# Pipeline definition
+pipeline_file: "pipeline/pipeline.yaml"
+
+# Storage
+storage:
+  path: "squads/blueprint-to-sale/pipeline/output/"
+  retention_days: 365
+
+# Skills Carregadas
+skills:
+  - web_search
+  - web_fetch
+  - github_api
+  - email_sender
+  - i18n_translator
+  - payment_webhook
+  - telegram-bridge
+
+# Contexto do Sistema
+system_context:
+  company: "_opensquad/_memory/company.md"
+  preferences: "_opensquad/_memory/preferences.md"
+  user: "_opensquad/_memory/user.md"
+  agents: "_opensquad/_memory/agents.md"
+  memory: "_opensquad/_memory/memory.md"
+  claude: "_opensquad/_memory/claude.md"
+  hotmart: "_opensquad/_memory/hotmart_rules.md"
+  growth: "_opensquad/_memory/growth_trends_rules.md"
+  sdr: "_opensquad/_memory/sdr_prompt.md"

@@ -1,0 +1,32 @@
+squad:
+  code: "prospeccao-b2b-sp"
+  name: "Prospecção B2B São Paulo"
+  description: "Squad de Growth & Social Selling B2B. Sextas-feiras: prospecta leads que interagiram com o conteúdo do squad Criador de Conteúdo no LinkedIn e Twitter, usando Custo de Oportunidade e Método CLAUDE para converter em reuniões e vendas."
+
+schedule:
+  cron: "0 9 * * 5"
+  timezone: "America/Sao_Paulo"
+
+skills:
+  - web_search
+  - web_fetch
+  - telegram-bridge
+
+data:
+  - pipeline/data/research-brief.md
+  - pipeline/data/domain-framework.md
+  - pipeline/data/quality-criteria.md
+  - pipeline/data/output-examples.md
+  - pipeline/data/anti-patterns.md
+  - pipeline/data/tone-of-voice.md
+  - pipeline/data/telegram-config.yaml
+
+system_context:
+  company: "_opensquad/_memory/company.md"
+  preferences: "_opensquad/_memory/preferences.md"
+  user: "_opensquad/_memory/user.md"
+  agents: "_opensquad/_memory/agents.md"
+  memory: "_opensquad/_memory/memory.md"
+  claude: "_opensquad/_memory/claude.md"
+  hotmart: "_opensquad/_memory/hotmart_rules.md"
+  growth: "_opensquad/_memory/growth_trends_rules.md"

@@ -1,0 +1,28 @@
+steps:
+  - id: step-01
+    name: "Extração de Leads de Engajamento Social"
+    file: "steps/step-01-extracao.md"
+  - id: step-02
+    name: "Validar Leads"
+    file: "steps/step-02-validar-leads.md"
+  - id: step-03
+    name: "Diagnóstico de Oportunidade"
+    file: "steps/step-03-diagnostico.md"
+  - id: step-04
+    name: "Criação de Copy (CLAUDE)"
+    file: "steps/step-04-copy-claude.md"
+  - id: step-05
+    name: "Geração de Oferta Agressiva (Afiliados)"
+    file: "steps/step-05-oferta-afiliado.md"
+  - id: step-06
+    name: "Aprovar Mensagens"
+    file: "steps/step-06-aprovar-mensagens.md"
+  - id: step-07
+    name: "Revisão e Setup de Disparo"
+    file: "steps/step-07-revisao-e-setup.md"
+  - id: step-08
+    name: "Aprovar Disparo"
+    file: "steps/step-08-aprovar-disparo.md"
+  - id: step-09
+    name: "Relatório de Prospecção B2B"
+    file: "steps/step-09-relatorio-b2b.md"

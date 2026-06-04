@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "notebooklm": {
+      "command": "/home/alinedeolivgs/.local/bin/notebooklm-mcp",
+      "args": [],
+      "env": {}
+    }
+  }
+}

@@ -1,0 +1,27 @@
+squad_code: "onboarding-vip"
+purpose: "Automatizar a entrega técnica imediata após confirmação de pagamento. Setup R$7.100: Kevin + Anderson. Marketplace R$4.210: Helena. Gael audita segurança continuamente."
+domain: "automation"
+
+company:
+  name: "Aline Builds"
+  tone: "Innovation-led, pragmatic, engineering-first"
+  products: "Arquiteto MVP, Marketplace de Código, Engine White-Label, Agentes de Automação"
+
+language: "Português (Brasil)"
+
+context:
+  trigger: "Webhook Hotmart"
+  systems: "Hotmart, GitHub API, E-mail (email_sender), Replit API, Firestore, Aline Builds (Formulário)"
+  frequency: "on demand"
+  audience: "Clientes Setup R$7.100 e Marketplace R$4.210"
+
+tools_needed:
+  - "github_api"
+  - "email_sender"
+  - "replit_api"
+  - "firestore_security"
+
+investigation:
+  enabled: false
+
+target_formats: []

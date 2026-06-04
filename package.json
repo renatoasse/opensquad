@@ -1,0 +1,53 @@
+{
+  "name": "opensquad",
+  "version": "0.1.14",
+  "description": "Multi-agent orchestration framework — create AI squads that work together",
+  "type": "module",
+  "bin": {
+    "opensquad": "bin/opensquad.js"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "lint": "eslint src/ bin/ tests/",
+    "version": "node -e \"require('fs').writeFileSync('templates/_opensquad/.opensquad-version', require('./package.json').version + '\\n')\" && git add templates/_opensquad/.opensquad-version"
+  },
+  "keywords": [
+    "claude-code",
+    "ai-agents",
+    "multi-agent",
+    "orchestration",
+    "squads"
+  ],
+  "author": "Renato Asse (https://github.com/renatoasse)",
+  "homepage": "https://github.com/renatoasse/opensquad#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/renatoasse/opensquad.git"
+  },
+  "bugs": {
+    "url": "https://github.com/renatoasse/opensquad/issues"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "agents/",
+    "skills/",
+    "templates/",
+    "_opensquad/",
+    "dashboard/"
+  ],
+  "dependencies": {
+    "@inquirer/checkbox": "^5.1.0",
+    "@inquirer/input": "^5.0.0",
+    "@inquirer/select": "^5.1.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.0.3",
+    "globals": "^17.4.0"
+  }
+}

@@ -1,0 +1,8 @@
+agent_id,name,role,icon,skills
+barbara-blueprint,Barbara Blueprint,Especialista em Fechamento Rápido,⚡,telegram-bridge
+leandro-funil,Leandro Funil,Estrategista de Funil,🔄,telegram-bridge
+eleonora-sdr,Eleonora SDR,SDR de Triagem,🔍,"web_search,web_fetch,telegram-bridge"
+jose-closer,José Closer,Fechador High-Ticket,🎯,"web_search,telegram-bridge"
+flavio-fechador,Flávio Fechador,Vendedor Visionário,🔥,telegram-bridge
+gustavo-gestor,Gustavo Gestor,Gestor de Afiliados,🤝,telegram-bridge
+georgia-gerente,Geórgia Gerente,Relatora de Vendas & Conversão,📊,telegram-bridge

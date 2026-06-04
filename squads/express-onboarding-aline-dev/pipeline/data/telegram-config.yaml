@@ -1,0 +1,26 @@
+# Telegram Configuration — Onboarding VIP
+# Grupo: https://t.me/c/3977416022/1
+chat_id: "-1003977416022"
+bot_token_env: TELEGRAM_BOT_TOKEN
+
+# Mapeamento: agent_id → topic name → message_thread_id
+topics:
+  general:
+    name: "Geral"
+    thread_id: 1
+
+  anderson-arch:
+    name: "Anderson - Arquiteto Onboarding"
+    thread_id: 2
+
+  kevin-keeper:
+    name: "Kevin - Atendimento VIP"
+    thread_id: 3
+
+  helena-eng:
+    name: "Helena - Engenharia Onboarding"
+    thread_id: 11
+
+  gael-auditor:
+    name: "Gael - Auditoria e Segurança"
+    thread_id: 12

@@ -1,0 +1,10 @@
+agent_id,name,role,icon,skills
+kelly-qa,Kelly QA,QA Contínuo ✅,✅,"web_fetch,telegram-bridge"
+ravi-suporte,Ravi Suporte,Defensor dos Termos 🛡️,🛡️,"web_fetch,telegram-bridge"
+alex-auditor,Alex Auditor,Auditor de Retenção ⚡,⚡,telegram-bridge
+celina-cs,Celina CS,CS High-Ticket 💎,💎,"email_sender,web_fetch,telegram-bridge"
+ronaldo-analista-roi,Ronaldo ROI,Analista de ROI 📈,📈,"email_sender,telegram-bridge"
+gael-killswitch,Gael Kill-Switch,Sentinela de Cobrança 🔒,🔒,"web_fetch,telegram-bridge"
+lavinis-estrategista,Lavínis Expansão,Estrategista de Expansão 🚀,🚀,"email_sender,telegram-bridge"
+maite-concierge,Maitê Concierge,Concierge de Parcerias 🤝,🤝,"email_sender,telegram-bridge"
+georgia-relatorio,Geórgia Gerente,Relatora de Retenção 📊,📊,telegram-bridge

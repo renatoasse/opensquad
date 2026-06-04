@@ -1,0 +1,112 @@
+# Dashboard Configuration — equipe_Aline Dev
+# Version: 1.0.0
+# Lido pelo runner para gerar o Command Center visual
+
+dashboard:
+  title: "Command Center — equipe_Aline Dev"
+  theme: "dark-modern"
+  refresh: "on_run_complete"
+  output: "_opensquad/dashboard.html"
+
+data_sources:
+  squads:
+    path: "squads/*/state.json"
+    fallback: "squads/*/pipeline/pipeline.yaml"
+  agents:
+    path: "squads/*/squad-party.csv"
+  memory:
+    company: "_opensquad/_memory/company.md"
+    agents: "_opensquad/_memory/agents.md"
+    memory: "_opensquad/_memory/memory.md"
+    hotmart: "_opensquad/_memory/hotmart_rules.md"
+    claude: "_opensquad/_memory/claude.md"
+
+sections:
+  - id: "stats_bar"
+    title: "Estatísticas Rápidas"
+    widgets:
+      - type: "counter"
+        label: "Total Squads"
+        value: 6
+      - type: "counter"
+        label: "Total Agentes"
+        value: 53
+      - type: "counter"
+        label: "Agentes Ativos"
+        field: "agents[?status=='working'].count()"
+      - type: "counter"
+        label: "Meta High-Ticket"
+        current: "firestore.count('clients', {type:'high_ticket'})"
+        target: 52
+      - type: "revenue"
+        label: "Receita Potencial"
+        formula: "high_ticket_clients * (7100 + 520*12)"
+
+  - id: "squad_status"
+    title: "Squads & Agentes"
+    type: "grid"
+    layout: "2x3"
+    card:
+      fields:
+        - name: "Status"
+          icon_map: {"idle":"⏸","running":"▶","completed":"✅"}
+        - name: "Progresso"
+          type: "progress_bar"
+        - name: "Agentes"
+          type: "icon_grid"
+          data_source: "state.agents"
+          status_colors: {"idle":"#334155","working":"#22c55e","done":"#818cf8"}
+
+  - id: "pipeline_flow"
+    title: "Fluxo de Pipeline"
+    type: "sequencer"
+    show_steps: true
+
+  - id: "integrations"
+    title: "Conectividade"
+    cards:
+      - name: "Hotmart"
+        icon: "🔥"
+        status: "active"
+      - name: "Firestore"
+        icon: "🗄️"
+        status: "active"
+      - name: "Telegram"
+        icon: "✈️"
+        status: "active"
+      - name: "Infraestrutura"
+        icon: "💻"
+        status: "local"
+      - name: "LLMs"
+        icon: "🤖"
+        status: "active"
+        detail: "7 modelos configurados"
+
+  - id: "finops"
+    title: "Monitoramento FinOps"
+    type: "gauge_grid"
+    data_source: "squads/llm-routing.yaml"
+    threshold: 520.00
+    currency: "BRL"
+    group_by: "llm"
+
+  - id: "growth_target"
+    title: "Meta 52 Clientes (Jan/2027)"
+    type: "progress_bar"
+    current: "firestore.count('clients', {type:'high_ticket'})"
+    target: 52
+    milestones:
+      - value: 7
+        label: "Mês 1"
+      - value: 14
+        label: "Mês 2"
+      - value: 21
+        label: "Mês 3"
+      - value: 28
+        label: "Mês 4"
+      - value: 35
+        label: "Mês 5"
+      - value: 42
+        label: "Mês 6"
+      - value: 52
+        label: "Jan/2027"

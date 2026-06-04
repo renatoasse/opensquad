@@ -1,0 +1,19 @@
+# Environment variables (NEVER commit secrets)
+.env
+*.env
+!.env.example
+
+# Node
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Pipeline outputs (generated at runtime)
+squads/*/pipeline/output/*.md
+!squads/*/pipeline/output/.gitkeep.md

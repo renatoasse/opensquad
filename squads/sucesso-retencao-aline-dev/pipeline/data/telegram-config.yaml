@@ -1,0 +1,46 @@
+# Telegram Configuration — Sucesso e Retenção
+# Grupo: https://t.me/c/4298261572/1
+chat_id: "-1004298261572"
+bot_token_env: TELEGRAM_BOT_TOKEN
+
+# Mapeamento: agent_id → topic name → message_thread_id
+topics:
+  general:
+    name: "Geral"
+    thread_id: 1
+
+  alex-auditor:
+    name: "Alex - Auditor de Retenção"
+    thread_id: 2
+
+  kelly-qa:
+    name: "Kelly - QA Contínuo"
+    thread_id: 3
+
+  lavinis-estrategista:
+    name: "Lavínis - Estrategista de Expansão"
+    thread_id: 4
+
+  ronaldo-analista-roi:
+    name: "Ronaldo - Analista de ROI"
+    thread_id: 5
+
+  ravi-suporte:
+    name: "Ravi - Defensor dos Termos"
+    thread_id: 15
+
+  celina-cs:
+    name: "Celina - CS"
+    thread_id: 16
+
+  gael-killswitch:
+    name: "Gael - Kill-Switch"
+    thread_id: 17
+
+  maite-concierge:
+    name: "Maitê - Concierge de Parcerias"
+    thread_id: 18
+
+  georgia-relatorio:
+    name: "Geórgia - Relatório"
+    thread_id: 28

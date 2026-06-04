@@ -1,0 +1,81 @@
+# Squad Configuration: Sucesso e Retenção
+# Version: 2.2.0
+
+name: "sucesso-retencao"
+description: "Gestão completa do cliente pós-venda: Kelly monitora integrações, Ravi defende os Termos e tria suporte, Alex audita performance, Celina prova ROI semanal para high-ticket, Ronaldo gera relatório financeiro, Gael gerencia kill-switch por inadimplência, Lavínis faz upsell por uso, Maitê oferece upgrades por fidelidade. Reduz reembolsos, retém recorrência de R$ 520 e expande faturamento."
+type: "success_retention"
+status: "active"
+
+# Triggers
+schedule:
+  cron: "0 10 * * 1" # Segunda às 10:00 (BRT)
+  timezone: "America/Sao_Paulo"
+
+# Pipeline Definition
+pipeline:
+  steps:
+    - id: "monitoramento_integracoes"
+      agent: "Kelly QA"
+      task: "Testar webhooks e integrações vitais (Stripe, WhatsApp, Instagram)"
+      required: true
+
+    - id: "triagem_suporte"
+      agent: "Ravi Suporte"
+      task: "Interceptar dúvidas de suporte, defender Termos de Uso e bloquear reembolsos indevidos"
+      required: true
+
+    - id: "auditoria_performance"
+      agent: "Alex Auditor"
+      task: "Auditar Core Web Vitals, tokens e gargalos técnicos"
+      required: true
+
+    - id: "relatorio_cs"
+      agent: "Celina CS"
+      task: "Varrer logs_execucao da VPS e enviar minirrelatório de eficiência para clientes High-Ticket"
+      required: true
+
+    - id: "relatorio_roi"
+      agent: "Ronaldo ROI"
+      task: "Gerar relatório semanal de ROI com horas economizadas vs mensalidade"
+      required: true
+
+    - id: "kill_switch"
+      agent: "Gael Kill-Switch"
+      task: "Verificar inadimplência, notificar cliente e suspender licença se necessário"
+      required: true
+
+    - id: "analise_upsell"
+      agent: "Lavínis Expansão"
+      task: "Detectar clientes com >80% de uso e disparar upsell"
+      required: true
+
+    - id: "concierge_parcerias"
+      agent: "Maitê Concierge"
+      task: "Oferecer upgrades e novos módulos para clientes com 3 ou 6 meses de fidelidade"
+      required: true
+
+    - id: "relatorio_retencao"
+      agent: "Geórgia Gerente"
+      task: "Compilar relatório semanal de retenção: saúde, suporte, ROI, kill-switch, upsell e concierge"
+      required: true
+
+# Permissions & Data
+storage:
+  path: "squads/sucesso-retencao-aline-dev/pipeline/output/"
+  retention_days: 90
+
+skills:
+  - web_fetch
+  - email_sender
+  - telegram-bridge
+
+system_context:
+  company: "_opensquad/_memory/company.md"
+  preferences: "_opensquad/_memory/preferences.md"
+  user: "_opensquad/_memory/user.md"
+  agents: "_opensquad/_memory/agents.md"
+  memory: "_opensquad/_memory/memory.md"
+  claude: "_opensquad/_memory/claude.md"
+  hotmart: "_opensquad/_memory/hotmart_rules.md"
+  growth: "_opensquad/_memory/growth_trends_rules.md"
+  suporte: "_opensquad/_memory/suporte_prompt.md"

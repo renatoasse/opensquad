@@ -1,0 +1,33 @@
+# Telegram Configuration — Prospecção B2B SP
+# Grupo: https://t.me/c/3912762692/1
+chat_id: "-1003912762692"
+bot_token_env: TELEGRAM_BOT_TOKEN
+
+topics:
+  general:
+    name: "Geral"
+    thread_id: 1
+
+  tati-tracker:
+    name: "Tati Tracker"
+    thread_id: 7
+
+  leo-logica:
+    name: "Léo Lógica"
+    thread_id: 8
+
+  caio-copy:
+    name: "Caio Copy"
+    thread_id: 9
+
+  natan-negociador:
+    name: "Natan Negociador"
+    thread_id: 10
+
+  marcelo-validador:
+    name: "Marcelo Validador"
+    thread_id: 11
+
+  georgia-gerente:
+    name: "Georgia Gerente"
+    thread_id: 12

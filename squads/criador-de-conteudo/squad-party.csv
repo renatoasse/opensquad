@@ -1,0 +1,13 @@
+id,displayName,icon,path,role,skills
+ricardo-rastreador,Ricardo Rastreador,🔍,./squads/criador-de-conteudo/ricardo-rastreador.agent.md,Especialista em busca e filtragem no Gmail,"gmail-automation,web_fetch"
+leo-logica,Léo Lógica,🧠,./squads/criador-de-conteudo/leo-logica.agent.md,Mentor de Negócios & Estrategista SaaS,"web_search,web_fetch"
+elias-estrategia,Elias Estratégia,🎯,./squads/criador-de-conteudo/elias-estrategia.agent.md,Estrategista de Conteúdo,"web_search,web_fetch"
+lucia-linkedin,Lúcia Linkedin,✍️,./squads/criador-de-conteudo/lucia-linkedin.agent.md,Copywriter LinkedIn,web_search
+tulio-tuites,Túlio Tuítes,🐦,./squads/criador-de-conteudo/tulio-tuites.agent.md,Ghostwriter Twitter/X,web_search
+caio-copy,Caio Copy,✍️,./squads/criador-de-conteudo/caio-copy.agent.md,Senior Copywriter & Ghostwriter,web_search
+daniel-design,Daniel Design,🎨,./squads/criador-de-conteudo/daniel-design.agent.md,Diretor de Arte Visual,"canva-automation,web_fetch"
+vera-veredito,Vera Veredito,⚖️,./squads/criador-de-conteudo/vera-veredito.agent.md,Editora-Chefe & Revisora Crítica,
+georgia-gerente,Geórgia Gerente,📊,./squads/criador-de-conteudo/georgia-gerente.agent.md,Growth & Social Selling Manager,"web_search,telegram-bridge"
+sofia-social,Sofia Social,📣,./squads/criador-de-conteudo/sofia-social.agent.md,Social Media Manager & Publisher,"linkedin-cli,twitter-automation,google-business-automation"
+teresa-tendencias,Teresa Tendências,🔮,./squads/criador-de-conteudo/teresa-tendencias.agent.md,Estrategista de Tendências,"web_search,web_fetch,telegram-bridge"
+aurora-autoridade,Aurora Autoridade,🌟,./squads/criador-de-conteudo/aurora-autoridade.agent.md,Copywriter de Autoridade & Redes,"web_search,telegram-bridge"

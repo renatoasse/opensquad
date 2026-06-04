@@ -1,0 +1,47 @@
+# Pipeline Definition: Mentor Léo LinkedIn
+# Lido pelo runner.pipeline.md durante a execução
+
+steps:
+  - file: "01-gmail-scout.md"
+    id: "gmail_scout"
+    execution: inline
+
+  - file: "02-mentor-diagnosis.md"
+    id: "mentor_diagnosis"
+    execution: inline
+
+  - file: "03-checkpoint-review.md"
+    id: "checkpoint_review"
+    type: checkpoint
+
+  - file: "04-content-strategy.md"
+    id: "content_strategy"
+    execution: inline
+
+  - file: "05-linkedin-copy.md"
+    id: "linkedin_copy"
+    execution: inline
+
+  - file: "06-twitter-ghost.md"
+    id: "twitter_ghost"
+    execution: inline
+
+  - file: "07-copy-craft.md"
+    id: "copy_craft"
+    execution: inline
+
+  - file: "08-design-visual.md"
+    id: "design_visual"
+    execution: inline
+
+  - file: "09-final-review.md"
+    id: "final_review"
+    execution: inline
+
+  - file: "10-multi-publish.md"
+    id: "multi_publish"
+    execution: inline
+
+  - file: "11-growth-report.md"
+    id: "growth_report"
+    execution: inline

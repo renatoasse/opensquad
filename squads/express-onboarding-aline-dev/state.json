@@ -1,0 +1,54 @@
+{
+  "squad": "onboarding-vip",
+  "status": "idle",
+  "step": {
+    "current": 0,
+    "total": 6,
+    "label": ""
+  },
+  "agents": [
+    {
+      "id": "kevin-keeper",
+      "name": "Kevin Keeper",
+      "icon": "🎩",
+      "status": "idle",
+      "desk": {
+        "col": 1,
+        "row": 1
+      }
+    },
+    {
+      "id": "helena-eng",
+      "name": "Helena Eng",
+      "icon": "⚙️",
+      "status": "idle",
+      "desk": {
+        "col": 2,
+        "row": 1
+      }
+    },
+    {
+      "id": "anderson-arch",
+      "name": "Anderson Arch",
+      "icon": "📐",
+      "status": "idle",
+      "desk": {
+        "col": 1,
+        "row": 2
+      }
+    },
+    {
+      "id": "gael-auditor",
+      "name": "Gael Auditor",
+      "icon": "🛡️",
+      "status": "idle",
+      "desk": {
+        "col": 2,
+        "row": 2
+      }
+    }
+  ],
+  "handoff": null,
+  "startedAt": null,
+  "updatedAt": "2026-06-03T21:00:00Z"
+}

@@ -1,0 +1,45 @@
+steps:
+  - id: step-01
+    name: "Monitoramento Contínuo de Integrações"
+    agent: kelly-qa
+    file: "steps/step-01-monitoramento-integracoes.md"
+
+  - id: step-02
+    name: "Triagem de Suporte e Defesa dos Termos"
+    agent: ravi-suporte
+    file: "steps/step-02-support-triage.md"
+
+  - id: step-03
+    name: "Auditoria de Performance e Tokens"
+    agent: alex-auditor
+    file: "steps/step-02-auditoria-performance.md"
+
+  - id: step-04
+    name: "Relatório CS High-Ticket"
+    agent: celina-cs
+    file: "steps/step-04-cs-report.md"
+
+  - id: step-05
+    name: "Relatório Semanal de ROI"
+    agent: ronaldo-analista-roi
+    file: "steps/step-03-relatorio-roi.md"
+
+  - id: step-06
+    name: "Kill-Switch e Cobrança"
+    agent: gael-killswitch
+    file: "steps/step-06-kill-switch.md"
+
+  - id: step-07
+    name: "Análise de Uso e Upsell"
+    agent: lavinis-estrategista
+    file: "steps/step-04-upsell.md"
+
+  - id: step-08
+    name: "Concierge de Parcerias"
+    agent: maite-concierge
+    file: "steps/step-08-concierge.md"
+
+  - id: step-09
+    name: "Relatório de Retenção"
+    agent: georgia-relatorio
+    file: "steps/step-09-relatorio-retencao.md"

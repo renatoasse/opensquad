@@ -1,0 +1,13 @@
+id,displayName,icon,path,role,skills
+sage,Sage — O Estrategista,🧠,./squads/blueprint-to-sale/sage-estrategista.agent.md,Blueprint Analyst & Business Strategist,"web_search,web_fetch,telegram-bridge"
+forge,Forge — O Forjador,🔨,./squads/blueprint-to-sale/forge-forjador.agent.md,Senior Full-Stack Developer & i18n Specialist,"web_search,i18n_translator,telegram-bridge"
+atlas,Atlas — O Publicador,🗺️,./squads/blueprint-to-sale/atlas-publicador.agent.md,DevOps & GitHub Automation Engineer,"github_api,telegram-bridge"
+mercury,Mercury — O Mensageiro,📨,./squads/blueprint-to-sale/mercury-mensageiro.agent.md,Email Marketing & Sales Copywriter,"email_sender,web_search,telegram-bridge"
+oracle,Oracle — O Consultor,🔮,./squads/blueprint-to-sale/oracle-consultor.agent.md,Market Research Analyst & Follow-up Strategist,"web_search,web_fetch,telegram-bridge"
+keeper,Keeper — O Guardião,🔑,./squads/blueprint-to-sale/keeper-guardiao.agent.md,Post-Sale Delivery & Repo Transfer Specialist,"github_api,email_sender,telegram-bridge"
+miguel,Miguel — SDR de Triagem,🎯,./squads/blueprint-to-sale/miguel-sdr.agent.md,SDR de Triagem de Blueprints,"web_search,web_fetch,email_sender,telegram-bridge"
+theo,Théo — Closer High-Ticket,💎,./squads/blueprint-to-sale/theo-closer.agent.md,Consultor de Upgrades High-Ticket,"web_search,web_fetch,email_sender,telegram-bridge"
+alicia,Alicia — Afiliado Recruiter,🤝,./squads/blueprint-to-sale/alicia-afiliados.agent.md,Afiliado Master Recruiter,"web_search,web_fetch,email_sender,telegram-bridge"
+luan,Luan — Engenheiro de Boilerplates,🔧,./squads/blueprint-to-sale/luan-boilerplate.agent.md,Engenheiro de Boilerplates,"web_search,web_fetch,github_api,telegram-bridge"
+isabela,Isabela — Designer de Assets,🎨,./squads/blueprint-to-sale/isabela-designer.agent.md,Designer de Asset & Store Front,"web_search,web_fetch,telegram-bridge"
+georgia-gerente,Geórgia Gerente,📊,./squads/blueprint-to-sale/georgia-gerente.agent.md,Relatora de Produção & FinOps,"web_search,telegram-bridge"

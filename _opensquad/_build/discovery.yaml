@@ -1,0 +1,46 @@
+squad_code: "prospeccao-b2b-sp"
+purpose: "Prospecção ativa B2B em SP focada em oferecer o Arquiteto MVP, Marketplace de Código e Agentes de Automação para clínicas, imobiliárias e comércios de médio porte. Usa o Método CLAUDE e ganchos de afiliação de 75%."
+domain: "mixed"
+
+company:
+  name: "Aline Builds"
+  tone: "Innovation-led, pragmatic, engineering-first"
+  products: "Acesso ao Arquiteto MVP, Marketplace de Código, Agentes de Automação"
+
+language: "Português (Brasil)"
+
+context:
+  audience: "Clínicas médicas/odontológicas, imobiliárias e comércios de médio porte em São Paulo e região metropolitana."
+  platforms: "Google Maps (Apify), E-mail e WhatsApp."
+  tone: "Persuasivo, focado em custo de oportunidade e validação rápida."
+  sources: "Google Maps (via Apify)"
+  output_format: "Lista de leads qualificada e sequências de e-mail/WhatsApp personalizadas."
+  frequency: "on demand"
+  trigger: "manual"
+  systems: "Apify, Gmail/Resend, Hotmart (checkout)"
+
+tools_needed:
+  - "apify"
+  - "gmail-automation"
+  - "resend"
+  - "web_search"
+
+investigation:
+  enabled: true
+  profiles:
+    - url: "https://www.youtube.com/@lucianafpapini"
+      platform: "youtube"
+      investigation_mode: "profile_2" # Custom notation for 2 videos
+    - url: "https://www.youtube.com/@obrunookamoto"
+      platform: "youtube"
+      investigation_mode: "profile_2"
+    - url: "https://www.youtube.com/@aicodersacademy"
+      platform: "youtube"
+      investigation_mode: "profile_2"
+    - url: "https://www.youtube.com/@MoacirModa"
+      platform: "youtube"
+      investigation_mode: "profile_2"
+
+target_formats:
+  - "email-sales"
+  - "whatsapp-broadcast"

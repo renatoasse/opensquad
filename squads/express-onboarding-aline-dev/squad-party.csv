@@ -1,0 +1,5 @@
+agent_id,name,role,icon,skills
+kevin-keeper,Kevin Keeper,Atendimento VIP 🎩,🎩,"github_api,email_sender,telegram-bridge"
+helena-eng,Helena Eng,Engenheira de Onboarding ⚙️,⚙️,"github_api,telegram-bridge"
+anderson-arch,Anderson Arch,Arquiteto Onboarding 📐,📐,telegram-bridge
+gael-auditor,Gael Auditor,Auditor de Segurança 🛡️,🛡️,"web_fetch,telegram-bridge"

@@ -1,0 +1,117 @@
+# Pipeline: Blueprint-to-Sale Automation
+# Lido pelo runner em: squads/blueprint-to-sale/pipeline/pipeline.yaml
+
+name: "blueprint-to-sale"
+version: "1.0.0"
+
+steps:
+
+  # ─── FASE 1: CAPTURA & ANÁLISE ──────────────────────────────────────────
+  - id: "step01_capture"
+    label: "Step 1 — Análise do Blueprint"
+    agent: "sage"
+    file: "steps/step01-capture.md"
+    execution: inline
+    model_tier: powerful
+    required: true
+
+  # ─── FASE 2: CONSTRUÇÃO ────────────────────────────────────────────────
+  - id: "step02_develop"
+    label: "Step 2 — Desenvolvimento do App"
+    agent: "forge"
+    file: "steps/step02-develop.md"
+    execution: inline
+    model_tier: powerful
+    required: true
+
+  - id: "step03_publish"
+    label: "Step 3 — Publicação no GitHub"
+    agent: "atlas"
+    file: "steps/step03-publish.md"
+    execution: inline
+    model_tier: powerful
+    required: true
+
+  # ─── FASE 3: OFERTA & FOLLOW-UP ──────────────────────────────────────
+  - id: "step04_offer"
+    label: "Step 4 — Email de Oferta"
+    agent: "mercury"
+    file: "steps/step04-offer.md"
+    execution: inline
+    model_tier: powerful
+    required: true
+
+  - id: "step05_followup"
+    label: "Step 5 — Follow-up de Mercado"
+    agent: "oracle"
+    file: "steps/step05-followup.md"
+    execution: inline
+    model_tier: powerful
+    required: false
+    condition: "purchase_status != 'completed'"
+
+  # ─── FASE 4: ENTREGA ────────────────────────────────────────────────────
+  - id: "step06_delivery"
+    label: "Step 6 — Entrega Pós-Compra"
+    agent: "keeper"
+    file: "steps/step06-delivery.md"
+    execution: inline
+    model_tier: powerful
+    required: true
+    condition: "purchase_status == 'completed'"
+
+  # ─── FASE 5: TRIAGEM & UPSELL ──────────────────────────────────────────
+  - id: "step07_triage"
+    label: "Step 7 — Triagem de Templates"
+    agent: "miguel"
+    file: "steps/step07-triage.md"
+    execution: inline
+    model_tier: powerful
+    required: true
+
+  - id: "step08_upsell"
+    label: "Step 8 — Consultoria High-Ticket"
+    agent: "theo"
+    file: "steps/step08-upsell.md"
+    execution: inline
+    model_tier: powerful
+    required: false
+    condition: "needs_high_ticket == true"
+
+  # ─── FASE 6: AFILIADOS ──────────────────────────────────────────────────
+  - id: "step09_affiliate"
+    label: "Step 9 — Recrutamento de Afiliados"
+    agent: "alicia"
+    file: "steps/step09-affiliate.md"
+    execution: inline
+    model_tier: powerful
+    required: false
+    condition: "purchase_status == 'completed'"
+
+  # ─── FASE 7: FÁBRICA DE TEMPLATES ─────────────────────────────────────
+  - id: "step10_boilerplate"
+    label: "Step 10 — Geração de Boilerplate"
+    agent: "luan"
+    file: "steps/step10-boilerplate.md"
+    execution: inline
+    model_tier: powerful
+    required: false
+    condition: "generate_template == true"
+
+  - id: "step11_assets"
+    label: "Step 11 — Assets & Store Front"
+    agent: "isabela"
+    file: "steps/step11-assets.md"
+    execution: inline
+    model_tier: powerful
+    required: false
+    condition: "generate_template == true"
+
+  # ─── FASE 8: RELATÓRIO & FINOPS ────────────────────────────────────────
+  - id: "step12_report"
+    label: "Step 12 — Relatório de Produção & FinOps"
+    agent: "georgia-gerente"
+    file: "steps/step12-report.md"
+    execution: inline
+    model_tier: powerful
+    required: true

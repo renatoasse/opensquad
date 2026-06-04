@@ -1,0 +1,38 @@
+# Telegram Configuration — Vendas Lucrativas
+# Grupo: https://t.me/c/3904742008/1
+chat_id: "-1003904742008"
+bot_token_env: TELEGRAM_BOT_TOKEN
+
+# Mapeamento: agent_id → topic name → message_thread_id
+topics:
+  general:
+    name: "Geral"
+    thread_id: 1
+
+  barbara-blueprint:
+    name: "Barbara Blueprint"
+    thread_id: 6
+
+  flavio-fechador:
+    name: "Flávio Fechador"
+    thread_id: 7
+
+  leandro-funil:
+    name: "Leandro Funil"
+    thread_id: 8
+
+  gustavo-gestor:
+    name: "Gustavo Gestor"
+    thread_id: 9
+
+  eleonora-sdr:
+    name: "Eleonora SDR"
+    thread_id: 19
+
+  jose-closer:
+    name: "José Closer"
+    thread_id: 20
+
+  georgia-gerente:
+    name: "Geórgia Gerente"
+    thread_id: 21

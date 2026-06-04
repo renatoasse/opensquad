@@ -1,0 +1,69 @@
+# Telegram Configuration — Blueprint to Sale
+# Grupo: https://t.me/c/3972374311/1
+chat_id: "-1003972374311"
+bot_token_env: TELEGRAM_BOT_TOKEN
+
+topics:
+  general:
+    name: "Geral"
+    thread_id: 21
+
+  allan-devops:
+    name: "Allan DevOps"
+    thread_id: 2
+
+  eduardo-email:
+    name: "Eduardo Email marketing"
+    thread_id: 3
+
+  flavia-fullstack:
+    name: "Flávia Full stack developer"
+    thread_id: 4
+
+  icaro-instigador:
+    name: "ícaro instigador"
+    thread_id: 5
+
+  lara-logistica:
+    name: "Lara Logística"
+    thread_id: 6
+
+  otavio-followup:
+    name: "Otávio Follow-up Strategic"
+    thread_id: 7
+
+  paulo-posvenda:
+    name: "Paulo Pós Venda"
+    thread_id: 8
+
+  renata-requinte:
+    name: "Renata Requinte"
+    thread_id: 9
+
+  samuel-estrategista:
+    name: "Samuel Estrategista de Negócios"
+    thread_id: 10
+
+  miguel-sdr:
+    name: "Miguel - SDR"
+    thread_id: 25
+
+  theo-closer:
+    name: "Théo - Closer"
+    thread_id: 26
+
+  alicia-afiliados:
+    name: "Alicia - Afiliados"
+    thread_id: 27
+
+  luan-boilerplate:
+    name: "Luan - Boilerplates"
+    thread_id: 67
+
+  isabela-designer:
+    name: "Isabela - Designer"
+    thread_id: 68
+
+  georgia-gerente:
+    name: "Geórgia Gerente"
+    thread_id: 72

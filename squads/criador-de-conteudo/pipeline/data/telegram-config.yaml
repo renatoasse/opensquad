@@ -1,0 +1,58 @@
+# Telegram Configuration — Criador de Conteúdo
+# Grupo: https://t.me/c/4249647655/1
+chat_id: "-1004249647655"
+bot_token_env: TELEGRAM_BOT_TOKEN
+
+# Mapeamento: agent_id → topic name → message_thread_id
+topics:
+  general:
+    name: "Geral"
+    thread_id: 1
+
+  ricardo-rastreador:
+    name: "Ricardo Rastreador"
+    thread_id: 5
+
+  leo-logica:
+    name: "Léo Lógica"
+    thread_id: 4
+
+  elias-estrategia:
+    name: "Elias Estratégia"
+    thread_id: 8
+
+  lucia-linkedin:
+    name: "Lúcia Linkedin"
+    thread_id: 9
+
+  tulio-tuites:
+    name: "Túlio Tuítes"
+    thread_id: 10
+
+  caio-copy:
+    name: "Caio Copy"
+    thread_id: 2
+
+  daniel-design:
+    name: "Daniel Design"
+    thread_id: 3
+
+  vera-veredito:
+    name: "Vera Veredito"
+    thread_id: 7
+
+  georgia-gerente:
+    name: "Geórgia Gerente"
+    thread_id: 11
+
+  sofia-social:
+    name: "Sofia Social"
+    thread_id: 6
+
+  teresa-tendencias:
+    name: "Teresa Tendências"
+    thread_id: 12
+
+  aurora-autoridade:
+    name: "Aurora Autoridade"
+    thread_id: 13

@@ -1,0 +1,241 @@
+# LLM Routing Configuration — OpenSquad
+# Define qual modelo cada funcionário usa, por squad.
+# As chaves de API estão em squads/.env
+
+default: claude
+env_prefix: LLM_API_KEY_
+
+models:
+  claude:  claude-3-5-sonnet-20241022
+  openai:  gpt-4o
+  gemini:  gemini-2.0-flash
+  deepseek: deepseek-chat
+  qwen:    qwen2.5-72b-instruct
+  kimi:    kimi-k2
+  ollama:  llama3.3-70b
+
+agents:
+
+  # ─── 1. CRIADOR DE CONTEÚDO (12 agentes) ──────────────────────────────
+  # Pesquisa e curadoria
+  - id: ricardo-rastreador
+    squad: criador-de-conteudo
+    llm: gemini
+  # Diagnóstico e lógica
+  - id: leo-logica
+    squad: criador-de-conteudo
+    llm: claude
+  # Tendências e insights
+  - id: teresa-tendencias
+    squad: criador-de-conteudo
+    llm: gemini
+  # Estratégia de conteúdo
+  - id: elias-estrategia
+    squad: criador-de-conteudo
+    llm: claude
+  # Autoridade e posicionamento
+  - id: aurora-autoridade
+    squad: criador-de-conteudo
+    llm: claude
+  # Posts LinkedIn
+  - id: lucia-linkedin
+    squad: criador-de-conteudo
+    llm: deepseek
+  # Threads Twitter
+  - id: tulio-tuites
+    squad: criador-de-conteudo
+    llm: deepseek
+  # Copywriting
+  - id: caio-copy
+    squad: criador-de-conteudo
+    llm: deepseek
+  # Design visual (Canva)
+  - id: daniel-design
+    squad: criador-de-conteudo
+    llm: qwen
+  # Veredito e qualidade
+  - id: vera-veredito
+    squad: criador-de-conteudo
+    llm: claude
+  # Publicação social
+  - id: sofia-social
+    squad: criador-de-conteudo
+    llm: kimi
+  # Relatórios executivos
+  - id: georgia-gerente
+    squad: criador-de-conteudo
+    llm: claude
+
+  # ─── 2. PROSPECÇÃO B2B SP (6 agentes) ─────────────────────────────────
+  # Tracking e extração
+  - id: tati-tracker
+    squad: prospeccao-b2b-sp
+    llm: gemini
+  # Diagnóstico
+  - id: leo-logica
+    squad: prospeccao-b2b-sp
+    llm: claude
+  # Copy de prospecção
+  - id: caio-copy
+    squad: prospeccao-b2b-sp
+    llm: deepseek
+  # Negociação e abordagem
+  - id: natan-negociador
+    squad: prospeccao-b2b-sp
+    llm: deepseek
+  # Validação de leads
+  - id: marcelo-validador
+    squad: prospeccao-b2b-sp
+    llm: claude
+  # Relatórios
+  - id: georgia-gerente
+    squad: prospeccao-b2b-sp
+    llm: claude
+
+  # ─── 3. VENDAS LUCRATIVAS (7 agentes) ─────────────────────────────────
+  # Fechamento
+  - id: barbara-fechamento
+    squad: vendas-lucrativas
+    llm: deepseek
+  # Estratégia de funil
+  - id: leandro-estrategista
+    squad: vendas-lucrativas
+    llm: claude
+  # SDR triagem
+  - id: eleonora-sdr
+    squad: vendas-lucrativas
+    llm: gemini
+  # Closer
+  - id: jose-closer
+    squad: vendas-lucrativas
+    llm: deepseek
+  # Vendedor consultivo
+  - id: flavio-vendedor
+    squad: vendas-lucrativas
+    llm: deepseek
+  # Gestão de afiliados
+  - id: gustavo-gestor
+    squad: vendas-lucrativas
+    llm: kimi
+  # Relatórios
+  - id: georgia-gerente
+    squad: vendas-lucrativas
+    llm: claude
+
+  # ─── 4. ONBOARDING VIP (4 agentes) ─────────────────────────────────────
+  # Arquitetura e configuração
+  - id: anderson-arch
+    squad: express-onboarding-aline-dev
+    llm: claude
+  # Segurança e auditoria
+  - id: gael-auditor
+    squad: express-onboarding-aline-dev
+    llm: claude
+  # Engenharia de onboarding
+  - id: helena-eng
+    squad: express-onboarding-aline-dev
+    llm: openai
+  # Entrega de repositório
+  - id: kevin-keeper
+    squad: express-onboarding-aline-dev
+    llm: openai
+
+  # ─── 5. SUCESSO E RETENÇÃO (9 agentes) ─────────────────────────────────
+  # Monitoramento QA
+  - id: kelly-qa
+    squad: sucesso-retencao-aline-dev
+    llm: gemini
+  # Auditoria de performance
+  - id: alex-auditor
+    squad: sucesso-retencao-aline-dev
+    llm: claude
+  # Suporte e termos
+  - id: ravi-suporte
+    squad: sucesso-retencao-aline-dev
+    llm: kimi
+  # Customer success
+  - id: celina-cs
+    squad: sucesso-retencao-aline-dev
+    llm: kimi
+  # ROI e análise financeira
+  - id: ronaldo-analista-roi
+    squad: sucesso-retencao-aline-dev
+    llm: claude
+  # Kill-switch e cobrança
+  - id: gael-killswitch
+    squad: sucesso-retencao-aline-dev
+    llm: openai
+  # Expansão e upsell
+  - id: lavinis-estrategista
+    squad: sucesso-retencao-aline-dev
+    llm: deepseek
+  # Concierge e fidelidade
+  - id: maite-concierge
+    squad: sucesso-retencao-aline-dev
+    llm: kimi
+  # Relatórios
+  - id: georgia-gerente
+    squad: sucesso-retencao-aline-dev
+    llm: claude
+
+  # ─── 6. BLUEPRINT-TO-SALE (15 agentes) ─────────────────────────────────
+  # Estratégia de blueprint
+  - id: samuel-estrategista
+    squad: blueprint-to-sale
+    llm: claude
+  # Desenvolvimento full-stack
+  - id: flavia-full-stack
+    squad: blueprint-to-sale
+    llm: openai
+  # DevOps e GitHub
+  - id: allan-devops
+    squad: blueprint-to-sale
+    llm: openai
+  # Email marketing
+  - id: eduardo-email
+    squad: blueprint-to-sale
+    llm: deepseek
+  # Follow-up estratégico
+  - id: otavio-followup
+    squad: blueprint-to-sale
+    llm: kimi
+  # Entrega pós-venda
+  - id: paulo-posvenda
+    squad: blueprint-to-sale
+    llm: openai
+  # SDR triagem de templates
+  - id: miguel-sdr
+    squad: blueprint-to-sale
+    llm: gemini
+  # Closer high-ticket
+  - id: theo-closer
+    squad: blueprint-to-sale
+    llm: deepseek
+  # Recrutamento afiliados
+  - id: alicia-afiliados
+    squad: blueprint-to-sale
+    llm: kimi
+  # Engenheiro de boilerplates
+  - id: luan-boilerplate
+    squad: blueprint-to-sale
+    llm: openai
+  # Designer de assets
+  - id: isabela-designer
+    squad: blueprint-to-sale
+    llm: qwen
+  # Copywriting persuasivo
+  - id: icaro-instigador
+    squad: blueprint-to-sale
+    llm: deepseek
+  # Estratégia e logística
+  - id: lara-logistica
+    squad: blueprint-to-sale
+    llm: claude
+  # Design visual premium
+  - id: renata-requinte
+    squad: blueprint-to-sale
+    llm: qwen
+  # Relatórios
+  - id: georgia-gerente
+    squad: blueprint-to-sale
+    llm: claude

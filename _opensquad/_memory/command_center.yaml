@@ -1,0 +1,94 @@
+# Command Center Specification — Aline Dev Ecosystem
+# Version: 1.0.0
+# Purpose: Global dashboard for monitoring 6 squads, 53 agents, and high-ticket financial targets.
+
+dashboard_config:
+  theme: "dark-modern"
+  refresh_rate: 30s
+  layout: "grid-bento"
+
+# ─── SEÇÃO 1: OPERAÇÕES (SQUAD PULSE) ──────────────────────────────────────────
+widgets_ops:
+  - id: "squad_status_grid"
+    type: "grid"
+    title: "SQUADS STATUS"
+    data_source: "all_squads/state.json"
+    columns:
+      - name: "Squad"
+        field: "squad.name"
+      - name: "Status"
+        field: "status"
+        color_map: { "idle": "gray", "running": "green", "error": "red" }
+      - name: "Step"
+        field: "step.current"
+      - name: "Agent"
+        field: "handoff.agent_id"
+
+  - id: "agent_activity_pulse"
+    type: "list"
+    title: "AGENTS ACTIVE NOW"
+    data_source: "all_squads/state.json"
+    filter: "status == 'active'"
+    display: "Icon + Agent Name + Current Task"
+
+  - id: "pipeline_flow"
+    type: "sequencer"
+    title: "CURRENT WORKFLOW"
+    display: "Previous Step ➔ CURRENT STEP ➔ Next Step"
+
+# ─── SEÇÃO 2: CONECTIVIDADE (SENSORS) ──────────────────────────────────────────
+widgets_sensors:
+  - id: "hotmart_pulse"
+    type: "log"
+    title: "HOTMART WEBHOOKS"
+    data_source: "firestore/collection('webhooks')/last_event"
+    fields: ["userId", "product", "status", "timestamp"]
+
+  - id: "firestore_heartbeat"
+    type: "metric"
+    title: "FIRESTORE SYNC"
+    data_source: "firestore/collection('blueprints')/last_update"
+    display: "Last Write: [Time] | Latency: [ms]"
+
+  - id: "telegram_bridge_log"
+    type: "feed"
+    title: "TELEGRAM MESSAGES"
+    data_source: "logs/telegram.log"
+    limit: 5
+
+# ─── SEÇÃO 3: FINOPS & NEGÓCIOS (MONEY) ────────────────────────────────────────
+widgets_finance:
+  - id: "token_burn_meter"
+    type: "gauge"
+    title: "TOKEN BURN TRACKER (High-Ticket)"
+    data_source: "vps/logs/api_usage.json"
+    threshold: 520.00
+    currency: "BRL"
+    alert: "CRITICAL: Token loop detected!"
+
+  - id: "conversion_funnel"
+    type: "funnel"
+    title: "CONVERSION FUNNEL"
+    stages:
+      - stage: "Arquiteto MVP"
+        value: "firestore/count('payments', {product: 'mvp'})"
+      - stage: "Marketplace"
+        value: "firestore/count('payments', {product: 'marketplace'})"
+      - stage: "Setup High-Ticket"
+        value: "firestore/count('payments', {product: 'setup'})"
+
+  - id: "revenue_counter"
+    type: "stat"
+    title: "TOTAL REVENUE (ACCUMULATED)"
+    data_source: "firestore/sum('payments.value')"
+    currency: "BRL"
+    goal: 52 * 7100 # Goal of 52 clients * Setup cost
+
+# ─── SEÇÃO 4: ESTRATÉGICO (SQUAD TARGETS) ──────────────────────────────────────
+widgets_strategic:
+  - id: "growth_target_progress"
+    type: "progress_bar"
+    title: "CLIENT TARGET (JAN 2027)"
+    current: "firestore/count('clients', {type: 'high_ticket'})"
+    target: 52
+    labels: { "min": "0", "max": "52 Clients" }

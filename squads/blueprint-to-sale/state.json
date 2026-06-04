@@ -1,0 +1,94 @@
+{
+  "squad": "blueprint-to-sale",
+  "status": "idle",
+  "step": { "current": 0, "total": 6, "label": "" },
+  "agents": [
+    {
+      "id": "sage",
+      "name": "Sage — O Estrategista",
+      "icon": "🧠",
+      "status": "idle",
+      "desk": { "col": 1, "row": 1 }
+    },
+    {
+      "id": "forge",
+      "name": "Forge — O Forjador",
+      "icon": "🔨",
+      "status": "idle",
+      "desk": { "col": 2, "row": 1 }
+    },
+    {
+      "id": "atlas",
+      "name": "Atlas — O Publicador",
+      "icon": "🗺️",
+      "status": "idle",
+      "desk": { "col": 3, "row": 1 }
+    },
+    {
+      "id": "mercury",
+      "name": "Mercury — O Mensageiro",
+      "icon": "📨",
+      "status": "idle",
+      "desk": { "col": 1, "row": 2 }
+    },
+    {
+      "id": "oracle",
+      "name": "Oracle — O Consultor",
+      "icon": "🔮",
+      "status": "idle",
+      "desk": { "col": 2, "row": 2 }
+    },
+    {
+      "id": "keeper",
+      "name": "Keeper — O Guardião",
+      "icon": "🔑",
+      "status": "idle",
+      "desk": { "col": 3, "row": 2 }
+    },
+    {
+      "id": "miguel",
+      "name": "Miguel — SDR de Triagem",
+      "icon": "🎯",
+      "status": "idle",
+      "desk": { "col": 1, "row": 3 }
+    },
+    {
+      "id": "theo",
+      "name": "Théo — Closer High-Ticket",
+      "icon": "💎",
+      "status": "idle",
+      "desk": { "col": 2, "row": 3 }
+    },
+    {
+      "id": "alicia",
+      "name": "Alicia — Afiliado Recruiter",
+      "icon": "🤝",
+      "status": "idle",
+      "desk": { "col": 3, "row": 3 }
+    },
+    {
+      "id": "luan",
+      "name": "Luan — Engenheiro de Boilerplates",
+      "icon": "🔧",
+      "status": "idle",
+      "desk": { "col": 1, "row": 4 }
+    },
+    {
+      "id": "isabela",
+      "name": "Isabela — Designer de Assets",
+      "icon": "🎨",
+      "status": "idle",
+      "desk": { "col": 2, "row": 4 }
+    },
+    {
+      "id": "georgia-gerente",
+      "name": "Geórgia Gerente",
+      "icon": "📊",
+      "status": "idle",
+      "desk": { "col": 3, "row": 4 }
+    }
+  ],
+  "handoff": null,
+  "startedAt": null,
+  "updatedAt": "2026-04-13T15:39:10Z"
+}
