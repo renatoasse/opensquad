@@ -1,6 +1,6 @@
 # Squad Configuration: Blueprint-to-Sale Automation
 # Versão Sênior (Refatorada via OpenSquad Architect)
-# Version: 3.2.0
+# Version: 3.3.0
 
 name: "blueprint-to-sale"
 description: >
@@ -58,8 +58,16 @@ integrations:
     api_key: "${EMAIL_API_KEY}"
     from: "${EMAIL_FROM}"
   payment:
-    price: "R$ 4.210,00"
-    price_value: 4210
+    template:
+      label: "Template App"
+      price: "R$ 4.210,00"
+      price_value: 4210
+    agent:
+      label: "Agente de Automação"
+      price: "R$ 7.100,00"
+      price_value: 7100
+      monthly: "R$ 520,00"
+      monthly_value: 520
     currency: "BRL"
     webhook_secret: "${HOTMART_WEBHOOK_SECRET}"
     link: "${PAYMENT_LINK_BASE}"

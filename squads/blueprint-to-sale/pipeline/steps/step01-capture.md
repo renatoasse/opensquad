@@ -13,9 +13,12 @@ Capturar a ideia bruta do blueprint e transformá-la em um plano de execução c
 ## Instruções para o Sage:
 1. **Leia o contexto do Firestore** (fornecido pelo trigger).
 2. **Extraia:** Nome do App, Problema, Audiência, Features principais.
-3. **Pesquise o Mercado:** Encontre ao menos 2 concorrentes ou tendências de nicho.
-4. **Mapeie o MVP:** Defina quais das 12 features do marketplace são mais adequadas.
-5. **Gere o Handoff:** Um documento com seções: [Análise de Mercado], [Stack Técnica], [Features MVP], [Dicionário i18n Inicial].
+3. **Classifique o tipo do blueprint:**
+   - `app` — Aplicação web/mobile tradicional (Loja Rápida, Agenda Pro, Plataforma EAD, etc.)
+   - `agente` — Agente de automação com IA (assistente virtual, CRM agêntico, chatbot, automatizador de processos, triador inteligente, etc.)
+4. **Pesquise o Mercado:** Encontre ao menos 2 concorrentes ou tendências de nicho.
+5. **Mapeie o MVP:** Defina quais das 12 features do marketplace são mais adequadas.
+6. **Gere o Handoff:** Um documento com seções: [Análise de Mercado], [Tipo: app ou agente], [Stack Técnica], [Features MVP], [Dicionário i18n Inicial].
 
 ## Telegram
 - Ao finalizar, notifique no grupo Blueprint to Sale, tópico Samuel Estrategista de Negócios.
