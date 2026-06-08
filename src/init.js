@@ -31,7 +31,10 @@ const IDES = [
   { label: 'Claude Code', value: 'claude-code' },
   { label: 'Codex (OpenAI)', value: 'codex' },
   { label: 'Cursor', value: 'cursor' },
+  { label: 'Gemini CLI', value: 'gemini-cli' },
   { label: 'OpenCode', value: 'opencode' },
+  { label: 'Qwen Code', value: 'qwen-code' },
+  { label: 'Trae', value: 'trae' },
   { label: 'VS Code + Copilot', value: 'vscode-copilot' },
 ];
 
@@ -120,6 +123,15 @@ export async function init(targetDir, options = {}) {
       console.log(`  ${t('step1VsCodeCopilot')}`);
       console.log(`  ${t('step2VsCodeCopilot')}`);
       console.log(`  ${t('step3VsCodeCopilot')}\n`);
+    } else if (ide === 'gemini-cli') {
+      console.log(`  ${t('step1GeminiCli')}`);
+      console.log(`  ${t('step2GeminiCli')}\n`);
+    } else if (ide === 'qwen-code') {
+      console.log(`  ${t('step1QwenCode')}`);
+      console.log(`  ${t('step2QwenCode')}\n`);
+    } else if (ide === 'trae') {
+      console.log(`  ${t('step1Trae')}`);
+      console.log(`  ${t('step2Trae')}\n`);
     }
   }
 }
@@ -209,6 +221,8 @@ async function copyIdeTemplates(ides, targetDir) {
       const relativePath = entry.slice(ideSrcDir.length + 1);
       // settings.json for vscode-copilot is handled by mergeVsCodeSettings — skip here
       if (ide === 'vscode-copilot' && relativePath.replace(/\\/g, '/') === '.vscode/settings.json') continue;
+      if (ide === 'qwen-code' && relativePath.replace(/\\/g, '/') === '.qwen/settings.json') continue;
+      if (ide === 'gemini-cli' && relativePath.replace(/\\/g, '/') === '.gemini/settings.json') continue;
       if (writtenPaths.has(relativePath)) continue;
       writtenPaths.add(relativePath);
 
@@ -228,6 +242,13 @@ async function copyIdeTemplates(ides, targetDir) {
 
   if (ides.includes('vscode-copilot')) {
     await mergeVsCodeSettings(targetDir);
+  }
+
+  if (ides.includes('qwen-code')) {
+    await mergeQwenSettings(targetDir);
+  }
+  if (ides.includes('gemini-cli')) {
+    await mergeGeminiSettings(targetDir);
   }
 }
 
@@ -262,6 +283,86 @@ async function mergeVsCodeSettings(targetDir) {
     parsed['chat.promptFilesLocations'] = ['.github/prompts'];
   } else if (!parsed['chat.promptFilesLocations'].includes('.github/prompts')) {
     parsed['chat.promptFilesLocations'].push('.github/prompts');
+  }
+
+  await writeFile(settingsPath, JSON.stringify(parsed, null, 2), 'utf-8');
+}
+
+async function mergeQwenSettings(targetDir) {
+  const settingsPath = join(targetDir, '.qwen', 'settings.json');
+
+  let exists = false;
+  try {
+    await stat(settingsPath);
+    exists = true;
+  } catch {
+    // doesn't exist
+  }
+
+  if (!exists) {
+    const templateBase = join(TEMPLATES_DIR, 'ide-templates', 'qwen-code', '.qwen', 'settings.json');
+    await mkdir(join(targetDir, '.qwen'), { recursive: true });
+    await cp(templateBase, settingsPath);
+    return;
+  }
+
+  const raw = await readFile(settingsPath, 'utf-8');
+  let parsed;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    console.log(`  ⚠️  .qwen/settings.json has invalid JSON — skipping merge. Add manually: "mcpServers": { "playwright": { ... } }`);
+    return;
+  }
+
+  if (!parsed.mcpServers) {
+    parsed.mcpServers = {};
+  }
+  if (!parsed.mcpServers.playwright) {
+    parsed.mcpServers.playwright = {
+      command: 'npx',
+      args: ['@playwright/mcp@latest', '--config', '_opensquad/config/playwright.config.json'],
+    };
+  }
+
+  await writeFile(settingsPath, JSON.stringify(parsed, null, 2), 'utf-8');
+}
+
+async function mergeGeminiSettings(targetDir) {
+  const settingsPath = join(targetDir, '.gemini', 'settings.json');
+
+  let exists = false;
+  try {
+    await stat(settingsPath);
+    exists = true;
+  } catch {
+    // doesn't exist
+  }
+
+  if (!exists) {
+    const templateBase = join(TEMPLATES_DIR, 'ide-templates', 'gemini-cli', '.gemini', 'settings.json');
+    await mkdir(join(targetDir, '.gemini'), { recursive: true });
+    await cp(templateBase, settingsPath);
+    return;
+  }
+
+  const raw = await readFile(settingsPath, 'utf-8');
+  let parsed;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    console.log(`  ⚠️  .gemini/settings.json has invalid JSON — skipping merge. Add manually: "mcpServers": { "playwright": { ... } }`);
+    return;
+  }
+
+  if (!parsed.mcpServers) {
+    parsed.mcpServers = {};
+  }
+  if (!parsed.mcpServers.playwright) {
+    parsed.mcpServers.playwright = {
+      command: 'npx',
+      args: ['@playwright/mcp@latest', '--config', '_opensquad/config/playwright.config.json'],
+    };
   }
 
   await writeFile(settingsPath, JSON.stringify(parsed, null, 2), 'utf-8');

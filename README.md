@@ -66,6 +66,9 @@ npx opensquad update
 | Codex (OpenAI) | Disponível |
 | Open Code | Disponível |
 | Antigravity | Disponível |
+| Gemini CLI | Disponível |
+| Qwen Code | Disponível |
+| Trae | Disponível |
 
 ## Escritório Virtual
 
@@ -215,6 +218,9 @@ npx opensquad update
 | Codex (OpenAI) | Available |
 | Open Code | Available |
 | Antigravity | Available |
+| Gemini CLI | Available |
+| Qwen Code | Available |
+| Trae | Available |
 
 ## Virtual Office
 

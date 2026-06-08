@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+## [0.1.15] - 2026-04-10
+
+### Added
+- Gemini CLI IDE support — templates, settings merge, and Playwright MCP config
+- Qwen Code IDE support — templates, settings merge, and Playwright MCP config
+- Trae IDE support — rules and MCP config templates
+- New IDEs listed in README compatibility table (PT-BR and EN)
+- Post-init instructions for Gemini CLI, Qwen Code, and Trae
+- Locale strings for new IDE setup steps (en, es, pt-BR)
+- Tests covering new IDE template installation and settings merge
+
 ## [0.1.14] - 2026-03-30
 
 ### Added

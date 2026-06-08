@@ -528,3 +528,174 @@ test('init does not copy dashboard node_modules or dist to user project', async 
     await rm(tempDir, { recursive: true, force: true });
   }
 });
+
+test('init with _ides qwen-code creates .qwen/skills/opensquad/SKILL.md', async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
+
+  try {
+    await init(tempDir, { _skipPrompts: true, _ides: ['qwen-code'] });
+
+    const content = await readFile(
+      join(tempDir, '.qwen', 'skills', 'opensquad', 'SKILL.md'),
+      'utf-8'
+    );
+    assert.ok(content.includes('name: opensquad'));
+    assert.ok(content.includes('Opensquad'));
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
+});
+
+test('init with _ides qwen-code creates QWEN.md', async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
+
+  try {
+    await init(tempDir, { _skipPrompts: true, _ides: ['qwen-code'] });
+
+    const content = await readFile(join(tempDir, 'QWEN.md'), 'utf-8');
+    assert.ok(content.includes('Opensquad'));
+    assert.ok(content.includes('/opensquad'));
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
+});
+
+test('init with _ides qwen-code creates .qwen/settings.json with playwright MCP', async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
+
+  try {
+    await init(tempDir, { _skipPrompts: true, _ides: ['qwen-code'] });
+
+    const content = await readFile(join(tempDir, '.qwen', 'settings.json'), 'utf-8');
+    const config = JSON.parse(content);
+    assert.ok(config.mcpServers.playwright);
+    assert.ok(config.mcpServers.playwright.args.includes('--config'));
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
+});
+
+test('init with _ides qwen-code merges .qwen/settings.json when file already exists', async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
+
+  try {
+    const qwenPath = join(tempDir, '.qwen');
+    await mkdir(qwenPath, { recursive: true });
+    await writeFile(
+      join(qwenPath, 'settings.json'),
+      JSON.stringify({ model: { name: 'qwen3-coder' } }),
+      'utf-8'
+    );
+
+    await init(tempDir, { _skipPrompts: true, _ides: ['qwen-code'] });
+
+    const content = await readFile(join(qwenPath, 'settings.json'), 'utf-8');
+    const settings = JSON.parse(content);
+    assert.equal(settings.model.name, 'qwen3-coder', 'existing key must be preserved');
+    assert.ok(settings.mcpServers.playwright, 'playwright MCP must be added');
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
+});
+
+test('init with _ides gemini-cli creates .gemini/skills/opensquad/SKILL.md', async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
+
+  try {
+    await init(tempDir, { _skipPrompts: true, _ides: ['gemini-cli'] });
+
+    const content = await readFile(
+      join(tempDir, '.gemini', 'skills', 'opensquad', 'SKILL.md'),
+      'utf-8'
+    );
+    assert.ok(content.includes('name: opensquad'));
+    assert.ok(content.includes('Opensquad'));
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
+});
+
+test('init with _ides gemini-cli creates GEMINI.md', async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
+
+  try {
+    await init(tempDir, { _skipPrompts: true, _ides: ['gemini-cli'] });
+
+    const content = await readFile(join(tempDir, 'GEMINI.md'), 'utf-8');
+    assert.ok(content.includes('Opensquad'));
+    assert.ok(content.includes('/opensquad'));
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
+});
+
+test('init with _ides gemini-cli creates .gemini/settings.json with playwright MCP', async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
+
+  try {
+    await init(tempDir, { _skipPrompts: true, _ides: ['gemini-cli'] });
+
+    const content = await readFile(join(tempDir, '.gemini', 'settings.json'), 'utf-8');
+    const config = JSON.parse(content);
+    assert.ok(config.mcpServers.playwright);
+    assert.ok(config.mcpServers.playwright.args.includes('--config'));
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
+});
+
+test('init with _ides gemini-cli merges .gemini/settings.json when file already exists', async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
+
+  try {
+    const geminiPath = join(tempDir, '.gemini');
+    await mkdir(geminiPath, { recursive: true });
+    await writeFile(
+      join(geminiPath, 'settings.json'),
+      JSON.stringify({ theme: 'dark' }),
+      'utf-8'
+    );
+
+    await init(tempDir, { _skipPrompts: true, _ides: ['gemini-cli'] });
+
+    const content = await readFile(join(geminiPath, 'settings.json'), 'utf-8');
+    const settings = JSON.parse(content);
+    assert.equal(settings.theme, 'dark', 'existing key must be preserved');
+    assert.ok(settings.mcpServers.playwright, 'playwright MCP must be added');
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
+});
+
+test('init with _ides trae creates .trae/rules/opensquad.md', async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
+
+  try {
+    await init(tempDir, { _skipPrompts: true, _ides: ['trae'] });
+
+    const content = await readFile(
+      join(tempDir, '.trae', 'rules', 'opensquad.md'),
+      'utf-8'
+    );
+    assert.ok(content.includes('alwaysApply: true'));
+    assert.ok(content.includes('Opensquad'));
+    assert.ok(content.includes('/opensquad'));
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
+});
+
+test('init with _ides trae creates .trae/mcp.json with playwright server', async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
+
+  try {
+    await init(tempDir, { _skipPrompts: true, _ides: ['trae'] });
+
+    const content = await readFile(join(tempDir, '.trae', 'mcp.json'), 'utf-8');
+    const config = JSON.parse(content);
+    assert.ok(config.mcpServers.playwright);
+    assert.ok(config.mcpServers.playwright.args.includes('--config'));
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
+});

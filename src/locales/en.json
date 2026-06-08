@@ -69,5 +69,11 @@
   "step1VsCodeCopilot": "1. Open this directory in VS Code",
   "step2VsCodeCopilot": "2. Open Copilot Chat (Ctrl+Alt+I)",
   "step3VsCodeCopilot": "3. Type /opensquad to get started",
+  "step1QwenCode": "1. Open this directory in Qwen Code",
+  "step2QwenCode": "2. Type /opensquad to get started",
+  "step1GeminiCli": "1. Open this directory in Gemini CLI",
+  "step2GeminiCli": "2. Type /opensquad to get started",
+  "step1Trae": "1. Open this project in Trae",
+  "step2Trae": "2. Type /opensquad in the chat to get started",
   "tokenCostWarning": "Running squads consumes AI tokens (paid). Monitor your usage in your IDE or AI provider dashboard."
 }
