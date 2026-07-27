@@ -76,7 +76,7 @@ async function runList(targetDir) {
     console.log(`  ${t('skillsNoneInstalled')}`);
   }
 
-  console.log(`\n  Browse available skills at: https://github.com/renatoasse/opensquad/tree/main/skills\n`);
+  console.log(`\n  Browse available skills at: https://github.com/renatoasse/opensquad/tree/master/skills\n`);
 }
 
 async function runInstall(id, targetDir) {
