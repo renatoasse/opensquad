@@ -1,15 +1,18 @@
 node_modules/
 .env
 *.log
+
+# User-generated content in a project that has run `opensquad init`.
+# The tracked squads/*/state.json fixtures predate these rules and stay tracked.
 squads/*/
 _opensquad/_memory/company.md
 _opensquad/_memory/preferences.md
 _opensquad/_browser_profile/
-docs/
-.superpowers/
+
+# Local scratch and build artifacts.
 temp/
-tests/
 test-results/
-temp/squads/
+dashboard/test-results/
+.superpowers/
+
 .claude/settings.local.json
-dashboards/test-results/
