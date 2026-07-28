@@ -448,9 +448,11 @@ For EACH `.agent.md` file, verify:
 - [ ] Has `## Quality Criteria`
 - [ ] Has `## Integration`
 - [ ] Total lines >= 100
-- [ ] Does NOT contain a `> **ARCHETYPE**` banner (leaked from a catalog archetype)
-- [ ] Does NOT contain a `## Specialization Contract` section (leaked from a catalog archetype)
 - [ ] Persona name is the squad-assigned two-word name, not an archetype functional name
+      ("Researcher", "Copywriter", "Reviewer", ...)
+
+Archetype leakage is checked squad-wide in Gate 1c, not here — it can appear in any
+generated file, not only in agent files.
 
 If ANY check fails: fix the agent file and re-validate. Max 2 fix attempts.
 
@@ -473,6 +475,31 @@ For EACH task file referenced by any agent, verify:
 - [ ] Total lines >= 50
 
 If ANY check fails: fix the task file and re-validate. Max 2 fix attempts.
+
+### Gate 1c: Archetype Containment (BLOCKING)
+
+Applies whenever Design started from a predefined archetype (`agents/_catalog.yaml`).
+A generated squad must be **self-contained**: the archetype is scaffolding for Design and
+must leave no trace in the output.
+
+Scan **every generated file under `squads/{code}/`** — not just `agents/*.agent.md`. Leakage
+shows up in `squad.yaml`, step files and `pipeline/data/` just as easily, and a check scoped
+to agent files alone will miss it:
+
+```bash
+grep -rn "ARCHETYPE\|Specialization Contract\|archetype" squads/{code}/
+```
+
+**FAIL** on any hit. The three things this catches:
+
+1. A `> **ARCHETYPE**` banner copied along with the archetype body
+2. A `## Specialization Contract` section that was never stripped
+3. Any `archetype`/`archetype_note` field or comment recording provenance — including in
+   `squad.yaml`. Provenance belongs in the conversation with the user, never in the squad
+
+**Fix:** delete the offending lines and re-scan. A hit on 1 or 2 usually means the archetype
+was copied rather than specialized — re-check that the agent has squad-specific content
+(real Output Examples, the squad's actual domain and audience) and not just a renamed skeleton.
 
 ### Gate 2: Step Completeness (BLOCKING)
 
