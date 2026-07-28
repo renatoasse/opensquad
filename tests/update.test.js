@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, rm, readFile, writeFile, mkdir, stat } from 'node:fs/promises';
+import { mkdtemp, rm, readFile, readdir, writeFile, mkdir, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { init } from '../src/init.js';
@@ -149,17 +149,17 @@ test('update returns success when initialized', async () => {
   }
 });
 
-test('update succeeds when no bundled agents exist', async () => {
+test('update leaves the agents dir intact on an up-to-date install', async () => {
   const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
   try {
     await init(tempDir, { _skipPrompts: true });
+    const before = (await readdir(join(tempDir, 'agents'))).sort();
+
     const result = await update(tempDir);
+
     assert.equal(result.success, true);
-    // No bundled agents — agents/ dir should not exist
-    await assert.rejects(
-      stat(join(tempDir, 'agents')),
-      { code: 'ENOENT' }
-    );
+    const after = (await readdir(join(tempDir, 'agents'))).sort();
+    assert.deepEqual(after, before);
   } finally {
     await rm(tempDir, { recursive: true, force: true });
   }
@@ -197,6 +197,57 @@ test('update auto-imports bundled skills with env requirements', async () => {
     const skillMd = join(tempDir, 'skills', 'image-ai-generator', 'SKILL.md');
     const content = await readFile(skillMd, 'utf-8');
     assert.ok(content.includes('OPENROUTER_API_KEY'));
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
+});
+
+test('update backfills agents added since the user installed', async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
+  try {
+    await init(tempDir, { _skipPrompts: true });
+    // Simulate a user who installed opensquad before these archetypes were bundled
+    await rm(join(tempDir, 'agents', 'publisher.agent.md'), { force: true });
+    await rm(join(tempDir, 'agents', 'strategist.agent.md'), { force: true });
+
+    await update(tempDir);
+
+    await stat(join(tempDir, 'agents', 'publisher.agent.md'));
+    await stat(join(tempDir, 'agents', 'strategist.agent.md'));
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
+});
+
+test('update never overwrites a customized agent', async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
+  try {
+    await init(tempDir, { _skipPrompts: true });
+    // `agents` is in PROTECTED_PATHS — user customizations must survive an update
+    const customized = join(tempDir, 'agents', 'researcher.agent.md');
+    await writeFile(customized, 'MY CUSTOM RESEARCHER', 'utf-8');
+
+    await update(tempDir);
+
+    assert.equal(await readFile(customized, 'utf-8'), 'MY CUSTOM RESEARCHER');
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
+});
+
+test('update refreshes the generated agent catalog', async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
+  try {
+    await init(tempDir, { _skipPrompts: true });
+    // _catalog.yaml is generated, not user-owned — a stale copy must be replaced
+    const catalog = join(tempDir, 'agents', '_catalog.yaml');
+    await writeFile(catalog, 'STALE', 'utf-8');
+
+    await update(tempDir);
+
+    const content = await readFile(catalog, 'utf-8');
+    assert.notEqual(content, 'STALE');
+    assert.ok(content.includes('catalog:'));
   } finally {
     await rm(tempDir, { recursive: true, force: true });
   }

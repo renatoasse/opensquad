@@ -77,7 +77,7 @@ async function runList(targetDir) {
     console.log(`  ${t('agentsNoneInstalled')}`);
   }
 
-  console.log(`\n  Browse available agents at: https://github.com/renatoasse/opensquad/tree/main/agents\n`);
+  console.log(`\n  Browse available agents at: https://github.com/renatoasse/opensquad/tree/master/agents\n`);
 }
 
 async function runInstall(id, targetDir) {

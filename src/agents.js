@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const BUNDLED_AGENTS_DIR = join(__dirname, '..', 'agents');
+const CATALOG_FILE = '_catalog.yaml';
 
 const metaCache = new Map();
 
@@ -106,6 +107,22 @@ export async function removeAgent(id, targetDir) {
   const agentFile = join(targetDir, 'agents', `${id}.agent.md`);
   await rm(agentFile, { force: true });
   metaCache.delete(id);
+}
+
+// The Architect reads agents/_catalog.yaml to discover archetypes without loading
+// every AGENT.md. It is generated, never user-edited, so update refreshes it in place.
+export async function installCatalog(targetDir) {
+  const srcFile = join(BUNDLED_AGENTS_DIR, CATALOG_FILE);
+  try {
+    await readFile(srcFile);
+  } catch (err) {
+    if (err.code === 'ENOENT') return false; // no catalog bundled — nothing to install
+    throw err;
+  }
+  const destDir = join(targetDir, 'agents');
+  await mkdir(destDir, { recursive: true });
+  await copyFile(srcFile, join(destDir, CATALOG_FILE));
+  return true;
 }
 
 export function clearMetaCache() {

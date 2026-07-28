@@ -161,10 +161,41 @@ Guidelines:
 
 Design the squad with appropriate agents:
 - Follow the deep `.agent.md` format with full sections: Persona (Role, Identity, Communication Style), Principles, Operational Framework, Voice Guidance, Output Examples, Anti-Patterns, Quality Criteria, Integration
-- Design each agent from scratch, informed by the relevant best-practices files read in Phase A
+- Start from a predefined archetype whenever one matches the role (see **Agent Archetypes** below); design from scratch only when no archetype fits
 - Each agent has exactly one clear responsibility
 - Every squad needs a reviewer agent for quality control
 - YAGNI — never create agents that aren't strictly necessary
+
+### Agent Archetypes (consult before designing any agent)
+
+The project ships a catalog of predefined agent archetypes. An archetype is a **foundation, not a
+finished agent** — it carries the transferable operational core (principles, process, decision
+criteria, anti-patterns, quality criteria) so you don't re-derive it per squad.
+
+1. Read `agents/_catalog.yaml` — a compact index with `id`, `whenToUse`, `bestPractices`, and
+   `execution` for each archetype. Read the index only; do not open every AGENT.md.
+2. For each role the squad needs, check whether an archetype's `whenToUse` matches.
+3. **If an archetype matches:** read `agents/{id}.agent.md` and use it as the starting point.
+   Then specialize it — this is mandatory, never copy an archetype verbatim:
+   - Assign the two-word persona name and icon per the Naming Convention below. Archetypes ship
+     with a functional name only (e.g. "Researcher"), precisely so the squad-unique initial-letter
+     rule stays satisfiable.
+   - Replace generic domain language with this squad's actual audience, platform, and format.
+   - Embed the concrete findings, vocabulary, and thresholds extracted in Phase B/C.
+   - Generate the complete, realistic examples archetypes omit because they are inherently
+     squad-specific: as `## Output Examples` for agents without tasks, or as the `## Output Example`
+     inside each task file for agents with `tasks:` (Gate 1 rejects an agent that has both).
+   - Drop the `> **ARCHETYPE**` banner and the `## Specialization Contract` section; both are
+     instructions to you, not content for the finished agent.
+   - Each archetype's own `## Specialization Contract` lists what else it specifically requires.
+4. **If no archetype matches:** design from scratch, informed by the relevant best-practices files
+   read in Phase A. This is the normal path for domain-specific roles the catalog does not cover.
+5. If the project has no `agents/_catalog.yaml` (older install, or the user removed it), skip this
+   phase entirely and design every agent from scratch. Never fail the build over a missing catalog.
+
+An archetype's `bestPractices` field names its companion file in
+`_opensquad/core/best-practices/` — that file holds the deep domain knowledge, the archetype holds
+the agent shape. Read both when specializing.
 
 ### Agent Naming Convention (MANDATORY — never skip)
 

@@ -1,6 +1,6 @@
 ---
 name: opensquad-dev
-description: "opensquad development checklist — verifies templates sync, package integrity, and distribution correctness."
+description: "opensquad development checklist — verifies distribution wiring, template/IDE separation, and package integrity."
 ---
 
 # opensquad Development Checklist
@@ -10,51 +10,62 @@ Your job is to detect and report distribution issues before they reach users.
 
 ## How opensquad Distribution Works
 
-Understand this before checking anything:
+Understand this before checking anything. There are **four** copy mechanisms, and choosing the
+wrong one is the most common distribution bug.
 
-- **`templates/`** → Copied by `src/init.js:copyCommonTemplates()` during `npx opensquad init`
-  and by `src/update.js` during `npx opensquad update`. Everything in `templates/` except
-  `ide-templates/` is copied recursively to the user's project. This is the PRIMARY
-  distribution mechanism — if a file isn't in templates, users don't get it on init.
+- **`templates/`** (excluding `ide-templates/`) → Copied by `src/init.js:copyCommonTemplates()`
+  during `npx opensquad init`, and by `src/update.js` during `npx opensquad update`.
+  On init, existing files are **skipped**; on update, they are **overwritten with a `.bak` backup**
+  unless protected. If a file isn't here, users don't get it on init.
 
-- **`templates/ide-templates/`** → IDE-specific files. Copied selectively based on user's
-  IDE selection during init. Each subfolder (`claude-code/`, `opencode/`, `codex/`,
-  `antigravity/`) maps to one IDE choice.
+- **`templates/ide-templates/{ide}/`** → IDE-specific files, copied selectively based on the user's
+  IDE selection during init (and on their saved `preferences.md` during update). One subfolder per
+  supported IDE.
 
-- **`agents/`** (project root) → Predefined agent catalog, distributed via npm
-  (`package.json files[]`). Auto-installed during `npx opensquad init` and new agents
-  added during `npx opensquad update`. Protected from overwrites in
-  `src/update.js:PROTECTED_PATHS`. Users can also install manually via
-  `npx opensquad agents install`.
+- **Canonical sources** → `src/init.js:CANONICAL_SOURCES` copies these **directly from the package
+  root**, with no `templates/` mirror:
+  - `_opensquad/core` → user's `_opensquad/core`
+  - `_opensquad/config` → user's `_opensquad/config`
+  - `dashboard` → user's `dashboard` (minus `DASHBOARD_EXCLUDES`: `node_modules`,
+    `tsconfig.tsbuildinfo`, `squads`)
 
-- **`skills/`** (project root) → Bundled skills catalog, distributed via npm
-  (`package.json files[]`). Non-MCP skills are auto-installed during init.
-  MCP skills (type: mcp/hybrid or with env vars) are offered interactively
-  during init. Users can also install manually via `npx opensquad skills install`.
+  > **This replaced the old `templates/_opensquad/core/` mirror.** Editing `_opensquad/core/*` is
+  > sufficient and complete. Do NOT recreate a mirror under `templates/` — see
+  > `docs/superpowers/specs/2026-03-27-eliminate-template-duplication-design.md`.
 
-- **`_opensquad/core/*`** → Framework core files. MUST have a mirror copy in
-  `templates/_opensquad/core/*`. Any change to a core file that isn't synced to templates
-  means `npx opensquad init` delivers STALE content to new users.
+- **`skills/`** (project root) → Bundled skills catalog, distributed via `package.json files[]`.
+  `installSkill()` does a **recursive directory copy**, so multi-file skills (those with
+  `scripts/`, `assets/`, `references/`, etc.) work without any `templates/skills/` mirror.
+  - `init` installs **every** bundled skill, including MCP/hybrid ones and `opensquad-skill-creator`
+    (`src/init.js:installAllSkills`).
+  - `update` installs only skills **not already present**, and skips `opensquad-skill-creator`
+    plus anything with `type: mcp` or `type: hybrid`.
 
-- **`skills/*`** → Bundled skills catalog. Two distribution sub-types:
-  - **Multi-file skills** (have scripts/assets/agents dirs alongside SKILL.md, e.g. `opensquad-skill-creator`):
-    also have a mirror in `templates/skills/*` so the full directory structure is copied during init.
-    Check B verifies this sync.
-  - **Single-file skills** (only `SKILL.md`, no subdirs, e.g. `opensquad-agent-creator`):
-    distributed via `installSkill()` — no template copy needed. Check B does NOT apply to these.
+- **`agents/`** (project root) → Predefined agent **archetype** catalog, distributed via
+  `package.json files[]`. One directory per archetype containing `AGENT.md`, plus a generated
+  `_catalog.yaml` index.
+  - `init` installs every archetype as `agents/{id}.agent.md` (`src/init.js:installAllAgents`)
+    and copies the index (`src/agents.js:installCatalog`).
+  - `update` backfills only archetypes **not already present** — `agents` is in `PROTECTED_PATHS`,
+    so user-customized agents are never overwritten — and refreshes `_catalog.yaml`, which is
+    generated rather than user-owned.
+  - Archetypes are **inputs to the Architect, not finished agents**. `design.prompt.md` Phase E
+    reads `_catalog.yaml`, picks a matching archetype, and specializes it; `build.prompt.md`
+    writes the specialized agent into `squads/{code}/agents/`. Gate 1 rejects any generated agent
+    that still carries the `> **ARCHETYPE**` banner or a `## Specialization Contract` section.
 
-- **`package.json files[]`** → Controls what enters the npm package.
-  Currently: `bin/`, `src/`, `agents/`, `skills/`, `templates/`.
+- **`package.json files[]`** → Controls what enters the npm package. Currently:
+  `bin/`, `src/`, `agents/`, `skills/`, `templates/`, `_opensquad/`, `dashboard/`.
 
-- **`src/update.js:PROTECTED_PATHS`** → Directories NEVER overwritten during update:
-  `_opensquad/_memory`, `_opensquad/_investigations`, `agents`, `squads`.
+- **`src/update.js:PROTECTED_PATHS`** → Directories never overwritten during update.
+  Actual contents: `_opensquad/_memory`, `agents`, `squads`.
 
 ## Multi-IDE Architecture
 
-opensquad supports multiple IDEs. When a user runs `npx opensquad init`, they choose which IDE(s) to install for. Files are copied from two places:
+When a user runs `npx opensquad init`, they choose one or more IDEs. Files come from two places:
 
-1. **Common templates** (`templates/`, excluding `ide-templates/`) — copied to every project regardless of IDE
-2. **IDE-specific templates** (`templates/ide-templates/{ide}/`) — copied only for the selected IDE(s)
+1. **Common templates** (`templates/`, excluding `ide-templates/`) — copied for every project
+2. **IDE-specific templates** (`templates/ide-templates/{ide}/`) — copied only for selected IDEs
 
 ### File Classification
 
@@ -65,12 +76,24 @@ opensquad supports multiple IDEs. When a user runs `npx opensquad init`, they ch
 
 ### Supported IDEs and Their Template Folders
 
-| IDE | Template Folder | Example Files |
-|-----|----------------|---------------|
-| Claude Code | `templates/ide-templates/claude-code/` | `SKILL.md`, `CLAUDE.md`, `.mcp.json` |
-| Antigravity | `templates/ide-templates/antigravity/` | `.agent/rules/opensquad.md`, `.agent/workflows/opensquad.md` |
-| OpenCode | `templates/ide-templates/opencode/` | `AGENTS.md`, `.opencode/commands/opensquad.md` |
-| Codex | `templates/ide-templates/codex/` | `AGENTS.md` |
+All nine live under `templates/ide-templates/`:
+
+| IDE | Folder | Entry-point files |
+|-----|--------|-------------------|
+| Antigravity | `antigravity/` | `.agent/rules/`, `.agent/workflows/` |
+| Claude Code | `claude-code/` | `.claude/skills/opensquad/SKILL.md`, `CLAUDE.md`, `.mcp.json` |
+| Codex | `codex/` | `AGENTS.md`, `.agents/skills/opensquad/SKILL.md` |
+| Cursor | `cursor/` | `.cursor/rules/opensquad.mdc`, `.cursor/commands/`, `.cursor/mcp.json` |
+| Gemini CLI | `gemini-cli/` | `.gemini/` (settings **merged**, not copied) |
+| OpenCode | `opencode/` | `AGENTS.md`, `.opencode/commands/` |
+| Qwen Code | `qwen-code/` | `.qwen/` (settings **merged**, not copied) |
+| Trae | `trae/` | `.trae/` |
+| VS Code + Copilot | `vscode-copilot/` | `.github/prompts/`, `.vscode/settings.json` (**merged**) |
+
+Three IDEs merge JSON settings instead of copying, to preserve pre-existing user config:
+`mergeVsCodeSettings`, `mergeQwenSettings`, `mergeGeminiSettings` in `src/init.js`. If you add a
+settings file for one of these IDEs, it must also be excluded from the plain-copy loop in
+`copyIdeTemplates()`.
 
 ### The Golden Rule
 
@@ -86,11 +109,11 @@ opensquad supports multiple IDEs. When a user runs `npx opensquad init`, they ch
 - User asks: "Add a new researcher agent type to the architect."
 - ✅ Fine: Edit `_opensquad/core/architect.agent.yaml` because the change benefits ALL IDEs equally.
 
+Shared runtime files carry a banner (`> **SHARED FILE** — applies to ALL IDEs`). Preserve it.
+
 ## Verification Process
 
 ### Step 1: Detect what changed
-
-Run these commands to identify changed files:
 
 ```bash
 # Uncommitted changes (staged + unstaged)
@@ -105,98 +128,107 @@ Collect all changed file paths into a list.
 
 ### Step 2: Run applicable checks
 
-For each changed file, apply the matching verification rules below.
-Only run checks that are relevant to the actual changes detected.
+Only run checks relevant to the actual changes detected.
 
-#### Check A: Core file sync (`_opensquad/core/**` changed)
+#### Check A: Canonical source wiring (`_opensquad/core/**`, `_opensquad/config/**`, or `dashboard/**` changed)
 
-For EACH changed file matching `_opensquad/core/**`:
+These directories ship straight from the package root — no template copy is needed or wanted.
 
-1. Compute the expected template path: `templates/{same relative path}`
-   Example: `_opensquad/core/runner.pipeline.md` → `templates/_opensquad/core/runner.pipeline.md`
-
-2. Run diff:
+1. Confirm the changed file's top-level directory is listed in `src/init.js:CANONICAL_SOURCES`.
+   If someone added e.g. `_opensquad/newthing/`, it will **not** be distributed until it is added there.
+2. **FAIL** if a mirror was (re)created — verify these do NOT exist:
    ```bash
-   diff "_opensquad/core/{file}" "templates/_opensquad/core/{file}"
+   test -d templates/_opensquad/core && echo "STALE MIRROR"
+   test -d templates/skills && echo "STALE MIRROR"
    ```
+   A mirror means edits silently diverge from what users receive. **Fix:** delete the mirror.
+3. For `dashboard/**`: confirm the changed path is not swallowed by `DASHBOARD_EXCLUDES`.
+4. `_opensquad/` is in `package.json files[]` — but note only `core/` and `config/` are copied to
+   users. `_opensquad/.opensquad-version` at the repo root is stale leftover and is NOT the shipped
+   version file (see Check H).
 
-3. If diff shows differences:
-   - **FAIL**: Report the file and show the diff summary
-   - **Fix**: `cp _opensquad/core/{file} templates/_opensquad/core/{file}`
+#### Check B: Skill registry integrity (`skills/**` changed)
 
-4. If template file doesn't exist:
-   - **FAIL**: "Template missing for `_opensquad/core/{file}`"
-   - **Fix**: `mkdir -p templates/_opensquad/core/{dir} && cp _opensquad/core/{file} templates/_opensquad/core/{file}`
+There is **no** `templates/skills/` mirror — `installSkill()` copies the directory recursively, so
+multi-file skills need nothing extra. Do not flag missing template counterparts.
 
-#### Check B: Skills sync (`skills/**` changed)
+For each changed skill:
+1. `skills/{id}/SKILL.md` exists and the directory name matches `^[a-z0-9][a-z0-9-]*$`
+   (enforced by `validateSkillId()` — a non-matching name is uninstallable).
+2. Frontmatter parses under the hand-rolled regexes in `src/skills.js:getSkillMeta()`:
+   `name`, optional `type`, `description` (inline or folded `>`), optional `description_pt-BR` /
+   `description_es`, optional `env` list, optional `version`.
+   A new frontmatter field requires a new regex there — it will be silently ignored otherwise.
+3. If the skill declares `type: mcp` / `type: hybrid` or an `env` list, confirm the intent: `init`
+   installs it unconditionally, but `update` will never backfill it for existing users.
 
-Only applies to **multi-file skills** — skills that have subdirectories (scripts/, assets/, agents/, etc.)
-alongside their `SKILL.md`. These require a template mirror so the full directory is copied during init.
+#### Check C: Agent catalog (`agents/**` changed)
 
-Single-file skills (only `SKILL.md`, no subdirs) are distributed via `installSkill()` and do NOT need
-a `templates/skills/` counterpart. Do not flag them as missing.
-
-For each changed **multi-file** skill:
-- Source: `skills/{skill}/SKILL.md`
-- Template: `templates/skills/{skill}/SKILL.md`
-
-#### Check C: Agents directory (`agents/**` changed)
-
-1. Read `package.json`, parse the `files` array
-2. Verify `"agents/"` is present in the array
-3. If missing: **FAIL** — `"agents/" not in package.json files[]`
+1. Verify `"agents/"` is in `package.json` `files[]` and `agents` is in
+   `src/update.js:PROTECTED_PATHS` (users customize installed agents)
+2. Each `agents/{id}/AGENT.md` parses under `src/agents.js:getAgentMeta()` with `name`, `icon`,
+   `category`, `version`, `description`, plus `description_pt-BR` and `description_es`
+3. Directory names match `^[a-z0-9][a-z0-9-]*$` — `validateAgentId()` makes a bad name uninstallable
+4. `agents/_catalog.yaml` and the directories are in **exact** correspondence — every catalog `id`
+   has a directory, and every directory is listed. A directory missing from the index is invisible
+   to the Architect; an index entry with no directory sends it to a nonexistent file.
+5. Every archetype keeps its `> **ARCHETYPE**` banner and `## Specialization Contract` section —
+   these are what tell the Architect to specialize rather than copy verbatim
+6. All of the above are enforced by `tests/agents.test.js`; run it rather than checking by hand
 
 #### Check D: Init logic (`src/init.js` changed)
 
-1. Read `src/init.js`
-2. Verify `copyCommonTemplates` function exists and references `TEMPLATES_DIR`
-3. Verify `getTemplateEntries` recursively scans the templates directory
-4. Flag if any new filtering logic was added that might exclude files
+Verify all six copy stages are still called from `init()`, in order:
+`copyCommonTemplates` → `copyCanonicalSources` → `copyIdeTemplates` → `installAllAgents` →
+`installAllSkills` → `writeProjectReadme` (plus `installDependencies`, skipped when `_skipPrompts`
+is set).
+
+1. `getTemplateEntries()` still recurses the full tree
+2. `copyCommonTemplates()` still excludes `/ide-templates/`
+3. Flag any **new** filtering/skip logic — it silently removes files from every future install
+4. Init is skip-if-exists by design; it must never overwrite a user file
 
 #### Check E: Update logic (`src/update.js` changed)
 
-1. Read `src/update.js`
-2. Extract the `PROTECTED_PATHS` array
-3. Verify it includes all user-owned directories:
-   - `_opensquad/_memory` (user preferences and company context)
-   - `_opensquad/_investigations` (Sherlock investigation data)
-   - `agents` (user-installed/customized agents)
-   - `squads` (user-created squads)
-4. If a new user-owned top-level directory was added to the project,
-   check if it should be in PROTECTED_PATHS
+1. Extract `PROTECTED_PATHS`; it must contain `_opensquad/_memory`, `agents`, `squads`
+2. If a new **user-owned** top-level directory was introduced, it belongs here
+3. Note: `_opensquad/_investigations` is *not* in the list. It is safe today only because update
+   overwrites nothing that has no counterpart in `templates/`. If investigation files are ever added
+   to `templates/`, add the path to `PROTECTED_PATHS` first.
+4. Verify the skill backfill loop still skips `opensquad-skill-creator`, `type: mcp`, and `type: hybrid`
+5. Verify the agent backfill installs only archetypes **missing** from the target — installing
+   unconditionally would overwrite user customizations that `PROTECTED_PATHS` exists to defend
+6. Update must back up before overwriting (`backupIfExists` → `.bak`)
 
 #### Check F: Package manifest (`package.json` changed)
 
-1. Read `package.json`, parse `files` array
-2. Verify these directories are present: `bin/`, `src/`, `agents/`, `skills/`, `templates/`
-3. If any distributable directory exists at project root but is NOT in `files[]`: **FAIL**
+1. Parse `files[]`; it must contain: `bin/`, `src/`, `agents/`, `skills/`, `templates/`,
+   `_opensquad/`, `dashboard/`
+2. Any distributable root directory missing from `files[]` is a **FAIL**
+3. Verify the `version` script is intact — it regenerates
+   `templates/_opensquad/.opensquad-version` and stages it (see Check H)
 
 #### Check G: New top-level directory (any new directory at root)
 
-1. Run `ls -d */` at project root
-2. For each directory, check:
-   - Is it in `package.json files[]`? (if it should be distributed)
-   - Is it in `PROTECTED_PATHS`? (if it's user-owned content)
-   - Is it in `templates/`? (if it should be copied during init)
-3. Flag any directory that seems like it should be distributed but isn't configured
+For each new root directory, it must be classified as exactly one of:
+- **Distributed** → in `package.json files[]`, and reached by a template copy or `CANONICAL_SOURCES`
+- **User-owned** → in `PROTECTED_PATHS`
+- **Repo-only** → in `.npmignore`/`files[]` exclusion (e.g. `docs/`, `tests/`, `temp/`, `test-results/`)
 
-#### Check H: Init auto-installs agents and skills (`src/init.js` changed)
+Flag anything that is distributed but unreachable by any copy mechanism — the classic silent failure.
 
-1. Read `src/init.js`
-2. Verify it imports from `./agents.js`: `listAvailable` (aliased as `listAvailableAgents`) and `installAgent`
-3. Verify `installAllAgents` function exists and is called in `init()`
-4. Verify `installNonMcpSkills` function exists and is called in `init()`
-5. Verify `installNonMcpSkills` filters out: `opensquad-skill-creator`, type `mcp`, type `hybrid`, skills with `env`
-6. If any of these are missing: **FAIL** — "Init does not auto-install agents/skills"
+#### Check H: Version file (`package.json` version bumped, or `.opensquad-version` touched)
 
-#### Check I: Update installs new agents/skills (`src/update.js` changed)
+1. The shipped version file is `templates/_opensquad/.opensquad-version`, read by `src/update.js`
+2. It is generated by the `version` npm script on `npm version` — **never hand-edit it**
+3. It must match `package.json` `version`; a mismatch makes update report the wrong version
+4. Root `_opensquad/.opensquad-version` is stale and unused — do not "fix" it by syncing
 
-1. Read `src/update.js`
-2. Verify it imports from `./agents.js`: `listAvailable`, `listInstalled`, `installAgent`
-3. Verify it imports from `./skills.js`: `listAvailable`, `listInstalled`, `installSkill`, `getSkillMeta`
-4. Verify the update function installs missing agents (compares available vs installed)
-5. Verify it installs missing non-MCP skills with same filtering as init
-6. If any of these are missing: **FAIL** — "Update does not install new agents/skills"
+#### Check I: Localization (`src/**` changed with new user-facing strings)
+
+1. Every user-facing CLI string goes through `t()` from `src/i18n.js` — flag raw literals
+2. Any new key must exist in all three of `src/locales/{en,pt-BR,es}.json`
+   (`en.json` is the fallback; a key missing there renders as the raw key name)
 
 #### Check J: IDE contamination in shared files (any `_opensquad/core/**` or `templates/**` changed, excluding `templates/ide-templates/**`)
 
@@ -209,21 +241,29 @@ Scan shared files for IDE-specific conditional logic that should live in `templa
 **What to look for:** Content that says "do X for IDE Y" or "if using IDE Y, behave differently."
 
 **Contamination keywords** (IDE names used as conditional subjects):
-- `antigravity` or `.antigravity`
-- `cursorrules` or `.cursor/`
-- `windsurf` or `windsurfrules`
-- `opencode` or `open-code`
-- `codex`
-- Conditional patterns: "se antigravity", "if antigravity", "for antigravity", "if cursor", "if windsurf", "if codex"
+- `antigravity`, `cursorrules` or `.cursor/`, `windsurf`, `opencode` or `open-code`, `codex`,
+  `qwen`, `gemini`, `trae`, `copilot`
+- Conditional patterns: "se antigravity", "if antigravity", "for antigravity", "if cursor",
+  "if windsurf", "if codex"
 
-**Exclusions:** Mentions inside this opensquad-dev SKILL.md itself (documentation), and any comment explicitly labeled as a cross-reference.
+**Exclusions:** Mentions inside this opensquad-dev SKILL.md itself (documentation), and any comment
+explicitly labeled as a cross-reference.
 
 **Pass:** No IDE-specific conditional logic found in shared files.
-**Fail:** Report the file path, relevant line, and the correct location where the change should go instead (i.e., which `templates/ide-templates/{ide}/` file).
+**Fail:** Report the file path, relevant line, and the correct `templates/ide-templates/{ide}/` file
+where the change should go instead.
+
+#### Check K: Dashboard state contract (`_opensquad/core/runner.pipeline.md` or `dashboard/src/types/state.ts` changed)
+
+The runner and the dashboard communicate only through `squads/{name}/state.json`.
+
+1. The JSON shape written in `runner.pipeline.md` (initialize-state step) must match the types in
+   `dashboard/src/types/state.ts`
+2. `isValidState()` in `dashboard/src/plugin/squadWatcher.ts` silently **drops** malformed states —
+   a mismatch produces no error, just a dead dashboard
+3. If a required field was added or renamed on one side, it is a **FAIL** until both sides agree
 
 ### Step 3: Report results
-
-Present a clear summary:
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -233,9 +273,9 @@ Present a clear summary:
 Files changed: {N}
 Checks run: {N}
 
-✅ Check A: Core file sync — {N}/{N} files in sync
-❌ Check B: Skills sync — {file} out of sync
-   Fix: cp skills/{x}/SKILL.md templates/skills/{x}/SKILL.md
+✅ Check A: Canonical sources — no stale mirrors, all paths wired
+❌ Check B: Skill registry — skills/{x}/SKILL.md frontmatter has unparsed field 'foo'
+   Fix: add a regex for 'foo' in src/skills.js:getSkillMeta()
 ✅ Check F: Package manifest — all directories present
 ✅ Check J: IDE contamination — no IDE-specific logic in shared files
 
@@ -244,10 +284,22 @@ Result: {N} issues found
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
-If ALL checks pass, report clean:
+If ALL checks pass:
 ```
 ✅ All {N} checks passed — distribution is consistent.
 ```
 
-If any check fails, list the fix commands at the end so the user
-can approve them in batch.
+If any check fails, list the fix commands at the end so the user can approve them in batch.
+
+### Step 4: Confirm nothing regressed
+
+Distribution changes are covered by the test suite — `tests/init.test.js` and `tests/update.test.js`
+assert the copy behavior against a real temp directory.
+
+```bash
+npm test && npm run lint
+```
+
+Never run `npx opensquad init` inside this repository to verify — it copies `templates/` over the
+repo root and mixes distribution output with source. Use a scratch directory, or
+`init(tempDir, { _skipPrompts: true })` as the tests do.
