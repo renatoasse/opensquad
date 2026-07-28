@@ -1,44 +1,173 @@
-# Opensquad — Project Instructions
+# CLAUDE.md
 
-This project uses **Opensquad**, a multi-agent orchestration framework.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Quick Start
+## What this repository is
 
-Type `/opensquad` to open the main menu, or use any of these commands:
-- `/opensquad create` — Create a new squad
-- `/opensquad run <name>` — Run a squad
-- `/opensquad help` — See all commands
+This is the **source of the `opensquad` npm package** — not a consumer project. Users run
+`npx opensquad init` and the CLI here copies framework content into *their* project.
 
-## Directory Structure
+Two distinct halves live in this repo:
 
-- `_opensquad/` — Opensquad core files (do not modify manually)
-- `_opensquad/_memory/` — Persistent memory (company context, preferences)
-- `skills/` — Installed skills (integrations, scripts, prompts)
-- `squads/` — User-created squads
-- `squads/{name}/_investigations/` — Sherlock content investigations (profile analyses)
-- `squads/{name}/output/` — Generated content and files
-- `_opensquad/_browser_profile/` — Persistent browser sessions (login cookies, localStorage)
+1. **The installer CLI** (`bin/`, `src/`) — plain Node ESM, no build step. It only copies files,
+   parses YAML frontmatter with regexes, and prints localized messages. It contains no agent logic.
+2. **The framework runtime** (`_opensquad/core/`, `skills/`, `templates/`) — Markdown and YAML
+   *prompts* that the host IDE's LLM reads and executes. This is where squad behavior actually
+   lives. Changing "how opensquad behaves" almost always means editing Markdown here, not JS.
 
-## How It Works
+The repo also **dogfoods itself**: the root `.claude/`, `.mcp.json`, `squads/`, and `temp/squads/`
+are the output of running init inside the repo. Root `CLAUDE.md` used to be the shipped end-user
+template (still in `templates/ide-templates/claude-code/CLAUDE.md`); this file replaces it with
+developer guidance and is **not** distributed (`package.json` `files[]` excludes it).
 
-1. The `/opensquad` skill is the entry point for all interactions
-2. The **Architect** agent creates and modifies squads
-3. During squad creation, the **Sherlock** investigator can analyze reference profiles (Instagram, YouTube, Twitter/X, LinkedIn) to extract real content patterns
-4. The **Pipeline Runner** executes squads automatically
-5. Agents communicate via persona switching (inline) or subagents (background)
-6. Checkpoints pause execution for user input/approval
+## Commands
 
-## Rules
+```bash
+npm test                          # node --test tests/*.test.js — 126 tests, all in os.tmpdir()
+node --test tests/init.test.js    # single test file
+node --test --test-name-pattern "installs" tests/skills.test.js   # single test
+npm run lint                      # eslint src/ bin/ tests/ (dashboard is NOT linted)
 
-- Always use `/opensquad` commands to interact with the system
-- Do not manually edit files in `_opensquad/core/` unless you know what you're doing
-- Squad YAML files can be edited manually if needed, but prefer using `/opensquad edit`
-- Company context in `_opensquad/_memory/company.md` is loaded for every squad run
+node bin/opensquad.js <cmd>       # run the CLI locally against cwd
+```
 
-## Browser Sessions
+CI (`.github/workflows/ci.yml`) runs `npm ci && npm test && npm run lint` on Node 20.
 
-Opensquad uses a persistent Playwright browser profile to keep you logged into social media platforms.
-- Sessions are stored in `_opensquad/_browser_profile/` (gitignored, private to you)
-- First time accessing a platform, you'll log in manually once
-- Subsequent runs will reuse your saved session
-- **Important:** The native Claude Code Playwright plugin must be disabled. Opensquad uses its own `@playwright/mcp` server configured in `.mcp.json`.
+Dashboard (separate package, own `node_modules`):
+
+```bash
+cd dashboard && npm install && npm run dev     # vite dev server + squad watcher
+cd dashboard && npm run build                  # tsc -b && vite build
+```
+
+**Never run `node bin/opensquad.js init` in this repo** — it copies `templates/` over the repo root
+and mixes distribution output with source. Test against a scratch directory instead, or via
+`init(tempDir, { _skipPrompts: true })` as the tests do.
+
+## Distribution model — read before moving any file
+
+`package.json` `files[]` controls the npm payload: `bin/ src/ agents/ skills/ templates/ _opensquad/
+dashboard/`. A file outside those never reaches users. Within that payload there are **three
+different copy mechanisms**, and picking the wrong one is the most common bug:
+
+| Mechanism | Source | Behavior on `init` | Behavior on `update` |
+|---|---|---|---|
+| Common templates | `templates/**` except `ide-templates/` | copied, **skipped if the file already exists** | overwritten (`.bak` backup), except `PROTECTED_PATHS` |
+| IDE templates | `templates/ide-templates/{ide}/**` | copied only for selected IDEs | copied for IDEs saved in `preferences.md` |
+| Canonical sources | `_opensquad/core`, `_opensquad/config`, `dashboard` | copied from the package root verbatim | overwritten |
+| Skill registry | `skills/{id}/` | `installSkill()` copies the whole dir | new non-MCP skills auto-installed |
+| Agent registry | `agents/{id}/AGENT.md` | installed as `agents/{id}.agent.md` + `_catalog.yaml` | missing archetypes backfilled; existing ones never touched |
+
+`CANONICAL_SOURCES` in `src/init.js:15` is why `_opensquad/core/` has **no mirror** under
+`templates/`. Editing `_opensquad/core/*.md` is sufficient — do not create `templates/_opensquad/core/`.
+
+`src/update.js:26` `PROTECTED_PATHS` (`_opensquad/_memory`, `agents`, `squads`) is what keeps user
+data alive across updates. Any new top-level directory that holds *user-generated* content must be
+added there, or `npm update` will clobber it.
+
+`templates/_opensquad/.opensquad-version` is generated by the `version` npm script on `npm version`
+— never hand-edit it. (Root `_opensquad/.opensquad-version` is stale leftover and is not shipped.)
+
+### Stale developer docs
+
+`.claude/skills/opensquad-dev/SKILL.md` was a verification checklist that predated the
+canonical-sources refactor (`docs/superpowers/specs/2026-03-27-eliminate-template-duplication-design.md`)
+and described a `templates/` mirror plus an `installAllAgents()` that had never been implemented.
+It has since been rewritten against the real code. The plans under `docs/plans/` are **historical
+records, not current specs** — `docs/plans/2026-03-01-fix-init-distribution-plan.md` in particular
+specifies an init flow that was only partially executed. Verify against `src/` before trusting a plan.
+
+## The multi-IDE golden rule
+
+Nine IDEs are supported, each with a folder under `templates/ide-templates/`. Shared runtime files
+carry a banner comment (`> **SHARED FILE** — applies to ALL IDEs`).
+
+> When behavior must differ for one IDE, edit **only** `templates/ide-templates/{ide}/`.
+> Never add `if antigravity: …` style conditionals to `_opensquad/core/` or common templates.
+
+Example: Claude Code forces all checkpoint questions through `AskUserQuestion`. That override lives
+in `templates/ide-templates/claude-code/.claude/skills/opensquad/SKILL.md`, not in
+`_opensquad/core/runner.pipeline.md`.
+
+Each IDE folder ships its own entry point (`SKILL.md` / `AGENTS.md` / `.cursor/rules/*.mdc` /
+`.agent/rules/*`) plus its MCP config. VS Code, Qwen, and Gemini settings are **merged** rather than
+copied (`mergeVsCodeSettings` / `mergeQwenSettings` / `mergeGeminiSettings` in `src/init.js`) so
+existing user settings survive.
+
+## How a squad executes
+
+The IDE entry-point skill is the router. It reads `_opensquad/_memory/company.md` + `preferences.md`,
+then dispatches to one of three Markdown "programs":
+
+- `_opensquad/core/architect.agent.yaml` + `_opensquad/core/prompts/*` — squad **creation**, run as
+  phases (`discovery` → optional `sherlock-*` investigation → `design` → `build`), each dispatched
+  as a subagent.
+
+  Agent creation flows in one direction, and the distinction matters:
+
+  ```
+  agents/{id}/AGENT.md          (repo: archetype — reusable skeleton, no persona name)
+    → init/update               installs to  agents/{id}.agent.md  in the user's project
+      → design.prompt.md Phase E  reads _catalog.yaml, picks a match, SPECIALIZES it
+        → build.prompt.md          writes squads/{code}/agents/{id}.agent.md  (self-contained)
+  ```
+
+  An archetype is an **input to Design, never an output of Build**. It ships with a functional
+  name ("Researcher") so the squad-unique two-word naming rule in `design.prompt.md` stays
+  satisfiable, and with an `## Specialization Contract` telling the Architect what to fill in.
+  Build's Gate 1 rejects any generated agent that still carries the archetype banner or contract.
+  Deep domain knowledge stays in `_opensquad/core/best-practices/` — the archetype holds the
+  agent *shape*, the best-practices file holds the *knowledge*. Both are read when specializing.
+- `_opensquad/core/runner.pipeline.md` — squad **execution**.
+- `_opensquad/core/skills.engine.md` — skill install/remove.
+
+A generated squad (see `temp/squads/instagram-carrossel/` for a complete worked example) is:
+
+```
+squads/{code}/
+  squad.yaml           # identity, agents list, declared skills, data files
+  squad-party.csv      # id,name,icon,role,path,execution,skills — execution is inline|subagent
+  pipeline/pipeline.yaml   # ordered steps: type agent|checkpoint, depends_on, tasks
+  pipeline/steps/step-NN-*.md   # one prompt per step, frontmatter + inputs/outputs contract
+  pipeline/data/*.md       # tone of voice, quality criteria, anti-patterns
+  agents/{id}.agent.md     # persona, plus agents/{id}/tasks/*.md
+                           # (temp/squads/ predates this and still uses .custom.md)
+  output/{run-id}/         # run outputs, run id = YYYY-MM-DD-HHmmss
+  state.json               # live execution state
+  _memory/memories.md      # persisted learnings; _memory/runs.md = run log
+```
+
+`type: checkpoint` steps pause for human approval — they always run inline, never as a subagent.
+Skills are resolved fail-fast at pipeline start: every non-native skill must exist under `skills/`
+before step 1 runs.
+
+`_opensquad/core/best-practices/*.md` is a catalog (`_catalog.yaml`) of per-format writing guidance
+the Architect attaches to generated squads.
+
+## Dashboard contract
+
+`dashboard/` is a Vite + React + Phaser 2D "virtual office". Its only integration point with the
+framework is the file system: the Vite plugin `dashboard/src/plugin/squadWatcher.ts` chokidar-watches
+`squads/*/state.json` and `squads/*/squad.yaml` and pushes over a WebSocket at `/__squads_ws`
+(HTTP fallback `/api/snapshot`).
+
+The runner writes `state.json` before every step and after every handoff — that write is the entire
+protocol. Its shape is specified in `_opensquad/core/runner.pipeline.md` (step 6) and typed in
+`dashboard/src/types/state.ts`; changing one without the other breaks the dashboard silently, since
+`isValidState()` just drops malformed states.
+
+## Conventions
+
+- Node ESM only (`"type": "module"`), Node ≥ 20, zero transpilation in `src/`.
+- Frontmatter is parsed with hand-rolled regexes (`src/skills.js:getSkillMeta`), including YAML
+  folded scalars (`description: >`) and localized `description_pt-BR` / `description_es` keys.
+  Adding a frontmatter field means adding a regex there, not swapping in a YAML parser.
+- All CLI user-facing strings go through `t()` from `src/i18n.js`; add keys to all three of
+  `src/locales/{en,pt-BR,es}.json` (`en.json` is the fallback).
+- Tests are `node:test` + `node:assert/strict`, no framework. Every test does its own
+  `mkdtemp`/`rm` — never let a test write into the repo.
+- Windows compatibility is load-bearing: normalize with `.replace(/\\/g, '/')` before comparing
+  paths, and the Architect prompt explicitly forbids `mkdir` via Bash in generated squads.
+- Design docs live in `docs/plans/` and `docs/specs/` (plus `docs/superpowers/`), named
+  `YYYY-MM-DD-topic-{design,plan}.md`. Check there for the rationale behind a subsystem before
+  redesigning it.
