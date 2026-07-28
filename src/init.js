@@ -5,6 +5,11 @@ import { execSync } from 'node:child_process';
 import { createPrompt } from './prompt.js';
 import { loadLocale, t } from './i18n.js';
 import { listAvailable, installSkill } from './skills.js';
+import {
+  listAvailable as listAvailableAgents,
+  installAgent,
+  installCatalog as installAgentCatalog,
+} from './agents.js';
 import { logEvent } from './logger.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -83,6 +88,7 @@ export async function init(targetDir, options = {}) {
   await copyCommonTemplates(targetDir);
   await copyCanonicalSources(targetDir);
   await copyIdeTemplates(ides, targetDir);
+  await installAllAgents(targetDir);
   await installAllSkills(targetDir);
   if (!options._skipPrompts) {
     await installDependencies(targetDir);
@@ -149,6 +155,17 @@ export async function loadSavedLocale(targetDir) {
     // No preferences file yet
   }
   await loadLocale('English');
+}
+
+async function installAllAgents(targetDir) {
+  const available = await listAvailableAgents();
+  for (const id of available) {
+    await installAgent(id, targetDir);
+    console.log(`  ${t('createdFile', { path: `agents/${id}.agent.md` })}`);
+  }
+  if (await installAgentCatalog(targetDir)) {
+    console.log(`  ${t('createdFile', { path: 'agents/_catalog.yaml' })}`);
+  }
 }
 
 async function installAllSkills(targetDir) {

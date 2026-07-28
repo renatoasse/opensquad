@@ -109,6 +109,16 @@ No `base_agent` field in frontmatter.
 Every agent file must include ALL required sections.
 Use knowledge from the best-practices files to write sections with high quality.
 
+Agents that Design based on a predefined archetype (from `agents/_catalog.yaml`) are written out
+in full here, exactly like from-scratch agents. The archetype is an **input to Design, never an
+output of Build** — the generated squad agent must be self-contained:
+- No reference back to `agents/{id}.agent.md`, and no `archetype:` field in frontmatter
+- The `> **ARCHETYPE**` banner and the `## Specialization Contract` section MUST NOT appear in
+  the generated file — they are instructions to the Architect, not agent content
+- `## Output Examples` must be present and fully written, since archetypes deliberately omit them
+- The persona name must be the squad-assigned two-word name, never the archetype's functional
+  name ("Researcher", "Reviewer", ...)
+
 The squad-party.csv `path` column points to: `./agents/{agent-id}.agent.md`
 
 If the agent includes `tasks:` in its frontmatter, ALSO create all referenced task files at `squads/{code}/agents/{agent-id}/tasks/{task}.md` — one file per entry in the `tasks:` list. These files are REQUIRED for the pipeline runner to execute the agent. Never add `tasks:` to the frontmatter without also creating the actual task files.
@@ -438,6 +448,9 @@ For EACH `.agent.md` file, verify:
 - [ ] Has `## Quality Criteria`
 - [ ] Has `## Integration`
 - [ ] Total lines >= 100
+- [ ] Does NOT contain a `> **ARCHETYPE**` banner (leaked from a catalog archetype)
+- [ ] Does NOT contain a `## Specialization Contract` section (leaked from a catalog archetype)
+- [ ] Persona name is the squad-assigned two-word name, not an archetype functional name
 
 If ANY check fails: fix the agent file and re-validate. Max 2 fix attempts.
 

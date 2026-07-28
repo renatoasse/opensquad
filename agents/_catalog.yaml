@@ -1,0 +1,75 @@
+# Agent Catalog
+# The Architect reads this file to discover which predefined agent archetypes are available.
+# Read the full AGENT.md only for archetypes relevant to the squad being created.
+#
+# Archetypes are FOUNDATIONS, not finished agents. The Architect specializes each one
+# per squad: assigns the two-word persona name, embeds researched domain knowledge,
+# and generates Output Examples. See _opensquad/core/prompts/design.prompt.md (Phase E).
+#
+# Each archetype pairs with a best-practices file in _opensquad/core/best-practices/,
+# which holds the deep domain knowledge. The archetype holds the agent-shaped skeleton.
+
+catalog:
+  - id: researcher
+    name: "Researcher"
+    icon: "🔍"
+    whenToUse: "The squad needs to gather facts, monitor news, verify claims, or produce a structured research brief before anything gets written."
+    bestPractices: researching
+    execution: subagent
+    file: researcher/AGENT.md
+
+  - id: strategist
+    name: "Strategist"
+    icon: "🧭"
+    whenToUse: "The squad needs editorial direction — angles, positioning, audience segmentation, or a content calendar — between research and writing."
+    bestPractices: strategist
+    execution: inline
+    file: strategist/AGENT.md
+
+  - id: copywriter
+    name: "Copywriter"
+    icon: "✍️"
+    whenToUse: "The squad produces persuasive short-form copy: hooks, captions, carousel slides, CTAs, sales messages, viral angles."
+    bestPractices: copywriting
+    execution: inline
+    file: copywriter/AGENT.md
+
+  - id: technical-writer
+    name: "Technical Writer"
+    icon: "📝"
+    whenToUse: "The squad produces long-form explanatory content: articles, blog posts, documentation, tutorials, educational material."
+    bestPractices: technical-writing
+    execution: inline
+    file: technical-writer/AGENT.md
+
+  - id: image-designer
+    name: "Image Designer"
+    icon: "🎨"
+    whenToUse: "The squad produces visuals — carousel slides, social graphics, thumbnails — usually as HTML/CSS rendered to image."
+    bestPractices: image-design
+    execution: inline
+    file: image-designer/AGENT.md
+
+  - id: data-analyst
+    name: "Data Analyst"
+    icon: "📊"
+    whenToUse: "The squad interprets metrics, benchmarks performance, or turns raw data into an analytical report or dashboard input."
+    bestPractices: data-analysis
+    execution: subagent
+    file: data-analyst/AGENT.md
+
+  - id: reviewer
+    name: "Reviewer"
+    icon: "✅"
+    whenToUse: "Always. Every squad needs quality control before delivery — scoring against criteria and issuing an APPROVE/REJECT verdict."
+    bestPractices: review
+    execution: inline
+    file: reviewer/AGENT.md
+
+  - id: publisher
+    name: "Publisher"
+    icon: "📤"
+    whenToUse: "The squad delivers to an external platform — Instagram, LinkedIn, X, YouTube, email — rather than stopping at a file."
+    bestPractices: social-networks-publishing
+    execution: inline
+    file: publisher/AGENT.md

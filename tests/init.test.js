@@ -4,6 +4,7 @@ import { mkdtemp, rm, stat, readFile, readdir, writeFile, mkdir } from 'node:fs/
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { init } from '../src/init.js';
+import { listAvailable as listAvailableAgents } from '../src/agents.js';
 
 test('init creates _opensquad directory structure', async () => {
   const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
@@ -289,15 +290,12 @@ test('init with claude-code IDE creates .mcp.json with playwright server', async
   }
 });
 
-test('init does not create agents dir when no bundled agents exist', async () => {
+test('init creates the agents dir from the bundled registry', async () => {
   const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
   try {
     await init(tempDir, { _skipPrompts: true });
-    // No bundled agents in dev environment — agents/ should not be created
-    await assert.rejects(
-      stat(join(tempDir, 'agents')),
-      { code: 'ENOENT' }
-    );
+    await stat(join(tempDir, 'agents'));
+    await stat(join(tempDir, 'agents', 'reviewer.agent.md'));
   } finally {
     await rm(tempDir, { recursive: true, force: true });
   }
@@ -695,6 +693,37 @@ test('init with _ides trae creates .trae/mcp.json with playwright server', async
     const config = JSON.parse(content);
     assert.ok(config.mcpServers.playwright);
     assert.ok(config.mcpServers.playwright.args.includes('--config'));
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
+});
+
+test('init installs the full agent catalog', async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
+  try {
+    await init(tempDir, { _skipPrompts: true });
+
+    const entries = await readdir(join(tempDir, 'agents'));
+    const installed = entries.filter((e) => e.endsWith('.agent.md'));
+    const bundled = await listAvailableAgents();
+    assert.equal(installed.length, bundled.length);
+    for (const id of bundled) {
+      assert.ok(installed.includes(`${id}.agent.md`), `${id} was not installed`);
+    }
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
+});
+
+test('init installs the agent catalog index for the Architect', async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
+  try {
+    await init(tempDir, { _skipPrompts: true });
+
+    // design.prompt.md Phase E reads this index to discover archetypes
+    const raw = await readFile(join(tempDir, 'agents', '_catalog.yaml'), 'utf-8');
+    assert.ok(raw.includes('catalog:'));
+    assert.ok(raw.includes('whenToUse'));
   } finally {
     await rm(tempDir, { recursive: true, force: true });
   }

@@ -4,6 +4,12 @@ import { fileURLToPath } from 'node:url';
 import { loadLocale, t } from './i18n.js';
 import { getTemplateEntries, loadSavedLocale, copyCanonicalSources } from './init.js';
 import { listAvailable as listAvailableSkills, listInstalled as listInstalledSkills, installSkill, getSkillMeta } from './skills.js';
+import {
+  listAvailable as listAvailableAgents,
+  listInstalled as listInstalledAgents,
+  installAgent,
+  installCatalog as installAgentCatalog,
+} from './agents.js';
 import { logEvent } from './logger.js';
 
 async function loadSavedIdes(targetDir) {
@@ -142,6 +148,23 @@ export async function update(targetDir) {
     backupFn: backupIfExists,
     protectedFn: isProtected,
   });
+
+  // 6a-bis. Backfill agents added since the user's install.
+  // `agents` is in PROTECTED_PATHS, so an agent already on disk is never overwritten —
+  // users customize these. Only genuinely missing archetypes are added.
+  const availableAgents = await listAvailableAgents();
+  const installedAgents = await listInstalledAgents(targetDir);
+  for (const id of availableAgents) {
+    if (installedAgents.includes(id)) continue;
+    await installAgent(id, targetDir);
+    console.log(`  ${t('createdFile', { path: `agents/${id}.agent.md` })}`);
+    count++;
+  }
+  // The catalog is generated, never user-edited — refresh so new archetypes are discoverable.
+  if (availableAgents.length > 0 && await installAgentCatalog(targetDir)) {
+    console.log(`  ${t('updatedFile', { path: 'agents/_catalog.yaml' })}`);
+    count++;
+  }
 
   // 6b. Install new non-MCP, non-hybrid bundled skills not already present
   const availableSkills = await listAvailableSkills();
