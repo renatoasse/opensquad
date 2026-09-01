@@ -50,6 +50,8 @@ Para qualquer pessoa ou equipe que queira automatizar trabalho operacional e rep
 npx opensquad init
 ```
 
+> **Nota:** Sempre abra sua IDE de IA a partir da pasta do projeto onde você rodou `npx opensquad init`. O comando `/opensquad` só fica disponível quando a IDE é aberta nessa pasta.
+
 Para atualizar uma instalação existente:
 
 ```bash
