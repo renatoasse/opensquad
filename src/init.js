@@ -18,7 +18,7 @@ const CANONICAL_SOURCES = [
   { src: join(PACKAGE_ROOT, 'dashboard'), dest: 'dashboard' },
 ];
 
-const DASHBOARD_EXCLUDES = ['node_modules', 'tsconfig.tsbuildinfo', 'squads'];
+const DASHBOARD_EXCLUDES = ['node_modules', 'tsconfig.tsbuildinfo', 'squads', 'test-results'];
 
 const LANGUAGES = [
   { label: 'Português (Brasil)', value: 'Português (Brasil)' },

@@ -510,7 +510,7 @@ test('init with cursor IDE creates .cursorignore with browser profile exclusion'
   }
 });
 
-test('init does not copy dashboard node_modules or dist to user project', async () => {
+test('init does not copy dashboard node_modules, dist or test-results to user project', async () => {
   const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
 
   try {
@@ -524,6 +524,10 @@ test('init does not copy dashboard node_modules or dist to user project', async 
       stat(join(tempDir, 'dashboard', 'dist')),
       { code: 'ENOENT' }
     );
+    await assert.rejects(
+      stat(join(tempDir, 'dashboard', 'test-results')),
+      { code: 'ENOENT' }
+    );    
   } finally {
     await rm(tempDir, { recursive: true, force: true });
   }

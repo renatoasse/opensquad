@@ -2,6 +2,6 @@ tests/
 test-results/
 temp/squads/
 .claude/settings.local.json
-dashboards/test-results/
+dashboard/test-results/
 docs/
 .github/
