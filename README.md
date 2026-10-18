@@ -49,6 +49,7 @@ Para qualquer pessoa ou equipe que queira automatizar trabalho operacional e rep
 ```bash
 npx opensquad init
 ```
+**Nota:** Sempre abra sua IDE de IA dentro da pasta do projeto onde você rodou `npx opensquad init`. O comando `/opensquad` só fica disponível quando a IDE é aberta nessa pasta.
 
 Para atualizar uma instalação existente:
 
@@ -190,7 +191,30 @@ Example:
 - **Researcher** gathers information and industry trends
 - **Strategist** generates ideas and defines the approach
 - **Writer** produces the final content
+- **Designer** creates the images for social media
 - **Reviewer** ensures quality before delivery
+
+## Who is it for?
+
+For anyone or any team that wants to automate operational, repetitive work with AI agents.
+
+- **Content creators** — automate research, writing and design for social media, blogs and newsletters
+- **Agencies and freelancers** — build reusable pipelines to serve multiple clients
+- **Marketing teams** — produce consistent content with human approval at checkpoints
+- **HR teams** — automate resume screening, internal communications and onboarding
+- **Management teams** — generate reports, presentations and dashboards from raw data
+
+## What can you do with it?
+
+- **Content production** — carousels, static posts, blog articles, LinkedIn, with automatic publishing included
+- **Content repurposing** — turn a video into a carousel, article, thread or any other format
+- **Video creation and editing** — cut long videos into reels, build videos from scratch
+- **Data analysis** — turn spreadsheets into presentations, websites or dashboards
+- **Campaign planning** — generate scripts, emails, WhatsApp messages and launch schedules, all at once
+- **Long-form video scripts** — VSLs, webinars, classes
+- **Trend radar** — monitor news and trends in your niche and automatically feed other squads, such as the content production one
+- **Tutorials and manuals** — the agent browses the web, takes screenshots and builds a complete step-by-step document (ideal for SaaS manuals)
+- And much more — any workflow that involves research, creation or automation
 
 ## Installation
 
