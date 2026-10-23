@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Fixed
+- `update` no longer overwrites a customized `CLAUDE.md`, `AGENTS.md`, `GEMINI.md` or `QWEN.md`; the new template is written next to it as `*.opensquad.md`
+- `update` merges IDE JSON configs (`.mcp.json`, `.cursor/mcp.json`, `.vscode/mcp.json`, `.vscode/settings.json`, `.gemini/settings.json`, `.qwen/settings.json`, `.trae/mcp.json`) instead of replacing them, so user MCP servers and settings are kept
+- `update` removes files the package no longer ships from `_opensquad/core/`, `_opensquad/config/` and `dashboard/src/` (kept as `.bak`), so leftovers from older versions no longer break the dashboard build
+
 ## [0.1.15] - 2026-04-10
 
 ### Added

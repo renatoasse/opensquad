@@ -46,6 +46,10 @@ test('all locales have update keys', async () => {
     'updatePreserved',
     'updateFileCount',
     'updateLatestHint',
+    'updateKeptUserFile',
+    'updateMergedFile',
+    'updateInvalidJson',
+    'updateRemovedStaleFile',
   ];
   const localeFiles = ['en', 'pt-BR', 'es'];
 

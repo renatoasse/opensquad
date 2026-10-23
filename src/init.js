@@ -1,4 +1,4 @@
-import { cp, mkdir, readdir, readFile, writeFile, stat } from 'node:fs/promises';
+import { cp, mkdir, readdir, readFile, rename, writeFile, stat } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execSync } from 'node:child_process';
@@ -19,6 +19,14 @@ const CANONICAL_SOURCES = [
 ];
 
 const DASHBOARD_EXCLUDES = ['node_modules', 'tsconfig.tsbuildinfo', 'squads'];
+
+// Directories fully owned by the package: on update, files there that the
+// package no longer ships are removed (kept as .bak).
+const PACKAGE_OWNED_DIRS = [
+  join('_opensquad', 'core'),
+  join('_opensquad', 'config'),
+  join('dashboard', 'src'),
+];
 
 const LANGUAGES = [
   { label: 'Português (Brasil)', value: 'Português (Brasil)' },
@@ -434,6 +442,46 @@ export async function copyCanonicalSources(targetDir, { overwrite = false, backu
           console.log(`  ${t('updatedFile', { path: normalizedPath })}`);
         }
       }
+      count++;
+    }
+  }
+
+  return count;
+}
+
+export async function removeStaleCanonicalFiles(targetDir, { protectedFn = null } = {}) {
+  let count = 0;
+
+  for (const dir of PACKAGE_OWNED_DIRS) {
+    const packageDir = join(PACKAGE_ROOT, dir);
+    const userDir = join(targetDir, dir);
+    try {
+      await stat(packageDir);
+    } catch {
+      continue; // source dir doesn't exist (e.g., running from a partial install)
+    }
+
+    let entries;
+    try {
+      entries = await getTemplateEntries(userDir);
+    } catch {
+      continue; // nothing installed here yet
+    }
+
+    for (const entry of entries) {
+      if (entry.endsWith('.bak')) continue;
+      const relativeToDir = entry.slice(userDir.length + 1);
+      const normalizedPath = join(dir, relativeToDir).replace(/\\/g, '/');
+      if (protectedFn && protectedFn(normalizedPath)) continue;
+
+      try {
+        await stat(join(packageDir, relativeToDir));
+        continue; // still shipped
+      } catch {
+        // no longer shipped — move it out of the way
+      }
+      await rename(entry, entry + '.bak');
+      console.log(`  ${t('updateRemovedStaleFile', { path: normalizedPath })}`);
       count++;
     }
   }
