@@ -129,6 +129,52 @@ test('update merges .vscode/settings.json, keeping user settings', async () => {
   }
 });
 
+test('update moves files no longer shipped in canonical sources to .bak', async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
+
+  try {
+    await init(tempDir, { _skipPrompts: true });
+    const staleTs = join(tempDir, 'dashboard', 'src', 'office', 'textures.ts');
+    const stalePrompt = join(tempDir, '_opensquad', 'core', 'prompts', 'sherlock.prompt.md');
+    await writeFile(staleTs, 'export const shoeDark = 1;', 'utf-8');
+    await writeFile(stalePrompt, 'old sherlock prompt', 'utf-8');
+
+    await update(tempDir);
+
+    await assert.rejects(stat(staleTs), { code: 'ENOENT' });
+    await assert.rejects(stat(stalePrompt), { code: 'ENOENT' });
+    assert.equal(await readFile(staleTs + '.bak', 'utf-8'), 'export const shoeDark = 1;');
+    assert.equal(await readFile(stalePrompt + '.bak', 'utf-8'), 'old sherlock prompt');
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
+});
+
+test('update does not remove files outside the package-owned directories', async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
+
+  try {
+    await init(tempDir, { _skipPrompts: true });
+    const userFiles = [
+      join(tempDir, 'dashboard', 'notes.md'),
+      join(tempDir, 'dashboard', 'node_modules', 'pkg', 'index.js'),
+      join(tempDir, '_opensquad', '_memory', 'company.md'),
+    ];
+    for (const file of userFiles) {
+      await mkdir(join(file, '..'), { recursive: true });
+      await writeFile(file, 'keep me', 'utf-8');
+    }
+
+    await update(tempDir);
+
+    for (const file of userFiles) {
+      assert.equal(await readFile(file, 'utf-8'), 'keep me');
+    }
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
+});
+
 test('update preserves _memory contents', async () => {
   const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
 

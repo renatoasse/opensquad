@@ -2,7 +2,7 @@ import { cp, mkdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { join, dirname, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadLocale, t } from './i18n.js';
-import { getTemplateEntries, loadSavedLocale, copyCanonicalSources } from './init.js';
+import { getTemplateEntries, loadSavedLocale, copyCanonicalSources, removeStaleCanonicalFiles } from './init.js';
 import { listAvailable as listAvailableSkills, listInstalled as listInstalledSkills, installSkill, getSkillMeta } from './skills.js';
 import { logEvent } from './logger.js';
 
@@ -211,7 +211,10 @@ export async function update(targetDir) {
     protectedFn: isProtected,
   });
 
-  // 6b. Install new non-MCP, non-hybrid bundled skills not already present
+  // 6b. Remove files the package no longer ships (backed up as .bak)
+  count += await removeStaleCanonicalFiles(targetDir, { protectedFn: isProtected });
+
+  // 6c. Install new non-MCP, non-hybrid bundled skills not already present
   const availableSkills = await listAvailableSkills();
   const installedSkills = await listInstalledSkills(targetDir);
   for (const id of availableSkills) {

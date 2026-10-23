@@ -29,6 +29,7 @@
   "updateKeptUserFile": "⚠️  Se conservó tu {path} — la nueva versión se guardó en {upstream}. Compara e incorpora lo que necesites.",
   "updateMergedFile": "📄 Combinado {path} (tus entradas se conservaron)",
   "updateInvalidJson": "⚠️  {path} tiene JSON inválido — no se modificó. Compáralo manualmente con la plantilla de Opensquad.",
+  "updateRemovedStaleFile": "🗑️  Eliminado {path} (ya no forma parte del paquete; respaldo: {path}.bak)",
   "skillsNotInitialized": "Instalación de Opensquad no encontrada. Ejecuta 'init' primero.",
   "skillsFetching": "Obteniendo registro de skills...",
   "skillsInstalledHeader": "Instaladas:",
