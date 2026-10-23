@@ -22,13 +22,108 @@ test('update overwrites system files', async () => {
 
   try {
     await init(tempDir, { _skipPrompts: true });
-    await writeFile(join(tempDir, 'CLAUDE.md'), 'garbage content', 'utf-8');
+    const configPath = join(tempDir, '_opensquad', 'config', 'playwright.config.json');
+    await writeFile(configPath, 'garbage content', 'utf-8');
+
+    await update(tempDir);
+
+    const content = await readFile(configPath, 'utf-8');
+    assert.ok(!content.includes('garbage content'));
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
+});
+
+test('update keeps a customized CLAUDE.md and writes CLAUDE.opensquad.md next to it', async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
+
+  try {
+    await init(tempDir, { _skipPrompts: true });
+    await writeFile(join(tempDir, 'CLAUDE.md'), 'my own instructions', 'utf-8');
 
     await update(tempDir);
 
     const content = await readFile(join(tempDir, 'CLAUDE.md'), 'utf-8');
-    assert.ok(content.includes('Opensquad'));
-    assert.ok(!content.includes('garbage content'));
+    assert.equal(content, 'my own instructions');
+    const upstream = await readFile(join(tempDir, 'CLAUDE.opensquad.md'), 'utf-8');
+    assert.ok(upstream.includes('Opensquad'));
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
+});
+
+test('update does not write CLAUDE.opensquad.md when CLAUDE.md matches the template', async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
+
+  try {
+    await init(tempDir, { _skipPrompts: true });
+
+    await update(tempDir);
+
+    await assert.rejects(
+      stat(join(tempDir, 'CLAUDE.opensquad.md')),
+      { code: 'ENOENT' }
+    );
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
+});
+
+test('update merges .mcp.json, keeping user MCP servers', async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
+
+  try {
+    await init(tempDir, { _skipPrompts: true });
+    await writeFile(join(tempDir, '.mcp.json'), JSON.stringify({
+      mcpServers: {
+        playwright: { command: 'npx', args: ['@playwright/mcp@0.0.1'] },
+        'chrome-mcp': { command: 'node', args: ['chrome.js'] },
+        gsc: { command: 'uvx', args: ['gsc-mcp'] },
+      },
+    }), 'utf-8');
+
+    await update(tempDir);
+
+    const parsed = JSON.parse(await readFile(join(tempDir, '.mcp.json'), 'utf-8'));
+    assert.deepEqual(parsed.mcpServers['chrome-mcp'], { command: 'node', args: ['chrome.js'] });
+    assert.deepEqual(parsed.mcpServers.gsc, { command: 'uvx', args: ['gsc-mcp'] });
+    assert.ok(parsed.mcpServers.playwright.args.includes('@playwright/mcp@latest'));
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
+});
+
+test('update leaves an invalid .mcp.json untouched', async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
+
+  try {
+    await init(tempDir, { _skipPrompts: true });
+    await writeFile(join(tempDir, '.mcp.json'), '{ not json', 'utf-8');
+
+    await update(tempDir);
+
+    const content = await readFile(join(tempDir, '.mcp.json'), 'utf-8');
+    assert.equal(content, '{ not json');
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
+});
+
+test('update merges .vscode/settings.json, keeping user settings', async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
+
+  try {
+    await init(tempDir, { _skipPrompts: true, _ides: ['vscode-copilot'] });
+    await writeFile(join(tempDir, '.vscode', 'settings.json'), JSON.stringify({
+      'editor.tabSize': 4,
+      'chat.promptFilesLocations': ['.my/prompts'],
+    }), 'utf-8');
+
+    await update(tempDir);
+
+    const parsed = JSON.parse(await readFile(join(tempDir, '.vscode', 'settings.json'), 'utf-8'));
+    assert.equal(parsed['editor.tabSize'], 4);
+    assert.deepEqual(parsed['chat.promptFilesLocations'], ['.my/prompts', '.github/prompts']);
   } finally {
     await rm(tempDir, { recursive: true, force: true });
   }

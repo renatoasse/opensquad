@@ -1,4 +1,4 @@
-import { cp, mkdir, readFile, stat } from 'node:fs/promises';
+import { cp, mkdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { join, dirname, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadLocale, t } from './i18n.js';
@@ -34,6 +34,39 @@ function isProtected(relativePath) {
   return PROTECTED_PATHS.some(
     (p) => normalized === p || normalized.startsWith(p + '/')
   );
+}
+
+// IDE instruction files users commonly customize. When the existing file differs
+// from the template, it is kept and the template is written next to it instead.
+const USER_INSTRUCTION_FILES = ['CLAUDE.md', 'AGENTS.md', 'GEMINI.md', 'QWEN.md'];
+
+function isPlainObject(value) {
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+// Merge an IDE JSON template into the user's config: Opensquad entries (e.g. the
+// playwright MCP server) are added or updated, everything else the user has is kept.
+function mergeJsonConfig(existing, template) {
+  const merged = { ...existing };
+  for (const [key, value] of Object.entries(template)) {
+    const current = merged[key];
+    if (isPlainObject(value) && isPlainObject(current)) {
+      merged[key] = { ...current, ...value };
+    } else if (Array.isArray(value) && Array.isArray(current)) {
+      merged[key] = [...current, ...value.filter((item) => !current.includes(item))];
+    } else {
+      merged[key] = value;
+    }
+  }
+  return merged;
+}
+
+async function readIfExists(path) {
+  try {
+    return await readFile(path, 'utf-8');
+  } catch {
+    return null;
+  }
 }
 
 async function backupIfExists(destPath) {
@@ -110,6 +143,7 @@ export async function update(targetDir) {
 
   // 6. Copy IDE-specific templates based on saved preferences
   const ides = await loadSavedIdes(targetDir);
+  const writtenPaths = new Set();
   for (const ide of ides) {
     const ideSrcDir = join(TEMPLATES_DIR, 'ide-templates', ide);
     let ideEntries;
@@ -121,12 +155,46 @@ export async function update(targetDir) {
     for (const entry of ideEntries) {
       const relPath = relative(ideSrcDir, entry);
       if (isProtected(relPath)) continue;
+      // Shared files (e.g. AGENTS.md for Codex and OpenCode) are handled once
+      if (writtenPaths.has(relPath)) continue;
+      writtenPaths.add(relPath);
 
       const destPath = join(targetDir, relPath);
+      const displayPath = relPath.replaceAll('\\', '/');
       await mkdir(dirname(destPath), { recursive: true });
+
+      const existing = await readIfExists(destPath);
+      if (existing !== null && USER_INSTRUCTION_FILES.includes(displayPath)) {
+        const template = await readFile(entry, 'utf-8');
+        if (existing === template) continue;
+        const upstreamPath = displayPath.replace(/\.md$/, '.opensquad.md');
+        await writeFile(join(targetDir, upstreamPath), template, 'utf-8');
+        console.log(`  ${t('updateKeptUserFile', { path: displayPath, upstream: upstreamPath })}`);
+        count++;
+        continue;
+      }
+
+      if (existing !== null && displayPath.endsWith('.json')) {
+        let parsed;
+        try {
+          parsed = JSON.parse(existing);
+        } catch {
+          parsed = null;
+        }
+        if (!isPlainObject(parsed)) {
+          console.log(`  ${t('updateInvalidJson', { path: displayPath })}`);
+          continue;
+        }
+        const template = JSON.parse(await readFile(entry, 'utf-8'));
+        await backupIfExists(destPath);
+        await writeFile(destPath, JSON.stringify(mergeJsonConfig(parsed, template), null, 2), 'utf-8');
+        console.log(`  ${t('updateMergedFile', { path: displayPath })} (backup: ${displayPath}.bak)`);
+        count++;
+        continue;
+      }
+
       const backed = await backupIfExists(destPath);
       await cp(entry, destPath);
-      const displayPath = relPath.replaceAll('\\', '/');
       if (backed) {
         console.log(`  ${t('updatedFile', { path: displayPath })} (backup: ${displayPath}.bak)`);
       } else {
