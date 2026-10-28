@@ -52,7 +52,7 @@ if (command === 'init') {
   printRuns(runs);
 } else {
   console.log(`
-  opensquad — Multi-agent orchestration for Claude Code
+  opensquad — Multi-agent orchestration for your AI IDE
 
   Usage:
     npx opensquad init                    Initialize Opensquad
@@ -65,7 +65,7 @@ if (command === 'init') {
     npx opensquad agents install <name>   Install a predefined agent
     npx opensquad agents remove <name>    Remove an agent
     npx opensquad agents update           Update all agents
-    npx opensquad runs [squad-name]     View execution history
+    npx opensquad runs [squad-name]       View execution history
 
   Learn more: https://github.com/renatoasse/opensquad
   `);

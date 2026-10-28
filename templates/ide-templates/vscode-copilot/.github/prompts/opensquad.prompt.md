@@ -83,7 +83,7 @@ When the user provides a command directly, route without showing a menu first:
 |---|---|
 | `/opensquad` | Show Main Menu |
 | `/opensquad help` | Show help text |
-| `/opensquad create <description>` | Load Architect agent → Create Squad flow |
+| `/opensquad create <description>` | Run Create Squad — Phased Orchestration (see below) |
 | `/opensquad run <name>` | Load Pipeline Runner → Execute squad |
 | `/opensquad list` | List all squads in `squads/` directory |
 | `/opensquad edit <name>` | Load Architect agent → Edit Squad flow |
@@ -128,15 +128,14 @@ When a pipeline step is a checkpoint:
 - Wait for user response before continuing to the next step
 - Never skip checkpoints
 
-## Creating a Squad (Architect Agent)
+## Create Squad — Phased Orchestration
 
-When creating a squad (`/opensquad create <description>` or menu option):
+When the user runs `/opensquad create <description>` (or picks "Create a new squad" from the menu):
 
-1. Read `_opensquad/core/architect.agent.yaml`
-2. Adopt the Architect persona
-3. Ask about reference profiles for Sherlock investigation (Instagram, YouTube, Twitter/X, LinkedIn — provide URLs)
-4. Collaborate with the user to design the squad pipeline
-5. Write all squad files to `squads/<name>/`
+1. Read `_opensquad/core/create.orchestration.md` completely — it is the single source of truth for squad creation
+2. Follow its four phases in order: Discovery → Investigation (optional) → Design → Build
+3. Each phase reads its own prompt from `_opensquad/core/prompts/` — never improvise a squad design without going through the phases
+4. Honor the resume rules in that file when `squads/{code}/_build/` artifacts already exist from a previous session
 
 ## Skills Engine
 

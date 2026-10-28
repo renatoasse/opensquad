@@ -210,10 +210,13 @@ Lembre-se da [Regra de Ouro](#a-regra-de-ouro-verticalize-não-complique): prefi
 git clone https://github.com/renatoasse/opensquad.git
 cd opensquad
 npm install
-node --test
+npm test
+npm run lint
 ```
 
 Requisito: **Node.js 20+**
+
+O CI roda exatamente `npm test` e `npm run lint` em cada PR, então rode os dois antes de abrir o seu.
 
 ## Convenções de Commit
 
@@ -469,10 +472,13 @@ Remember the [Golden Rule](#the-golden-rule-verticalize-dont-complicate): prefer
 git clone https://github.com/renatoasse/opensquad.git
 cd opensquad
 npm install
-node --test
+npm test
+npm run lint
 ```
 
 Requirement: **Node.js 20+**
+
+CI runs exactly `npm test` and `npm run lint` on every PR, so run both before opening yours.
 
 ## Commit Conventions
 

@@ -57,7 +57,7 @@ Parse user input and route to the appropriate action:
 |---------------|--------|
 | `/opensquad` or `/opensquad menu` | Show main menu |
 | `/opensquad help` | Show help text |
-| `/opensquad create <description>` | Run Create Squad — Phased Orchestration flow |
+| `/opensquad create <description>` | Run Create Squad — Phased Orchestration (see below) |
 | `/opensquad list` | List all squads in `squads/` directory |
 | `/opensquad run <name>` | Load Pipeline Runner → Execute squad |
 | `/opensquad edit <name> <changes>` | Load Architect → Edit Squad flow |
@@ -73,82 +73,12 @@ Parse user input and route to the appropriate action:
 
 ## Create Squad — Phased Orchestration
 
-When the user runs `/opensquad create`:
+When the user runs `/opensquad create <description>` (or picks "Create a new squad" from the menu):
 
-### Phase 1: Discovery
-
-1. Check resume: does `squads/{name}/_build/discovery.yaml` already exist?
-   - If yes: read it, show summary, ask user to continue or redo
-   - If no: proceed with discovery
-
-2. **Collision guard:** List all existing subdirectories in `squads/` and pass the list of existing squad names to the Discovery subagent. This is mandatory — never skip this step.
-
-3. Dispatch Discovery subagent:
-   - Read `_opensquad/core/prompts/discovery.prompt.md`
-   - Also provide: `_opensquad/_memory/company.md`, `_opensquad/_memory/preferences.md`
-   - **Provide the list of existing squad folder names** so the agent can avoid collisions
-   - Follow the discovery prompt instructions (intelligent wizard, one question at a time)
-   - Output: `squads/{code}/_build/discovery.yaml`
-
-3. Validate: `discovery.yaml` exists and has required fields (purpose, domain, performance_mode)
-
-### Phase 2: Investigation (optional)
-
-Read `discovery.yaml` to check `investigation.mode`:
-
-**If `mode: sherlock`:**
-For each target in `investigation.targets`:
-   1. Detect platform from URL
-   2. Dispatch Sherlock subagent with:
-      - `_opensquad/core/prompts/sherlock-shared.md`
-      - `_opensquad/core/prompts/sherlock-{platform}.md` (platform-specific extractor)
-      - URL, investigation_mode, output directory, squad name
-   3. Use fast model tier for Sherlock subagents
-   4. Subagents can run in parallel (one per URL)
-   5. Wait for all to complete
-   6. Validate per target: `raw-content.md` OR `error.md` exists
-   7. If any target has `error.md`: inform user, ask to retry or skip
-
-**If `mode: manual`:**
-   1. Ask user to paste reference content
-   2. Save to `squads/{code}/_investigations/manual/raw-content.md`
-
-**If `mode: none`:** Skip to Phase 3
-
-### Phase 3: Design
-
-1. Check resume: does `squads/{code}/_build/design.yaml` already exist?
-   - If yes: read it, show summary, ask user to continue or redo
-
-2. Dispatch Design subagent:
-   - Read `_opensquad/core/prompts/design.prompt.md`
-   - Provide: path to discovery.yaml, paths to investigation results (if any)
-   - The Design phase handles: best-practices consultation, web research, extraction, skill discovery, design presentation, template selection (optional — triggered when the squad includes an image skill)
-   - Output: `squads/{code}/_build/design.yaml`
-
-3. Validate: `design.yaml` exists and has agents and pipeline defined
-
-### Phase 4: Build
-
-1. Dispatch Build subagent:
-   - Read `_opensquad/core/prompts/build.prompt.md`
-   - Provide: path to design.yaml, path to discovery.yaml
-   - The Build phase generates all files and runs validation gates
-   - Output: `squads/{code}/squad.yaml` + all agent and pipeline files
-
-2. Final validation:
-   - `squad.yaml` exists
-   - All agent files referenced in squad-party.csv exist
-   - All pipeline step files exist
-
-3. Present completion summary to user
-
-### Resume Support
-
-If `/opensquad create` is called and `_build/` artifacts exist from a previous session:
-- Discovery complete + Design missing → resume from Phase 3
-- Discovery + Design complete → resume from Phase 4
-- Show what was completed and ask user to continue or start over
+1. Read `_opensquad/core/create.orchestration.md` completely — it is the single source of truth for squad creation
+2. Follow its four phases in order: Discovery → Investigation (optional) → Design → Build
+3. Each phase reads its own prompt from `_opensquad/core/prompts/` — never improvise a squad design without going through the phases
+4. Honor the resume rules in that file when `squads/{code}/_build/` artifacts already exist from a previous session
 
 ## Help Text
 
@@ -233,6 +163,20 @@ When the user selects "Skills" from the menu or types `/opensquad skills`:
 - All user-facing output should be in the user's preferred language
 - Internal file names and code remain in English
 - Agent personas communicate in the user's language
+
+## Checkpoint Handling (Claude Code)
+
+This overrides the shared `runner.pipeline.md` checkpoint behavior for Claude Code. Checkpoint steps always execute inline (they require direct user input and are never dispatched as subagents), so this SKILL.md context is always present when a checkpoint runs.
+
+**Rule: ALL checkpoint questions MUST use `AskUserQuestion`.** Never output a question as plain text.
+
+When a checkpoint has multiple user questions, combine them into a single `AskUserQuestion` call (the tool supports up to 4 question slots per call; each slot must still have 2–4 options, per Critical Rules below).
+
+**Free-text questions** (questions with no predefined option list):
+- Extract 2–3 concrete examples from the question's description or bullet list as options
+- The tool always provides an "Other" option for custom text input — no need to add it manually
+
+**Choice questions** (questions with a numbered list of options): use `AskUserQuestion` as usual.
 
 ## Critical Rules
 

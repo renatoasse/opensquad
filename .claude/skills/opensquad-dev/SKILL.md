@@ -18,8 +18,10 @@ Understand this before checking anything:
   distribution mechanism — if a file isn't in templates, users don't get it on init.
 
 - **`templates/ide-templates/`** → IDE-specific files. Copied selectively based on user's
-  IDE selection during init. Each subfolder (`claude-code/`, `opencode/`, `codex/`,
-  `antigravity/`) maps to one IDE choice.
+  IDE selection during init. Each subfolder (`claude-code/`, `cursor/`, `vscode-copilot/`,
+  `codex/`, `opencode/`, `antigravity/`, `gemini-cli/`, `qwen-code/`, `trae/`) maps to one
+  IDE choice. Every entry point routes `/opensquad create` to the shared
+  `_opensquad/core/create.orchestration.md` — the create flow is never duplicated per IDE.
 
 - **`agents/`** (project root) → Predefined agent catalog, distributed via npm
   (`package.json files[]`). Auto-installed during `npx opensquad init` and new agents
@@ -32,19 +34,22 @@ Understand this before checking anything:
   MCP skills (type: mcp/hybrid or with env vars) are offered interactively
   during init. Users can also install manually via `npx opensquad skills install`.
 
-- **`_opensquad/core/*`** → Framework core files. MUST have a mirror copy in
-  `templates/_opensquad/core/*`. Any change to a core file that isn't synced to templates
-  means `npx opensquad init` delivers STALE content to new users.
+- **`_opensquad/core/*`**, **`_opensquad/config/*`**, **`dashboard/*`** → Canonical sources.
+  `src/init.js:CANONICAL_SOURCES` copies them straight from the package root on init and
+  `src/update.js` overwrites them on update (with `.bak` backups). There is NO mirror under
+  `templates/` anymore — never create one, it would drift.
 
-- **`skills/*`** → Bundled skills catalog. Two distribution sub-types:
-  - **Multi-file skills** (have scripts/assets/agents dirs alongside SKILL.md, e.g. `opensquad-skill-creator`):
-    also have a mirror in `templates/skills/*` so the full directory structure is copied during init.
-    Check B verifies this sync.
-  - **Single-file skills** (only `SKILL.md`, no subdirs, e.g. `opensquad-agent-creator`):
-    distributed via `installSkill()` — no template copy needed. Check B does NOT apply to these.
+- **`.claude/skills/opensquad/SKILL.md`** (repo root) → The repo's own Claude Code install.
+  It MUST be byte-identical to `templates/ide-templates/claude-code/.claude/skills/opensquad/SKILL.md`;
+  `tests/templates-sync.test.js` enforces this. Edit one, copy to the other.
+
+- **`skills/*`** → Bundled skills catalog, distributed whole (SKILL.md plus any
+  `scripts/`, `references/`, `agents/` subfolders) by `installSkill()`. No template copy.
+  Every bundled skill must appear in `skills/README.md` and every variable in its `env:`
+  frontmatter must appear in `.env.example`.
 
 - **`package.json files[]`** → Controls what enters the npm package.
-  Currently: `bin/`, `src/`, `agents/`, `skills/`, `templates/`.
+  Currently: `bin/`, `src/`, `agents/`, `skills/`, `templates/`, `_opensquad/`, `dashboard/`.
 
 - **`src/update.js:PROTECTED_PATHS`** → Directories NEVER overwritten during update:
   `_opensquad/_memory`, `_opensquad/_investigations`, `agents`, `squads`.
@@ -65,12 +70,17 @@ opensquad supports multiple IDEs. When a user runs `npx opensquad init`, they ch
 
 ### Supported IDEs and Their Template Folders
 
-| IDE | Template Folder | Example Files |
-|-----|----------------|---------------|
-| Claude Code | `templates/ide-templates/claude-code/` | `SKILL.md`, `CLAUDE.md`, `.mcp.json` |
-| Antigravity | `templates/ide-templates/antigravity/` | `.agent/rules/opensquad.md`, `.agent/workflows/opensquad.md` |
-| OpenCode | `templates/ide-templates/opencode/` | `AGENTS.md`, `.opencode/commands/opensquad.md` |
-| Codex | `templates/ide-templates/codex/` | `AGENTS.md` |
+| IDE | Template Folder | Entry point for `/opensquad` |
+|-----|----------------|------------------------------|
+| Claude Code | `templates/ide-templates/claude-code/` | `.claude/skills/opensquad/SKILL.md` (+ `CLAUDE.md`, `.mcp.json`) |
+| Cursor | `templates/ide-templates/cursor/` | `.cursor/commands/opensquad.md` (+ `.cursor/rules/opensquad.mdc`) |
+| VS Code + Copilot | `templates/ide-templates/vscode-copilot/` | `.github/prompts/opensquad.prompt.md` |
+| Codex | `templates/ide-templates/codex/` | `AGENTS.md` (+ `.agents/skills/opensquad/SKILL.md` pointer) |
+| OpenCode | `templates/ide-templates/opencode/` | `AGENTS.md` (+ `.opencode/commands/opensquad.md` pointer) |
+| Antigravity | `templates/ide-templates/antigravity/` | `.agent/workflows/opensquad.md` (+ `.agent/rules/opensquad.md`) |
+| Gemini CLI | `templates/ide-templates/gemini-cli/` | `.gemini/skills/opensquad/SKILL.md` (+ `GEMINI.md`) |
+| Qwen Code | `templates/ide-templates/qwen-code/` | `.qwen/skills/opensquad/SKILL.md` (+ `QWEN.md`) |
+| Trae | `templates/ide-templates/trae/` | `.trae/rules/opensquad.md` |
 
 ### The Golden Rule
 
@@ -108,37 +118,25 @@ Collect all changed file paths into a list.
 For each changed file, apply the matching verification rules below.
 Only run checks that are relevant to the actual changes detected.
 
-#### Check A: Core file sync (`_opensquad/core/**` changed)
+#### Check A: Entry point sync (`.claude/skills/opensquad/SKILL.md`, `CLAUDE.md`, `_opensquad/core/create.orchestration.md` or `templates/ide-templates/**` changed)
 
-For EACH changed file matching `_opensquad/core/**`:
+1. Run `npm test -- tests/templates-sync.test.js` (or the whole suite). It verifies:
+   - `.claude/skills/opensquad/SKILL.md` == `templates/ide-templates/claude-code/.claude/skills/opensquad/SKILL.md`
+   - `CLAUDE.md` == `templates/ide-templates/claude-code/CLAUDE.md`
+   - Every IDE entry point (table above) references `_opensquad/core/create.orchestration.md`
+   - `npx opensquad init` delivers `_opensquad/core/create.orchestration.md`
+2. If the Qwen template was touched: it must equal the Claude Code template except for the
+   "Checkpoint Handling (Qwen Code)" heading and sentence.
+3. If a `_opensquad/core/**` file changed: nothing to mirror — confirm the directory is still in
+   `src/init.js:CANONICAL_SOURCES`.
 
-1. Compute the expected template path: `templates/{same relative path}`
-   Example: `_opensquad/core/runner.pipeline.md` → `templates/_opensquad/core/runner.pipeline.md`
+#### Check B: Skill catalog and env (`skills/**` changed)
 
-2. Run diff:
-   ```bash
-   diff "_opensquad/core/{file}" "templates/_opensquad/core/{file}"
-   ```
-
-3. If diff shows differences:
-   - **FAIL**: Report the file and show the diff summary
-   - **Fix**: `cp _opensquad/core/{file} templates/_opensquad/core/{file}`
-
-4. If template file doesn't exist:
-   - **FAIL**: "Template missing for `_opensquad/core/{file}`"
-   - **Fix**: `mkdir -p templates/_opensquad/core/{dir} && cp _opensquad/core/{file} templates/_opensquad/core/{file}`
-
-#### Check B: Skills sync (`skills/**` changed)
-
-Only applies to **multi-file skills** — skills that have subdirectories (scripts/, assets/, agents/, etc.)
-alongside their `SKILL.md`. These require a template mirror so the full directory is copied during init.
-
-Single-file skills (only `SKILL.md`, no subdirs) are distributed via `installSkill()` and do NOT need
-a `templates/skills/` counterpart. Do not flag them as missing.
-
-For each changed **multi-file** skill:
-- Source: `skills/{skill}/SKILL.md`
-- Template: `templates/skills/{skill}/SKILL.md`
+For each changed skill:
+1. `skills/README.md` catalog table lists it with the right `type` and env vars
+2. Every variable in its `env:` frontmatter appears in `.env.example`
+3. If it has subfolders (`scripts/`, `references/`, `agents/`), `installSkill()` copies them — no
+   `templates/` mirror exists or is needed
 
 #### Check C: Agents directory (`agents/**` changed)
 
@@ -168,7 +166,7 @@ For each changed **multi-file** skill:
 #### Check F: Package manifest (`package.json` changed)
 
 1. Read `package.json`, parse `files` array
-2. Verify these directories are present: `bin/`, `src/`, `agents/`, `skills/`, `templates/`
+2. Verify these directories are present: `bin/`, `src/`, `agents/`, `skills/`, `templates/`, `_opensquad/`, `dashboard/`
 3. If any distributable directory exists at project root but is NOT in `files[]`: **FAIL**
 
 #### Check G: New top-level directory (any new directory at root)
@@ -211,10 +209,10 @@ Scan shared files for IDE-specific conditional logic that should live in `templa
 **Contamination keywords** (IDE names used as conditional subjects):
 - `antigravity` or `.antigravity`
 - `cursorrules` or `.cursor/`
-- `windsurf` or `windsurfrules`
 - `opencode` or `open-code`
 - `codex`
-- Conditional patterns: "se antigravity", "if antigravity", "for antigravity", "if cursor", "if windsurf", "if codex"
+- `gemini`, `qwen`, `trae`, `copilot`
+- Conditional patterns: "se antigravity", "if antigravity", "for antigravity", "if cursor", "if codex", "if gemini", "if trae"
 
 **Exclusions:** Mentions inside this opensquad-dev SKILL.md itself (documentation), and any comment explicitly labeled as a cross-reference.
 
@@ -235,7 +233,7 @@ Checks run: {N}
 
 ✅ Check A: Core file sync — {N}/{N} files in sync
 ❌ Check B: Skills sync — {file} out of sync
-   Fix: cp skills/{x}/SKILL.md templates/skills/{x}/SKILL.md
+   Fix: add {x} to skills/README.md and its env vars to .env.example
 ✅ Check F: Package manifest — all directories present
 ✅ Check J: IDE contamination — no IDE-specific logic in shared files
 

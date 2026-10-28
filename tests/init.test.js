@@ -1,9 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, rm, stat, readFile, readdir, writeFile, mkdir } from 'node:fs/promises';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { init } from '../src/init.js';
+import { fileURLToPath } from 'node:url';
+
+const PACKAGE_DASHBOARD = join(dirname(fileURLToPath(import.meta.url)), '..', 'dashboard');
 
 test('init creates _opensquad directory structure', async () => {
   const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
@@ -510,21 +513,35 @@ test('init with cursor IDE creates .cursorignore with browser profile exclusion'
   }
 });
 
-test('init does not copy dashboard node_modules or dist to user project', async () => {
+test('init does not copy dashboard node_modules, dist or test-results to user project', async () => {
   const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
+  // Local artifacts that may exist in a dev checkout must never reach the user's project
+  const localArtifacts = ['node_modules', 'dist', 'test-results'];
+  const created = [];
 
   try {
+    for (const name of localArtifacts) {
+      const dir = join(PACKAGE_DASHBOARD, name);
+      try {
+        await stat(dir);
+      } catch {
+        await mkdir(dir, { recursive: true });
+        await writeFile(join(dir, '.probe'), '');
+        created.push(dir);
+      }
+    }
+
     await init(tempDir, { _skipPrompts: true });
 
-    await assert.rejects(
-      stat(join(tempDir, 'dashboard', 'node_modules')),
-      { code: 'ENOENT' }
-    );
-    await assert.rejects(
-      stat(join(tempDir, 'dashboard', 'dist')),
-      { code: 'ENOENT' }
-    );
+    for (const name of localArtifacts) {
+      await assert.rejects(
+        stat(join(tempDir, 'dashboard', name)),
+        { code: 'ENOENT' },
+        `dashboard/${name} must not be copied to the user project`
+      );
+    }
   } finally {
+    for (const dir of created) await rm(dir, { recursive: true, force: true });
     await rm(tempDir, { recursive: true, force: true });
   }
 });

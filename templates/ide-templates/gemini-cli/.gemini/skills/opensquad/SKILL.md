@@ -61,7 +61,7 @@ Parse user input and route to the appropriate action:
 |---------------|--------|
 | `/opensquad` or `/opensquad menu` | Show main menu |
 | `/opensquad help` | Show help text |
-| `/opensquad create <description>` | Load Architect → Create Squad flow (will ask for reference profile URLs for Sherlock investigation) |
+| `/opensquad create <description>` | Run Create Squad — Phased Orchestration (see below) |
 | `/opensquad list` | List all squads in `squads/` directory |
 | `/opensquad run <name>` | Load Pipeline Runner → Execute squad |
 | `/opensquad edit <name> <changes>` | Load Architect → Edit Squad flow |
@@ -74,6 +74,15 @@ Parse user input and route to the appropriate action:
 | `/opensquad settings` | Show/edit preferences.md |
 | `/opensquad reset` | Confirm and reset all configuration |
 | Natural language about squads | Infer intent and route accordingly |
+
+## Create Squad — Phased Orchestration
+
+When the user runs `/opensquad create <description>` (or picks "Create a new squad" from the menu):
+
+1. Read `_opensquad/core/create.orchestration.md` completely — it is the single source of truth for squad creation
+2. Follow its four phases in order: Discovery → Investigation (optional) → Design → Build
+3. Each phase reads its own prompt from `_opensquad/core/prompts/` — never improvise a squad design without going through the phases
+4. Honor the resume rules in that file when `squads/{code}/_build/` artifacts already exist from a previous session
 
 ## Help Text
 

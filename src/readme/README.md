@@ -41,21 +41,17 @@ O squad executa automaticamente, pausando apenas nos checkpoints de decisão.
 
 ## Escritório Virtual
 
-O Escritório Virtual é uma interface visual 2D que mostra seus agentes trabalhando em tempo real.
+O Escritório Virtual é uma interface visual 2D que mostra seus agentes trabalhando em tempo real. Ele já está instalado na pasta `dashboard/` deste projeto.
 
-**Passo 1 — Gere o dashboard** (no seu IDE):
-
-```
-/opensquad dashboard
-```
-
-**Passo 2 — Sirva localmente** (no terminal):
+**Passo 1 — Inicie o dashboard** (no terminal, a partir da raiz do projeto):
 
 ```bash
-npx serve squads/<nome-do-squad>/dashboard
+cd dashboard && npm run dev
 ```
 
-**Passo 3 —** Abra `http://localhost:3000` no seu navegador.
+**Passo 2 —** Abra no navegador a URL que o Vite mostrar (normalmente `http://localhost:5173`).
+
+**Passo 3 —** Rode um squad no seu IDE. O dashboard observa `squads/*/state.json` e atualiza sozinho enquanto o pipeline executa.
 
 ---
 
@@ -102,18 +98,14 @@ The squad runs automatically, pausing only at decision checkpoints.
 
 ## Virtual Office
 
-The Virtual Office is a 2D visual interface that shows your agents working in real time.
+The Virtual Office is a 2D visual interface that shows your agents working in real time. It is already installed in this project's `dashboard/` folder.
 
-**Step 1 — Generate the dashboard** (in your IDE):
-
-```
-/opensquad dashboard
-```
-
-**Step 2 — Serve it locally** (in terminal):
+**Step 1 — Start the dashboard** (in your terminal, from the project root):
 
 ```bash
-npx serve squads/<squad-name>/dashboard
+cd dashboard && npm run dev
 ```
 
-**Step 3 —** Open `http://localhost:3000` in your browser.
+**Step 2 —** Open the URL Vite prints (usually `http://localhost:5173`) in your browser.
+
+**Step 3 —** Run a squad in your IDE. The dashboard watches `squads/*/state.json` and updates on its own while the pipeline runs.

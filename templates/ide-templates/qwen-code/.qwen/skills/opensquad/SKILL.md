@@ -57,7 +57,7 @@ Parse user input and route to the appropriate action:
 |---------------|--------|
 | `/opensquad` or `/opensquad menu` | Show main menu |
 | `/opensquad help` | Show help text |
-| `/opensquad create <description>` | Load Architect → Create Squad flow (will ask for reference profile URLs for Sherlock investigation) |
+| `/opensquad create <description>` | Run Create Squad — Phased Orchestration (see below) |
 | `/opensquad list` | List all squads in `squads/` directory |
 | `/opensquad run <name>` | Load Pipeline Runner → Execute squad |
 | `/opensquad edit <name> <changes>` | Load Architect → Edit Squad flow |
@@ -70,6 +70,15 @@ Parse user input and route to the appropriate action:
 | `/opensquad settings` | Show/edit preferences.md |
 | `/opensquad reset` | Confirm and reset all configuration |
 | Natural language about squads | Infer intent and route accordingly |
+
+## Create Squad — Phased Orchestration
+
+When the user runs `/opensquad create <description>` (or picks "Create a new squad" from the menu):
+
+1. Read `_opensquad/core/create.orchestration.md` completely — it is the single source of truth for squad creation
+2. Follow its four phases in order: Discovery → Investigation (optional) → Design → Build
+3. Each phase reads its own prompt from `_opensquad/core/prompts/` — never improvise a squad design without going through the phases
+4. Honor the resume rules in that file when `squads/{code}/_build/` artifacts already exist from a previous session
 
 ## Help Text
 
@@ -106,7 +115,6 @@ SETTINGS
 
 EXAMPLES
   /opensquad create "Instagram carousel content production squad"
-    (provide reference profile URLs when asked for Sherlock investigation)
   /opensquad create "Weekly data analysis squad for Google Sheets"
   /opensquad create "Customer email response automation squad"
   /opensquad run my-squad
@@ -115,14 +123,14 @@ EXAMPLES
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
-## Loading Agents
+## Loading Agents (for Squad Execution)
 
-When a specific agent needs to be activated (Architect, or any squad agent):
+When a specific squad agent needs to be activated during pipeline execution:
 
 1. Read the agent's `.agent.md` file completely (YAML frontmatter for metadata + markdown body for depth)
 2. Adopt the agent's persona (role, identity, communication_style, principles)
-3. Follow the agent's menu/workflow instructions
-4. When the agent's task is complete, return to Opensquad main context
+3. Follow the agent's workflow instructions
+4. When the agent's task is complete, return to pipeline context
 
 ## Loading the Pipeline Runner
 

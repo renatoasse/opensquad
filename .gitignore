@@ -1,15 +1,20 @@
+# Dependencies and secrets
 node_modules/
 .env
 *.log
-squads/*/
+
+# User-owned runtime data (never commit)
 _opensquad/_memory/company.md
 _opensquad/_memory/preferences.md
 _opensquad/_browser_profile/
-docs/
-.superpowers/
+_opensquad/logs/
+
+# Squads are user data. The repo keeps only the folder placeholder.
+squads/*/
+
+# Local artifacts and scratch space
 temp/
-tests/
 test-results/
-temp/squads/
+dashboard/test-results/
+.superpowers/
 .claude/settings.local.json
-dashboards/test-results/

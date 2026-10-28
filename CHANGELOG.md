@@ -6,6 +6,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Added
+- `_opensquad/core/create.orchestration.md` — single canonical source for the phased `/opensquad create` flow, copied to every project by init/update
+- Test guarding that the Claude Code template stays in sync with the repo's own `.claude/skills/opensquad/SKILL.md` and that every IDE entry point routes `create` to the canonical file
+- `docs/README.md` describing the specs/plans convention
+
+### Changed
+- All nine IDE templates now route `/opensquad create` to the phased orchestration (they were still loading the pre-0.1.13 Architect flow)
+- Cursor command file is now self-contained; Trae rules now carry the full system instructions
+- README: Virtual Office section rewritten to match the real `dashboard/` Vite app; command tables now list every IDE and terminal command
+- CONTRIBUTING: development setup matches CI (`npm test` + `npm run lint`)
+- Skill catalog lists all bundled skills, including `prompt` type; `.env.example` lists every variable declared by bundled skills
+- `docs/superpowers/*` merged into `docs/specs` and `docs/plans`
+- `.gitignore` no longer ignores tracked source folders (`docs/`, `tests/`); test fixtures and artifacts untracked
+
+### Fixed
+- Create flow validation required a `performance_mode` field that discovery no longer produces
+- Create flow referenced an `investigation.mode` field that does not exist in discovery.yaml (`investigation.enabled` + `profiles` is the real schema)
+- Hardcoded model name in skill-creator benchmark schema example
+- Compare links for 0.1.14 and 0.1.15
+
 ## [0.1.15] - 2026-04-10
 
 ### Added
@@ -190,7 +210,9 @@ _Tag-only release._
 - SquadOS skill entry point and CLAUDE.md instructions
 - 30 template files with full test coverage
 
-[Unreleased]: https://github.com/renatoasse/opensquad/compare/v0.1.13...HEAD
+[Unreleased]: https://github.com/renatoasse/opensquad/compare/v0.1.15...HEAD
+[0.1.15]: https://github.com/renatoasse/opensquad/compare/v0.1.14...v0.1.15
+[0.1.14]: https://github.com/renatoasse/opensquad/compare/v0.1.13...v0.1.14
 [0.1.13]: https://github.com/renatoasse/opensquad/compare/v0.1.12...v0.1.13
 [0.1.12]: https://github.com/renatoasse/opensquad/compare/v0.1.11...v0.1.12
 [0.1.11]: https://github.com/renatoasse/opensquad/compare/v0.1.10...v0.1.11

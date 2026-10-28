@@ -72,21 +72,17 @@ npx opensquad update
 
 ## Escritório Virtual
 
-O Escritório Virtual é uma interface visual 2D que mostra seus agentes trabalhando em tempo real.
+O Escritório Virtual é uma interface visual 2D que mostra seus agentes trabalhando em tempo real. Ele é instalado na pasta `dashboard/` do seu projeto pelo `npx opensquad init` (as dependências já são instaladas nesse momento).
 
-**Passo 1 — Gere o dashboard** (na sua IDE):
-
-```
-/opensquad dashboard
-```
-
-**Passo 2 — Sirva localmente** (no terminal):
+**Passo 1 — Inicie o dashboard** (no terminal, a partir da raiz do projeto):
 
 ```bash
-npx serve squads/<nome-do-squad>/dashboard
+cd dashboard && npm run dev
 ```
 
-**Passo 3 —** Abra `http://localhost:3000` no seu navegador.
+**Passo 2 —** Abra no navegador a URL que o Vite mostrar (normalmente `http://localhost:5173`).
+
+**Passo 3 —** Rode um squad na sua IDE. O dashboard observa `squads/*/state.json` e atualiza sozinho enquanto o pipeline executa.
 
 ## Criando seu Squad
 
@@ -132,9 +128,29 @@ O squad executa automaticamente, pausando nos checkpoints onde o agente pede sua
 | `/opensquad run <nome>` | Executa um squad |
 | `/opensquad list` | Lista seus squads |
 | `/opensquad edit <nome>` | Modifica um squad |
+| `/opensquad delete <nome>` | Apaga um squad (pede confirmação) |
 | `/opensquad skills` | Navega pelas skills instaladas |
 | `/opensquad install <nome>` | Instala uma skill do catálogo |
 | `/opensquad uninstall <nome>` | Remove uma skill instalada |
+| `/opensquad edit-company` | Refaz o perfil da empresa |
+| `/opensquad show-company` | Mostra o perfil da empresa atual |
+| `/opensquad settings` | Altera idioma e preferências |
+| `/opensquad reset` | Reseta toda a configuração (pede confirmação) |
+
+### Comandos de terminal
+
+Além dos comandos dentro da IDE, o pacote npm oferece estes comandos no terminal:
+
+| Comando | O que faz |
+|---------|-----------|
+| `npx opensquad init` | Instala o Opensquad no projeto atual |
+| `npx opensquad update` | Atualiza o core do Opensquad (cria backups `.bak` antes de sobrescrever) |
+| `npx opensquad update <skill>` | Atualiza uma skill específica |
+| `npx opensquad install <skill>` | Instala uma skill do catálogo |
+| `npx opensquad uninstall <skill>` | Remove uma skill instalada |
+| `npx opensquad skills` | Lista as skills instaladas |
+| `npx opensquad agents` | Lista os agentes predefinidos instalados (`agents install <nome>`, `agents remove <nome>`, `agents update`) |
+| `npx opensquad runs [squad]` | Mostra o histórico de execuções |
 
 ## Custo de Tokens
 
@@ -224,21 +240,17 @@ npx opensquad update
 
 ## Virtual Office
 
-The Virtual Office is a 2D visual interface that shows your agents working in real time.
+The Virtual Office is a 2D visual interface that shows your agents working in real time. It is installed in your project's `dashboard/` folder by `npx opensquad init` (dependencies are installed at that point).
 
-**Step 1 — Generate the dashboard** (in your IDE):
-
-```
-/opensquad dashboard
-```
-
-**Step 2 — Serve it locally** (in terminal):
+**Step 1 — Start the dashboard** (in your terminal, from the project root):
 
 ```bash
-npx serve squads/<squad-name>/dashboard
+cd dashboard && npm run dev
 ```
 
-**Step 3 —** Open `http://localhost:3000` in your browser.
+**Step 2 —** Open the URL Vite prints (usually `http://localhost:5173`) in your browser.
+
+**Step 3 —** Run a squad in your IDE. The dashboard watches `squads/*/state.json` and updates on its own while the pipeline runs.
 
 ## Creating your Squad
 
@@ -277,9 +289,29 @@ The squad runs automatically, pausing at checkpoints where the agent asks for yo
 | `/opensquad run <name>` | Run a squad |
 | `/opensquad list` | See all your squads |
 | `/opensquad edit <name>` | Modify a squad |
+| `/opensquad delete <name>` | Delete a squad (asks for confirmation) |
 | `/opensquad skills` | Browse installed skills |
 | `/opensquad install <name>` | Install a skill from catalog |
 | `/opensquad uninstall <name>` | Remove an installed skill |
+| `/opensquad edit-company` | Redo the company profile |
+| `/opensquad show-company` | Show the current company profile |
+| `/opensquad settings` | Change language and preferences |
+| `/opensquad reset` | Reset all configuration (asks for confirmation) |
+
+### Terminal commands
+
+Besides the in-IDE commands, the npm package provides these terminal commands:
+
+| Command | What it does |
+|---------|-------------|
+| `npx opensquad init` | Install Opensquad in the current project |
+| `npx opensquad update` | Update the Opensquad core (creates `.bak` backups before overwriting) |
+| `npx opensquad update <skill>` | Update a specific skill |
+| `npx opensquad install <skill>` | Install a skill from the catalog |
+| `npx opensquad uninstall <skill>` | Remove an installed skill |
+| `npx opensquad skills` | List installed skills |
+| `npx opensquad agents` | List installed predefined agents (`agents install <name>`, `agents remove <name>`, `agents update`) |
+| `npx opensquad runs [squad]` | Show execution history |
 
 ## Token Cost
 
